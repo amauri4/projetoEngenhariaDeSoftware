@@ -5,7 +5,7 @@ from models.RegistroDiario import RegistroDiario
 from database import session
 from models.Usuario import Usuario
 from datetime import datetime
-from repositories.UserRepositories import UserRepository
+from repositories.UsuarioRepositories import UserRepository
 
 # Usado para criar tabela no bd (*ALTERAR FUTURAMENTE, POIS NÃO INCLUI MUDANÇAS NAS ESTRUTURA DAS TABELAS -> usar alembic*)
 def init_db():
@@ -61,11 +61,11 @@ def test_repo():
     db: session = next(session.get_db())
     usuario_existente = db.query(Usuario).filter(Usuario.email == "joao@email.com").first()
     get_user = UserRepository()
-    search_by_email = get_user.find_by_email('joao@email.com')
+    search_by_email = get_user.buscar_por_email('joao@email.com')
     assert search_by_email.email == usuario_existente.email
     user = Usuario(email="novo@email.com", nome="Novo Usuário", senha_hash='1234')
 
-    saved_user = get_user.save(user)
+    saved_user = get_user.salvar(user)
 
     assert saved_user.email == "novo@email.com"
     assert saved_user.nome == "Novo Usuário"

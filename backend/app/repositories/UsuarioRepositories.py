@@ -1,14 +1,15 @@
+from sqlalchemy.orm import Session
 from models.Usuario import Usuario
 from database.session import get_db  
 
 class UserRepository:
-    def __init__(self):
-        self.db = next(get_db())  
+    def __init__(self, db: Session):
+        self.db = db
 
-    def find_by_email(self, email):
+    def buscar_por_email(self, email):
         return self.db.query(Usuario).filter_by(email=email).first()
 
-    def save(self, user):
+    def salvar(self, user):
         self.db.add(user)
         self.db.commit()
         return user

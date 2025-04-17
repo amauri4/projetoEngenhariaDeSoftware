@@ -87,7 +87,7 @@ frontend/
 ### Pré-requisitos
 
 - Node.js >=18
-- Python >=3.10
+- Python >=3.9.18
 - PostgreSQL
 
 ### 🔧 Instalação
