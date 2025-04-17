@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from models.HabitoBase import HabitoBase  
 from models.Usuario import Usuario
 from models.RegistroDiario import RegistroDiario
@@ -11,57 +12,81 @@ class HabitoRepository:
         self.db = db
 
     def buscar_por_email(self, email: str):
-        return (
-            self.db.query(HabitoBase)
-            .join(HabitoBase.usuario)
-            .filter(Usuario.email == email)
-            .all()
-        )
+        try:
+            return (
+                self.db.query(HabitoBase)
+                .join(HabitoBase.usuario)
+                .filter(Usuario.email == email)
+                .all()
+            )
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar hábitos por e-mail: {str(e)}")
 
     def buscar_por_categoria(self, categoria_nome: str):
-        return (
-            self.db.query(HabitoBase)
-            .join(HabitoBase.categoria)
-            .filter(CategoriaHabito.nome == categoria_nome)
-            .all()
-        )
+        try:
+            return (
+                self.db.query(HabitoBase)
+                .join(HabitoBase.categoria)
+                .filter(CategoriaHabito.nome == categoria_nome)
+                .all()
+            )
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar hábitos por categoria: {str(e)}")
 
     def buscar_por_data(self, data_alvo: date):
-        return (
-            self.db.query(HabitoBase)
-            .join(HabitoBase.registros)
-            .filter(RegistroDiario.data == data_alvo)
-            .all()
-        )
+        try:
+            return (
+                self.db.query(HabitoBase)
+                .join(HabitoBase.registros)
+                .filter(RegistroDiario.data == data_alvo)
+                .all()
+            )
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar hábitos por data: {str(e)}")
 
     def buscar_por_email_e_data(self, email: str, data_alvo: date):
-        return (
-            self.db.query(HabitoBase)
-            .join(HabitoBase.usuario)
-            .join(HabitoBase.registros)
-            .filter(Usuario.email == email, RegistroDiario.data == data_alvo)
-            .all()
-        )
+        try:
+            return (
+                self.db.query(HabitoBase)
+                .join(HabitoBase.usuario)
+                .join(HabitoBase.registros)
+                .filter(Usuario.email == email, RegistroDiario.data == data_alvo)
+                .all()
+            )
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar hábitos por email e data: {str(e)}")
 
     def buscar_por_email_e_categoria(self, email: str, categoria_nome: str):
-        return (
-            self.db.query(HabitoBase)
-            .join(HabitoBase.usuario)
-            .join(HabitoBase.categoria)
-            .filter(Usuario.email == email, CategoriaHabito.nome == categoria_nome)
-            .all()
-        )
+        try:
+            return (
+                self.db.query(HabitoBase)
+                .join(HabitoBase.usuario)
+                .join(HabitoBase.categoria)
+                .filter(Usuario.email == email, CategoriaHabito.nome == categoria_nome)
+                .all()
+            )
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar hábitos por email e categoria: {str(e)}")
 
     def buscar_completo(self, email: str, categoria_nome: str, data_alvo: date):
-        return (
-            self.db.query(HabitoBase)
-            .join(HabitoBase.usuario)
-            .join(HabitoBase.categoria)
-            .join(HabitoBase.registros)
-            .filter(
-                Usuario.email == email,
-                CategoriaHabito.nome == categoria_nome,
-                RegistroDiario.data == data_alvo
+        try:
+            return (
+                self.db.query(HabitoBase)
+                .join(HabitoBase.usuario)
+                .join(HabitoBase.categoria)
+                .join(HabitoBase.registros)
+                .filter(
+                    Usuario.email == email,
+                    CategoriaHabito.nome == categoria_nome,
+                    RegistroDiario.data == data_alvo
+                )
+                .all()
             )
-            .all()
-        )
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar hábitos com todos os filtros: {str(e)}")
