@@ -1,6 +1,7 @@
 appnope==0.1.4
 asttokens==3.0.0
 backcall==0.2.0
+bcrypt==4.3.0
 colorama==0.4.6
 comm==0.2.2
 contourpy==1.1.1
