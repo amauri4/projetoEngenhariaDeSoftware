@@ -1,12 +1,12 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database.base import Base  
-from models.HabitoBase import HabitoBase
-from models.HabitoUsuario import HabitoUsuario
-from models.Usuario import Usuario
-from models.CategoriasHabito import CategoriaHabito
-from models.RegistroDiario import RegistroDiario
+from app.database.base import Base  
+from app.models.HabitoBase import HabitoBase
+from app.models.HabitoUsuario import HabitoUsuario
+from app.models.Usuario import Usuario
+from app.models.CategoriasHabito import CategoriaHabito
+from app.models.RegistroDiario import RegistroDiario
 
 # Cria engine com SQLite em memória
 @pytest.fixture(scope="function")

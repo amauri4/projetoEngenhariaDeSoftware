@@ -1,7 +1,7 @@
 import pytest
-from services.UsuarioService import UserService
-from models.Usuario import Usuario
-from utils.gerar_verificar_hash import gerar_hash_senha
+from app.services.UsuarioService import UserService
+from app.models.Usuario import Usuario
+from app.utils.gerar_verificar_hash import gerar_hash_senha
 
 @pytest.fixture
 def user_service(db_session):

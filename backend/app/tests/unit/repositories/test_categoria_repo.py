@@ -1,6 +1,6 @@
 import pytest
-from repositories.CategoriaRepository import CategoriaRepository
-from models.CategoriasHabito import CategoriaHabito
+from app.repositories.CategoriaRepository import CategoriaRepository
+from app.models.CategoriasHabito import CategoriaHabito
 from sqlalchemy.orm import Session
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Date, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from database.base import Base
+from app.database.base import Base
 
 class RegistroDiario(Base):
     __tablename__ = 'registros_diarios'

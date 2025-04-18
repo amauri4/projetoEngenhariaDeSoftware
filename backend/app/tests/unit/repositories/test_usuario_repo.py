@@ -1,6 +1,6 @@
 import pytest
-from repositories.CategoriaRepository import CategoriaRepository
-from models.CategoriasHabito import CategoriaHabito
+from app.repositories.CategoriaRepository import CategoriaRepository
+from app.models.CategoriasHabito import CategoriaHabito
 
 @pytest.fixture
 def popular_categoria(db_session):

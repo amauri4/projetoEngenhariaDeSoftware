@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
-from models.CategoriasHabito import CategoriaHabito
+from app.models.CategoriasHabito import CategoriaHabito
 
 class CategoriaRepository:
     def __init__(self, db: Session):

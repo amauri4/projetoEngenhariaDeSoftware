@@ -1,9 +1,9 @@
 import os
 import json
 import pytest
-from models.CategoriasHabito import CategoriaHabito
-from models.HabitoBase import HabitoBase
-from utils.sync import sync_categorias_from_json  
+from app.models.CategoriasHabito import CategoriaHabito
+from app.models.HabitoBase import HabitoBase
+from app.utils.sync import sync_categorias_from_json  
 
 @pytest.fixture
 def sample_json(tmp_path):

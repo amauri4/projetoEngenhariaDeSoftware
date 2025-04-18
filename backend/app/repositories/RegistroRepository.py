@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
-from models.RegistroDiario import RegistroDiario
-from models.HabitoUsuario import HabitoUsuario
+from app.models.RegistroDiario import RegistroDiario
+from app.models.HabitoUsuario import HabitoUsuario
 
 class RegistroDiarioRepository:
     def __init__(self, db: Session):

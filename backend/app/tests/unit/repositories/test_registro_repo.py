@@ -2,11 +2,11 @@ import pytest
 from datetime import date
 from sqlalchemy.orm import Session
 
-from models.Usuario import Usuario
-from models.HabitoBase import HabitoBase
-from models.HabitoUsuario import HabitoUsuario
-from models.RegistroDiario import RegistroDiario
-from repositories.RegistroRepository import RegistroDiarioRepository
+from app.models.Usuario import Usuario
+from app.models.HabitoBase import HabitoBase
+from app.models.HabitoUsuario import HabitoUsuario
+from app.models.RegistroDiario import RegistroDiario
+from app.repositories.RegistroRepository import RegistroDiarioRepository
 
 @pytest.fixture
 def repo(db_session: Session):

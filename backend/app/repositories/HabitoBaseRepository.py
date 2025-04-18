@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
-from models.HabitoBase import HabitoBase
-from models.CategoriasHabito import CategoriaHabito
+from app.models.HabitoBase import HabitoBase
+from app.models.CategoriasHabito import CategoriaHabito
 
 class HabitoBaseRepository:
     def __init__(self, db: Session):

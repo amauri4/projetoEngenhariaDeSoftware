@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from database.base import Base
+from app.database.base import Base
 
 class HabitoBase(Base):
     __tablename__ = "habitos_base"

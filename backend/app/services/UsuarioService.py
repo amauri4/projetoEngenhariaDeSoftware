@@ -1,7 +1,7 @@
-from repositories.UsuarioRepositories import UserRepository
-from models.Usuario import Usuario
+from app.repositories.UsuarioRepositories import UserRepository
+from app.models.Usuario import Usuario
 from sqlalchemy.orm import Session
-from utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha
+from app.utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha
 
 class UserService:
     def __init__(self, db: Session):

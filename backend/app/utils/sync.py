@@ -1,7 +1,7 @@
 import json
 import logging
-from models.CategoriasHabito import CategoriaHabito
-from models.HabitoBase import HabitoBase
+from app.models.CategoriasHabito import CategoriaHabito
+from app.models.HabitoBase import HabitoBase
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models.Usuario import Usuario
+from app.models.Usuario import Usuario
 from sqlalchemy.exc import SQLAlchemyError
 
 class UserRepository:

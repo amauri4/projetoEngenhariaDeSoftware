@@ -1,9 +1,9 @@
 import pytest
-from repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
-from models.HabitoUsuario import HabitoUsuario
-from models.HabitoBase import HabitoBase
-from models.CategoriasHabito import CategoriaHabito
-from models.Usuario import Usuario
+from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
+from app.models.HabitoUsuario import HabitoUsuario
+from app.models.HabitoBase import HabitoBase
+from app.models.CategoriasHabito import CategoriaHabito
+from app.models.Usuario import Usuario
 
 @pytest.fixture
 def popular_usuario(db_session):
