@@ -1,7 +1,7 @@
 from database.base import engine, Base
 from database.session import get_db
 from utils.sync import sync_categorias_from_json
-from models.Usuario import Usuario
+import models
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

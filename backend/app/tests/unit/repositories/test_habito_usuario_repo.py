@@ -86,11 +86,11 @@ def test_buscar_todos_sem_habitos(repo, db_session):
 
 def test_criar_habito_usuario_habito_base_nao_encontrado(repo, db_session, popular_usuario):
     with pytest.raises(Exception, match="Erro ao criar hábito de usuário: Hábito base não encontrado."):
-        repo.criar_habito_usuario("Leitura diária", 999, popular_usuario.id)  # Hábito base ID inexistente
+        repo.criar_habito_usuario("Leitura diária", 999, popular_usuario.id)  
 
 def test_criar_habito_usuario_usuario_nao_encontrado(repo, db_session, popular_habito_base):
     with pytest.raises(Exception, match="Erro ao criar hábito de usuário: Usuário não encontrado."):
-        repo.criar_habito_usuario("Leitura diária", popular_habito_base.id, 999)  # Usuário ID inexistente
+        repo.criar_habito_usuario("Leitura diária", popular_habito_base.id, 999)  
 
 def test_atualizar_habito_usuario_habito_usuario_nao_encontrado(repo, db_session, popular_habito_base, popular_usuario):
     with pytest.raises(Exception, match="Erro ao atualizar hábito de usuário: Hábito de usuário não encontrado."):
@@ -106,7 +106,7 @@ def test_atualizar_habito_usuario_usuario_nao_encontrado(repo, db_session, popul
 
 def test_remover_habito_usuario_nao_encontrado(repo):
     with pytest.raises(Exception, match="Erro ao remover hábito de usuário: Hábito de usuário não encontrado."):
-        repo.remover_habito_usuario(999)  # Hábito de usuário ID inexistente
+        repo.remover_habito_usuario(999)  
 
 def test_buscar_por_email(repo, db_session, popular_usuario, popular_habito_usuario):
     habitos_usuario = repo.buscar_por_email("joao@example.com")
