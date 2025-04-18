@@ -1,6 +1,8 @@
-from .base import SessionLocal
+from contextlib import contextmanager
+from database.base import SessionLocal
 
-def get_db(): #Função para obter uma sessão do banco de dados
+@contextmanager
+def get_db():
     db = SessionLocal()
     try:
         yield db

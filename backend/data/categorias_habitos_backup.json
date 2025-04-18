@@ -1,0 +1,32 @@
+{
+    "categorias": [
+      "Saúde",
+      "Trabalho",
+      "Lazer",
+      "Estudos",
+      "Casa"
+    ],
+    "habitos": [
+      {
+        "nome": "Beber Água",
+        "descricao": "Beber 2L de água por dia",
+        "categoria": "Saúde"
+      },
+      {
+        "nome": "Estudar 1h",
+        "descricao": "Estudar programação por 1 hora por dia",
+        "categoria": "Estudos"
+      },
+      {
+        "nome": "Caminhada",
+        "descricao": "Fazer caminhada por 30 minutos",
+        "categoria": "Saúde"
+      },
+      {
+        "nome": "Trabalho Focado",
+        "descricao": "Trabalhar sem distrações por 2 horas",
+        "categoria": "Trabalho"
+      }
+    ]
+  }
+  
