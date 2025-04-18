@@ -10,7 +10,7 @@ class HabitoBase(Base):
     descricao = Column(String)
     categoria_id = Column(Integer, ForeignKey('categorias_habitos.id'), nullable=False)
     categoria = relationship("CategoriaHabito", back_populates="habitos")
-    registros = relationship("RegistroDiario", back_populates="habito")
+    registros = relationship("RegistroDiario", back_populates="habito", cascade="all, delete-orphan")
     
     usuario_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)  
     usuario = relationship("Usuario", back_populates="habitos")  

@@ -29,3 +29,18 @@ def test_salvar_usuario(db_session):
     persistido = db_session.query(Usuario).filter_by(email="novo@teste.com").first()
     assert persistido is not None
     assert persistido.nome == "Novo Usuário"
+
+def test_atualizar_usuario(repo, popular_usuario):
+    popular_usuario.nome = "Usuário Atualizado"
+    resultado = repo.atualizar(popular_usuario)
+
+    assert resultado.nome == "Usuário Atualizado"
+    atualizado = repo.buscar_por_email(popular_usuario.email)
+    assert atualizado.nome == "Usuário Atualizado"
+
+def test_deletar_usuario(repo, db_session, popular_usuario):
+    resultado = repo.deletar(popular_usuario)
+    assert resultado is True
+
+    deletado = db_session.query(Usuario).filter_by(email=popular_usuario.email).first()
+    assert deletado is None

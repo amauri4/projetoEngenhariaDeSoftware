@@ -22,5 +22,24 @@ class UserRepository:
             self.db.rollback()
             raise Exception(f"Erro ao salvar usuário: {str(e)}")
 
+    def atualizar(self, user: Usuario):
+        try:
+            self.db.merge(user)  
+            self.db.commit()
+            return user
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao atualizar usuário: {str(e)}")
+
+    def deletar(self, user: Usuario):
+        try:
+            self.db.delete(user)
+            self.db.commit()
+            return True
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao deletar usuário: {str(e)}")
+
     def __del__(self):
         self.db.close()
+
