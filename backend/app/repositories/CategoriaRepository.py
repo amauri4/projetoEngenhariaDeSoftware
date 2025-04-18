@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 from models.CategoriasHabito import CategoriaHabito
 
 class CategoriaRepository:
@@ -8,7 +9,12 @@ class CategoriaRepository:
 
     def buscar_todas(self):
         try:
-            return self.db.query(CategoriaHabito).all()
+            categorias = self.db.query(CategoriaHabito).all()
+            if not categorias:
+                raise NoResultFound("Nenhuma categoria de hábito encontrada.")
+            return categorias
+        except NoResultFound as e:
+            raise Exception(f"Erro ao buscar categorias de hábito: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
             raise Exception(f"Erro ao buscar categorias de hábito: {str(e)}")
@@ -27,10 +33,12 @@ class CategoriaRepository:
         try:
             categoria = self.db.query(CategoriaHabito).filter_by(id=categoria_id).first()
             if not categoria:
-                raise Exception("Categoria não encontrada.")
+                raise NoResultFound("Categoria não encontrada.")
             categoria.nome = novo_nome
             self.db.commit()
             return categoria
+        except NoResultFound as e:
+            raise Exception(f"Erro ao atualizar categoria de hábito: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
             raise Exception(f"Erro ao atualizar categoria de hábito: {str(e)}")
@@ -39,9 +47,11 @@ class CategoriaRepository:
         try:
             categoria = self.db.query(CategoriaHabito).filter_by(id=categoria_id).first()
             if not categoria:
-                raise Exception("Categoria não encontrada.")
+                raise NoResultFound("Categoria não encontrada.")
             self.db.delete(categoria)
             self.db.commit()
+        except NoResultFound as e:
+            raise Exception(f"Erro ao remover categoria de hábito: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
             raise Exception(f"Erro ao remover categoria de hábito: {str(e)}")

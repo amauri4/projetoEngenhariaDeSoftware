@@ -1,46 +1,54 @@
 import pytest
-from repositories.UsuarioRepositories import UserRepository
-from models.Usuario import Usuario
+from repositories.CategoriaRepository import CategoriaRepository
+from models.CategoriasHabito import CategoriaHabito
 
 @pytest.fixture
-def popular_usuario(db_session):
-    usuario = Usuario(nome="Usuário Teste", email="teste@teste.com", senha_hash="senha123")
-    db_session.add(usuario)
+def popular_categoria(db_session):
+    categoria = CategoriaHabito(nome="Saúde")
+    db_session.add(categoria)
     db_session.commit()
-    return usuario
+    return categoria
 
 @pytest.fixture
 def repo(db_session):
-    return UserRepository(db_session)
+    return CategoriaRepository(db_session)
 
-def test_buscar_por_email(repo, popular_usuario):
-    resultado = repo.buscar_por_email("teste@teste.com")
-    assert resultado is not None
-    assert resultado.email == "teste@teste.com"
-    assert resultado.nome == "Usuário Teste"
+def test_buscar_todas(repo, db_session, popular_categoria):
+    categorias = repo.buscar_todas()
 
-def test_salvar_usuario(db_session):
-    repo = UserRepository(db_session)
-    novo_usuario = Usuario(nome="Novo Usuário", email="novo@teste.com", senha_hash="123456")
-    resultado = repo.salvar(novo_usuario)
+    assert len(categorias) > 0
+    assert categorias[0].nome == "Saúde"
 
-    assert resultado.id is not None
-    assert resultado.email == "novo@teste.com"
-    persistido = db_session.query(Usuario).filter_by(email="novo@teste.com").first()
-    assert persistido is not None
-    assert persistido.nome == "Novo Usuário"
+def test_criar_categoria(repo, db_session):
+    nova_categoria = repo.criar_categoria("Bem-estar")
 
-def test_atualizar_usuario(repo, popular_usuario):
-    popular_usuario.nome = "Usuário Atualizado"
-    resultado = repo.atualizar(popular_usuario)
+    assert nova_categoria.id is not None
+    assert nova_categoria.nome == "Bem-estar"
 
-    assert resultado.nome == "Usuário Atualizado"
-    atualizado = repo.buscar_por_email(popular_usuario.email)
-    assert atualizado.nome == "Usuário Atualizado"
+    persistida = db_session.query(CategoriaHabito).filter_by(nome="Bem-estar").first()
+    assert persistida is not None
+    assert persistida.nome == "Bem-estar"
 
-def test_deletar_usuario(repo, db_session, popular_usuario):
-    resultado = repo.deletar(popular_usuario)
-    assert resultado is True
+def test_atualizar_categoria(repo, popular_categoria):
+    popular_categoria.nome = "Saúde e Bem-estar"
+    categoria_atualizada = repo.atualizar_categoria(popular_categoria.id, "Saúde e Bem-estar")
 
-    deletado = db_session.query(Usuario).filter_by(email=popular_usuario.email).first()
-    assert deletado is None
+    assert categoria_atualizada.nome == "Saúde e Bem-estar"
+    atualizado = repo.buscar_todas()
+    assert atualizado[0].nome == "Saúde e Bem-estar"
+
+def test_remover_categoria(repo, db_session, popular_categoria):
+    resultado = repo.remover_categoria(popular_categoria.id)
+
+    assert resultado is None  
+
+    removida = db_session.query(CategoriaHabito).filter_by(id=popular_categoria.id).first()
+    assert removida is None
+
+def test_buscar_todas_sem_categoria(repo, db_session):
+    db_session.query(CategoriaHabito).delete()
+    db_session.commit()
+
+    with pytest.raises(Exception, match="Erro ao buscar categorias de hábito: Nenhuma categoria de hábito encontrada."):
+        repo.buscar_todas()
+

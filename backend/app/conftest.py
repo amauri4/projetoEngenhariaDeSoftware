@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database.base import Base  
 from models.HabitoBase import HabitoBase
+from models.HabitoUsuario import HabitoUsuario
 from models.Usuario import Usuario
 from models.CategoriasHabito import CategoriaHabito
 from models.RegistroDiario import RegistroDiario

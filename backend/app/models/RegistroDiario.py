@@ -9,7 +9,8 @@ class RegistroDiario(Base):
     data = Column(Date, nullable=False)
     concluido = Column(Boolean, default=False)
     habito_id = Column(Integer, ForeignKey("habitos.id"), nullable=False)
-    habito = relationship("HabitoBase", back_populates="registros")
+    
+    habito = relationship("HabitoUsuario", back_populates="registros")
 
     def __repr__(self):
         return f"<Registro(data={self.data}, concluido={self.concluido})>"
