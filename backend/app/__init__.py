@@ -9,10 +9,14 @@ from app.models.HabitoUsuario import HabitoUsuario
 from app.models.RegistroDiario import RegistroDiario
 from app.models.Usuario import Usuario
 import os
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
+# importante para testes locais
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True, 
+     methods=["GET", "POST", "OPTIONS"], allow_headers=["Content-Type", "Authorization"])
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

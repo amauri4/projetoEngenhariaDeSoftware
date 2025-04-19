@@ -5,4 +5,4 @@ app = create_app()
 
 if __name__ == '__main__':
     app.register_blueprint(user_bp)
-    app.run(debug=True)  
+    app.run(port=8000, debug=True)
