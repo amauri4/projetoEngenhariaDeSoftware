@@ -7,6 +7,7 @@ const registro_route = "http://localhost:8000/usuarios/registrar";
 
 export default function RegisterForm() {
     const router = useRouter();
+    const [erroMensagem, setErroMensagem] = useState("");
     const [formData, setFormData] = useState({
         nome: "",
         email: "",
@@ -22,6 +23,7 @@ export default function RegisterForm() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErroMensagem(""); 
 
         try {
             const response = await fetch(registro_route, {
@@ -36,11 +38,11 @@ export default function RegisterForm() {
                 router.push("/login?message=Conta criada com sucesso");
             } else {
                 const error = await response.json();
-                alert("Erro: " + error.erro);
+                setErroMensagem("Erro: " + (error.erro || "Não foi possível registrar"));
             }
         } catch (error) {
             console.error("Erro ao registrar:", error);
-            alert("Erro na conexão com o servidor.");
+            setErroMensagem("Erro na conexão com o servidor.");
         }
     };
 
@@ -90,6 +92,12 @@ export default function RegisterForm() {
                     placeholder="••••••••"
                 />
             </div>
+
+            {erroMensagem && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <span className="block sm:inline">{erroMensagem}</span>
+                </div>
+            )}
 
             <button
                 type="submit"
