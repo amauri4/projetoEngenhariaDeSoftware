@@ -25,11 +25,11 @@ export default function HabitsDashboardPage() {
           Painel de Hábitos
         </h1>
 
-        <section className="mb-8"> {/* Aumentei o espaçamento inferior aqui */}
+        <section className="mb-8">
           <HabitCalendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
         </section>
 
-        <section className="mb-8 mt-6"> {/* Aumentei o espaçamento superior aqui */}
+        <section className="mb-8 mt-6"> 
           <HabitForm onAdd={handleAddHabit} />
         </section>
 
