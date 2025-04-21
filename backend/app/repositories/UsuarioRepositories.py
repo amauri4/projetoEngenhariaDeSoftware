@@ -13,6 +13,13 @@ class UserRepository:
             self.db.rollback()
             raise Exception(f"Erro ao buscar usuário por e-mail: {str(e)}")
 
+    def buscar_por_id(self, usuario_id: int):
+        try:
+            return self.db.query(Usuario).filter_by(id=usuario_id).first()
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar usuário por ID: {str(e)}")
+
     def salvar(self, user):
         try:
             self.db.add(user)
@@ -42,4 +49,3 @@ class UserRepository:
 
     def __del__(self):
         self.db.close()
-

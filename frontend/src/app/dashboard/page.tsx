@@ -1,22 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
+
 import HabitForm from "@/app/components/habito_form";
 import HabitCalendar from "@/app/components/habito_calendar";
 import HabitList from "@/app/components/habito_listas";
 
+import { useHabits as listar_habitos } from "@/app/hooks/use_lista_habitos";
+import { useHabitosUsuario } from "@/app/hooks/use_habitos_usuarios";
+import useAddHabit from "@/app/hooks/use_add_habitos";
+import { useRemoveHabit } from "@/app/hooks/use_remove_habitos";
+
+import type { Habito } from "@/app/types/habit";
+
 export default function HabitsDashboardPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [habits, setHabits] = useState<string[]>([]);
-
-  const handleAddHabit = (habit: string) => {
-    setHabits((prev) => [...prev, habit]);
-  };
-
-  const handleDeleteHabit = (index: number) => {
+  const [habits_, setHabits] = useState<Habito[]>([]);
+  const [usuarioId, setUsuarioId] = useState<number | null>(null);
+  // Busca hábitos predefinidos (templates)
+  const { habits: availableHabits, loading, error } = listar_habitos();
+  // Hook para adicionar hábito (com base no ID do usuário)
+  const { addHabit, loadingHabit, errorHabit } = useAddHabit(usuarioId);
+  // Busca hábitos já adicionados pelo usuário
+  const { habitsUsuario, loadingUsuario, errorUsuario } = useHabitosUsuario(usuarioId);
+  // Remove hábito da lista
+  const { removeHabit } = useRemoveHabit((index) => {
     setHabits((prev) => prev.filter((_, i) => i !== index));
-  };
+  });
+
+  useEffect(() => {
+    const usuarioIdString = typeof window !== "undefined" ? localStorage.getItem("usuario_id") : null;
+    const parsedId = usuarioIdString ? parseInt(usuarioIdString, 10) : null;
+    if (parsedId && !isNaN(parsedId)) {
+      setUsuarioId(parsedId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (habitsUsuario && habitsUsuario.length > 0) {
+      setHabits(habitsUsuario);
+    }
+  }, [habitsUsuario]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-indigo-500 to-purple-600 p-6">
@@ -29,15 +54,26 @@ export default function HabitsDashboardPage() {
           <HabitCalendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
         </section>
 
-        <section className="mb-8 mt-6"> 
-          <HabitForm onAdd={handleAddHabit} />
+        <section className="mb-8 mt-6">
+          <HabitForm onAdd={addHabit} availableHabits={availableHabits} />
+
+          {/* Feedbacks de loading e erro */}
+          {loading && <p>Carregando hábitos disponíveis...</p>}
+          {error && <p className="text-red-500">Erro ao carregar hábitos: {error}</p>}
+          {loadingUsuario && <p>Carregando hábitos do usuário...</p>}
+          {errorUsuario && <p className="text-red-500">Erro ao carregar hábitos do usuário: {errorUsuario}</p>}
+          {loadingHabit && <p>Adicionando hábito...</p>}
+          {errorHabit && <p className="text-red-500">Erro ao adicionar hábito: {errorHabit}</p>}
         </section>
 
         <section className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            Hábitos em {format(selectedDate, 'dd/MM/yyyy')}
+            Hábitos em {format(selectedDate, "dd/MM/yyyy")}
           </h2>
-          <HabitList habits={habits} onRemove={handleDeleteHabit} />
+          <HabitList
+            habits={habits_}
+            onRemove={(index) => removeHabit(habitsUsuario[index], index)}
+          />
         </section>
 
         <section className="mt-10 border-t pt-6">

@@ -20,6 +20,18 @@ class HabitoBaseRepository:
             self.db.rollback()
             raise Exception(f"Erro ao buscar hábitos: {str(e)}")
 
+    def buscar_por_id(self, habito_id: int):
+        try:
+            habito = self.db.query(HabitoBase).filter_by(id=habito_id).first()
+            if not habito:
+                raise NoResultFound("Hábito não encontrado.")
+            return habito
+        except NoResultFound as e:
+            raise Exception(f"Erro ao buscar hábito por ID: {str(e)}")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar hábito por ID: {str(e)}")
+
     def criar_habito(self, nome: str, categoria_id: int):
         try:
             categoria = self.db.query(CategoriaHabito).filter_by(id=categoria_id).first()

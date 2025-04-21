@@ -27,8 +27,11 @@ export default function LoginForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
+      const data = await response.json();
       if (response.ok) {
+        localStorage.setItem("auth_token", data.access_token);
+        localStorage.setItem("usuario_id", data.usuario.id);
+        localStorage.setItem("email", data.usuario.email);
         router.push("/dashboard"); 
       } else {
         const error = await response.json();

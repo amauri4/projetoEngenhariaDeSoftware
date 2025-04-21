@@ -1,7 +1,10 @@
 "use client";
 
+import type { Habito } from "@/app/types/habit";
+import useHabitNameById from "../utils/id_para_nome";
+
 export interface HabitListProps {
-  habits: string[];
+  habits: Habito[];
   onRemove: (index: number) => void;
 }
 
@@ -15,10 +18,10 @@ export default function HabitList({ habits, onRemove }: HabitListProps) {
         <ul className="space-y-2">
           {habits.map((habit, index) => (
             <li
-              key={index}
+              key={habit.id}
               className="flex justify-between items-center bg-gray-100 p-2 rounded-lg"
             >
-              <span>{habit}</span>
+              <span>{useHabitNameById(habit.id)}</span>
               <button
                 onClick={() => onRemove(index)}
                 className="text-red-500 hover:underline text-sm"
