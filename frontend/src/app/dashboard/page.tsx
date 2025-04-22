@@ -10,24 +10,16 @@ import HabitList from "@/app/components/habito_listas";
 import { useHabits as listar_habitos } from "@/app/hooks/use_lista_habitos";
 import { useHabitosUsuario } from "@/app/hooks/use_habitos_usuarios";
 import useAddHabit from "@/app/hooks/use_add_habitos";
-import { useRemoveHabit } from "@/app/hooks/use_remove_habitos";
-
-import type { Habito } from "@/app/types/habit";
+import { HabitoUsuario } from "../types/habito_usuario";
 
 export default function HabitsDashboardPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [habits_, setHabits] = useState<Habito[]>([]);
+  const [habits, setHabits] = useState<HabitoUsuario[]>([]); 
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
-  // Busca hábitos predefinidos (templates)
   const { habits: availableHabits, loading, error } = listar_habitos();
-  // Hook para adicionar hábito (com base no ID do usuário)
   const { addHabit, loadingHabit, errorHabit } = useAddHabit(usuarioId);
-  // Busca hábitos já adicionados pelo usuário
-  const { habitsUsuario, loadingUsuario, errorUsuario } = useHabitosUsuario(usuarioId);
-  // Remove hábito da lista
-  const { removeHabit } = useRemoveHabit((index) => {
-    setHabits((prev) => prev.filter((_, i) => i !== index));
-  });
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { habitsUsuario, loadingUsuario, errorUsuario } = useHabitosUsuario(usuarioId, refreshKey);
 
   useEffect(() => {
     const usuarioIdString = typeof window !== "undefined" ? localStorage.getItem("usuario_id") : null;
@@ -40,8 +32,8 @@ export default function HabitsDashboardPage() {
   useEffect(() => {
     if (habitsUsuario && habitsUsuario.length > 0) {
       setHabits(habitsUsuario);
-    }
-  }, [habitsUsuario]);
+    } 
+  }, [habitsUsuario, refreshKey]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-indigo-500 to-purple-600 p-6">
@@ -55,13 +47,19 @@ export default function HabitsDashboardPage() {
         </section>
 
         <section className="mb-8 mt-6">
-          <HabitForm onAdd={addHabit} availableHabits={availableHabits} />
+          <HabitForm 
+            onAdd={addHabit} 
+            availableHabits={availableHabits} 
+            onAddedSuccessfully={() => {
+              setHabits((prev) => [...prev, ...habitsUsuario]);
+              setRefreshKey((prev) => prev + 1);
+            }}
+          />
 
-          {/* Feedbacks de loading e erro */}
           {loading && <p>Carregando hábitos disponíveis...</p>}
           {error && <p className="text-red-500">Erro ao carregar hábitos: {error}</p>}
           {loadingUsuario && <p>Carregando hábitos do usuário...</p>}
-          {errorUsuario && <p className="text-red-500">Erro ao carregar hábitos do usuário: {errorUsuario}</p>}
+          {errorUsuario && <p className="text-red-500"> {errorUsuario}</p>}
           {loadingHabit && <p>Adicionando hábito...</p>}
           {errorHabit && <p className="text-red-500">Erro ao adicionar hábito: {errorHabit}</p>}
         </section>
@@ -71,8 +69,10 @@ export default function HabitsDashboardPage() {
             Hábitos em {format(selectedDate, "dd/MM/yyyy")}
           </h2>
           <HabitList
-            habits={habits_}
-            onRemove={(index) => removeHabit(habitsUsuario[index], index)}
+            habits={habits}
+            onRemove={(idRemovido) => {
+              setHabits((prev) => prev.filter((h) => h.id !== idRemovido));
+            }}
           />
         </section>
 

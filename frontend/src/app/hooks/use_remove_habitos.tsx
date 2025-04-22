@@ -1,18 +1,40 @@
-import { useCallback } from "react";
-import type { Habito } from "@/app/types/habit";
+"use client";
 
-export function useRemoveHabit(onSuccess?: (index: number) => void) {
-  const removeHabit = useCallback(
-    async (habit: Habito, index: number) => {
-      // Aqui você pode fazer uma chamada à API se quiser persistência, por exemplo:
-      // await fetch(`/api/remover-habito/${habit.id}`, { method: "DELETE" });
+import { useState } from "react";
 
-      if (onSuccess) {
-        onSuccess(index);
+const useDeleteHabit = () => {
+  const [loadingDeleteHabit, setLoading] = useState(false);
+  const [errorDeleteHabit, setError] = useState<string | null>(null);
+
+  const deleteHabit = async (habitoUsuarioId: number | null): Promise<boolean> => {
+    if (!habitoUsuarioId) {
+      setError("ID do hábito inválido");
+      return false;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`http://localhost:8000/habitos-usuario/habitos/${habitoUsuarioId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.erro || "Erro ao remover hábito");
       }
-    },
-    [onSuccess]
-  );
 
-  return { removeHabit };
-}
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { deleteHabit, loadingDeleteHabit, errorDeleteHabit };
+};
+
+export default useDeleteHabit;

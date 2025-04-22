@@ -90,3 +90,15 @@ class HabitoUsuarioRepository:
         except SQLAlchemyError as e:
             self.db.rollback()
             raise Exception(f"Erro ao buscar hábitos por e-mail: {str(e)}")
+        
+    def buscar_por_id(self, habito_usuario_id: int):
+        try:
+            habito_usuario = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
+            if not habito_usuario:
+                raise NoResultFound("Hábito de usuário não encontrado.")
+            return habito_usuario
+        except NoResultFound as e:
+            raise Exception(f"Erro ao buscar hábito de usuário por ID: {str(e)}")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar hábito de usuário por ID: {str(e)}")

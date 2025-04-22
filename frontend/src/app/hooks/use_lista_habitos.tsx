@@ -1,10 +1,12 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import type { Habito } from "@/app/types/habit";
+import type { HabitoBase } from "@/app/types/habito_base";
 
 const lista_habitos_route = "http://localhost:8000/habitos";
 
 export function useHabits() {
-  const [habits, setHabits] = useState<Habito[]>([]);
+  const [habits, setHabits] = useState<HabitoBase[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +18,7 @@ export function useHabits() {
         if (!response.ok) {
           throw new Error("Falha ao carregar hábitos");
         }
-        const data: Habito[] = await response.json();
+        const data: HabitoBase[] = await response.json();
         setHabits(data);
       } catch (error) {
         if (error instanceof Error) {

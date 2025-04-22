@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import type { Habito } from "@/app/types/habit";
+import { useEffect, useState } from "react";
+import type { HabitoBase } from "@/app/types/habito_base";
+import { HabitoUsuario } from "../types/habito_usuario";
 
 export interface HabitFormProps {
-  availableHabits: Habito[];
-  onAdd: (habitoBaseId: number | null, descricao: string | null) => Promise<Habito | null>;
+  availableHabits: HabitoBase[];
+  onAdd: (habitoBaseId: number | null, descricao: string | null) => Promise<HabitoUsuario | null>;
+  onAddedSuccessfully?: () => void;
 }
 
 export default function HabitForm({ onAdd, availableHabits }: HabitFormProps) {
@@ -20,6 +22,7 @@ export default function HabitForm({ onAdd, availableHabits }: HabitFormProps) {
     const habit = availableHabits.find((h) => h.id === selectedHabitId);
     if (!habit || !descricao.trim()) {
       setErro("Por favor, preencha todos os campos.");
+      setMensagem(null);
       return;
     }
 
@@ -34,6 +37,16 @@ export default function HabitForm({ onAdd, availableHabits }: HabitFormProps) {
       setMensagem(null);
     }
   };
+
+  useEffect(() => {
+    if (mensagem) {
+      const timer = setTimeout(() => {
+        setMensagem(null);
+      }, 3000);
+
+      return () => clearTimeout(timer); 
+    }
+  }, [mensagem]);
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-4">

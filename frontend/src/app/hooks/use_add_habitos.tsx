@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import type { Habito } from "@/app/types/habit";
+import type { HabitoUsuario } from "@/app/types/habito_usuario";
 
 const useAddHabit = (usuarioId: number | null) => {
   const [loadingHabit, setLoading] = useState(false);
@@ -8,7 +10,7 @@ const useAddHabit = (usuarioId: number | null) => {
   const addHabit = async (
     habitoBaseId: number | null,
     descricao: string | null
-  ): Promise<Habito | null> => {
+  ): Promise<HabitoUsuario | null> => {
     if (!usuarioId) {
       setError("ID do usuário inválido");
       return null;

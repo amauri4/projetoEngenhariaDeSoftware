@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import type { Habito } from "@/app/types/habit";
+"use client";
 
-export function useHabitosUsuario(usuarioId: number | null) {
-  const [habitsUsuario, setHabitsUsuario] = useState<Habito[]>([]);
+import { useEffect, useState } from "react";
+import type { HabitoUsuario } from "@/app/types/habito_usuario";
+
+export function useHabitosUsuario(usuarioId: number | null, refreshKey: number = 0) {
+  const [habitsUsuario, setHabitsUsuario] = useState<HabitoUsuario[]>([]);
   const [loadingUsuario, setLoading] = useState<boolean>(false);
   const [errorUsuario, setError] = useState<string | null>(null);
 
@@ -30,7 +32,7 @@ export function useHabitosUsuario(usuarioId: number | null) {
           throw new Error(data.erro || "Erro ao buscar hábitos do usuário.");
         }
 
-        const data: Habito[] = await response.json();
+        const data: HabitoUsuario[] = await response.json();
         setHabitsUsuario(data);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -44,7 +46,7 @@ export function useHabitosUsuario(usuarioId: number | null) {
     };
 
     fetchHabits();
-  }, [usuarioId]);
+  }, [usuarioId, refreshKey]);
 
   return { habitsUsuario, loadingUsuario, errorUsuario };
 }
