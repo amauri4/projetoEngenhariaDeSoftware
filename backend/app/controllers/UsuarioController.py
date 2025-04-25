@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from sqlalchemy.orm import Session
+from app.models.Usuario import Usuario
 from app.database.session import get_db
 from app.services.UsuarioService import UserService
 from app.utils.jwt import criar_token
@@ -16,7 +16,7 @@ def registrar_usuario():
     try:
         with get_db() as db: 
             service = UserService(db)
-            usuario = service.criar_usuario(nome, email, senha)
+            usuario = service.criar_usuario(Usuario(nome=nome,email=email, senha_hash=senha))
             return jsonify({
                 "id": usuario.id,
                 "nome": usuario.nome,
@@ -34,7 +34,7 @@ def login_usuario():
     try:
         with get_db() as db:
             service = UserService(db)
-            usuario = service.autenticar_usuario(email, senha)
+            usuario = service.autenticar_usuario(email=email, senha=senha)
             
             token = criar_token({"usuario_id": usuario.id, "email": usuario.email})
 

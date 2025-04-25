@@ -4,16 +4,27 @@ from sqlalchemy.orm import Session
 from app.utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha
 
 class UserService:
-    def __init__(self, db: Session):
-        self.user_repository = UserRepository(db)
+    _instance = None
 
-    def criar_usuario(self, nome: str, email: str, senha: str):
-        usuario_existente = self.user_repository.buscar_por_email(email)
+    def __new__(cls, db: Session):
+        if cls._instance is None:
+            cls._instance = super(UserService, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self, db: Session):
+        if self._initialized:
+            return
+        self.user_repository = UserRepository(db)
+        self._initialized = True
+
+    def criar_usuario(self, usuario: Usuario):
+        usuario_existente = self.user_repository.buscar_por_email(usuario.email)
         if usuario_existente:
             raise Exception("Já existe um usuário com este e-mail.")
 
-        senha_hash = gerar_hash_senha(senha)
-        novo_usuario = Usuario(nome=nome, email=email, senha_hash=senha_hash)
+        senha_hash = gerar_hash_senha(usuario.senha_hash)
+        novo_usuario = Usuario(nome=usuario.nome, email=usuario.email, senha_hash=senha_hash)
         return self.user_repository.salvar(novo_usuario)
 
     def autenticar_usuario(self, email: str, senha: str):
