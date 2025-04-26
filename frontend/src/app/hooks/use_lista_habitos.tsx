@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { fetchHabitosBase } from "@/app/services/habito_base_service";
 import type { HabitoBase } from "@/app/types/habito_base";
-
-const lista_habitos_route = "http://localhost:8000/habitos";
 
 export function useHabits() {
   const [habits, setHabits] = useState<HabitoBase[]>([]);
@@ -11,14 +10,12 @@ export function useHabits() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchHabits = async () => {
+    const fetchData = async () => {
       setLoading(true);
+      setError(null);
+
       try {
-        const response = await fetch(lista_habitos_route);
-        if (!response.ok) {
-          throw new Error("Falha ao carregar hábitos");
-        }
-        const data: HabitoBase[] = await response.json();
+        const data = await fetchHabitosBase();
         setHabits(data);
       } catch (error) {
         if (error instanceof Error) {
@@ -31,7 +28,7 @@ export function useHabits() {
       }
     };
 
-    fetchHabits();
+    fetchData();
   }, []);
 
   return { habits, loading, error };

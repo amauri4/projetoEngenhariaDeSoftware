@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { deleteHabitoUsuario } from "@/app/services/delete_habit_service";
 
 const useDeleteHabit = () => {
   const [loadingDeleteHabit, setLoading] = useState(false);
@@ -16,18 +17,14 @@ const useDeleteHabit = () => {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/habitos-usuario/habitos/${habitoUsuarioId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.erro || "Erro ao remover hábito");
-      }
-
+      await deleteHabitoUsuario(habitoUsuarioId);
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erro desconhecido");
+      }
       return false;
     } finally {
       setLoading(false);

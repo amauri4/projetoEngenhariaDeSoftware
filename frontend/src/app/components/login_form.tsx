@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const login_route = "http://localhost:8000/usuarios/login";
+import { login } from "@/app/services/auth_service"; 
+import { useAuth } from "@/app/contexts/AuthContext"; 
 
 export default function LoginForm() {
   const router = useRouter();
+  const { login: loginContext } = useAuth(); 
   const [formData, setFormData] = useState({ email: "", senha: "" });
   const [erroMensagem, setErroMensagem] = useState("");
 
@@ -22,24 +23,12 @@ export default function LoginForm() {
     setErroMensagem("");
 
     try {
-      const response = await fetch(login_route, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("auth_token", data.access_token);
-        localStorage.setItem("usuario_id", data.usuario.id);
-        localStorage.setItem("email", data.usuario.email);
-        router.push("/dashboard"); 
-      } else {
-        const error = await response.json();
-        setErroMensagem("Erro: " + (error.erro || "Credenciais inválidas"));
-      }
-    } catch (error) {
+      const data = await login(formData); 
+      loginContext({ id: data.usuario.id, email: data.usuario.email }, data.access_token); 
+      router.push("/dashboard");
+    } catch (error: any) {
       console.error("Erro ao fazer login:", error);
-      setErroMensagem("Erro na conexão com o servidor.");
+      setErroMensagem(error.message || "Erro na conexão com o servidor.");
     }
   };
 

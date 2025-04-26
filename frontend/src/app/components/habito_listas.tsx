@@ -6,7 +6,7 @@ import useDeleteHabit from "@/app/hooks/use_remove_habitos";
 
 export interface HabitListProps {
   habits: HabitoUsuario[];
-  onRemove: (idRemovido: number) => void; // notifica o pai opcionalmente
+  onRemove: (idRemovido: number) => void;
 }
 
 export default function HabitList({ habits, onRemove }: HabitListProps) {

@@ -1,23 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import type { HabitoUsuario } from "@/app/types/habito_usuario";
+import { addHabitService } from "@/app/services/add_habit_service";
+import { HabitoUsuario } from "@/app/types/habito_usuario";
 
 const useAddHabit = (usuarioId: number | null) => {
   const [loadingHabit, setLoading] = useState(false);
   const [errorHabit, setError] = useState<string | null>(null);
 
-  const addHabit = async (
-    habitoBaseId: number | null,
-    descricao: string | null
-  ): Promise<HabitoUsuario | null> => {
-    if (!usuarioId) {
-      setError("ID do usuário inválido");
-      return null;
-    }
-
-    if (!habitoBaseId || !descricao) {
-      setError("Dados do hábito inválidos");
+  const addHabit = async (habitoBaseId: number | null, descricao: string | null): Promise<HabitoUsuario | null> => {
+    if (!usuarioId || !habitoBaseId || !descricao) {
+      setError("Dados inválidos");
       return null;
     }
 
@@ -25,26 +18,7 @@ const useAddHabit = (usuarioId: number | null) => {
     setError(null);
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/habitos-usuario/${usuarioId}/habitos`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            descricao,
-            habito_base_id: habitoBaseId,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erro ao adicionar hábito");
-      }
-
-      const data = await response.json();
-      return data.habito_usuario;
+      return await addHabitService(usuarioId, habitoBaseId, descricao);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro desconhecido");
       return null;
