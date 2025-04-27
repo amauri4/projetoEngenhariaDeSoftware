@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from app.models.RegistroDiario import RegistroDiario
 from app.models.HabitoUsuario import HabitoUsuario
+from datetime import datetime
 
 class RegistroDiarioRepository:
     def __init__(self, db: Session):
@@ -95,3 +96,45 @@ class RegistroDiarioRepository:
         except SQLAlchemyError as e:
             self.db.rollback()
             raise Exception(f"Erro ao remover registro: {str(e)}")
+    
+    def buscar_por_data(self, usuario_id: int, data_inicio: str = None, data_fim: str = None):
+        try:
+            query = self.db.query(RegistroDiario).join(HabitoUsuario).filter(HabitoUsuario.usuario_id == usuario_id)
+            
+            if data_inicio:
+                data_inicio = datetime.strptime(data_inicio, "%Y-%m-%d")
+                query = query.filter(RegistroDiario.data >= data_inicio)
+            
+            if data_fim:
+                data_fim = datetime.strptime(data_fim, "%Y-%m-%d")
+                query = query.filter(RegistroDiario.data <= data_fim)
+            
+            registros = query.all()
+
+            if not registros:
+                raise NoResultFound("Nenhum registro encontrado para o filtro de data.")
+            
+            return registros
+        except NoResultFound as e:
+            raise Exception(f"Erro ao buscar registros por data: {str(e)}")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar registros por data: {str(e)}")
+
+    def buscar_por_data_especifica(self, usuario_id: int, data_especifica: str):
+        try:
+            data_especifica = datetime.strptime(data_especifica, "%Y-%m-%d")
+            registros = (
+                self.db.query(RegistroDiario)
+                .join(HabitoUsuario)
+                .filter(HabitoUsuario.usuario_id == usuario_id, RegistroDiario.data == data_especifica)
+                .all()
+            )
+            if not registros:
+                raise NoResultFound(f"Nenhum registro encontrado para a data {data_especifica.strftime('%Y-%m-%d')}.")
+            return registros
+        except NoResultFound as e:
+            raise Exception(f"Erro ao buscar registros por data específica: {str(e)}")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao buscar registros por data específica: {str(e)}")
