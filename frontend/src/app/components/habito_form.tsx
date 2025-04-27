@@ -2,22 +2,30 @@
 
 import { useEffect, useState } from "react";
 import type { HabitoBase } from "@/app/types/habito_base";
-import { HabitoUsuario } from "../types/habito_usuario";
+import useAddHabit from "@/app/hooks/use_add_habitos";
 
 export interface HabitFormProps {
   availableHabits: HabitoBase[];
-  onAdd: (habitoBaseId: number | null, descricao: string | null) => Promise<HabitoUsuario | null>;
-  onAddedSuccessfully?: () => void;
+  onAdd: () => void;
+  idUsuario: number | null;
 }
 
-export default function HabitForm({ onAdd, availableHabits }: HabitFormProps) {
+export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFormProps) {
   const [selectedHabitId, setSelectedHabitId] = useState<number | null>(null);
   const [descricao, setDescricao] = useState("");
   const [mensagem, setMensagem] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
+  const { addHabit, loadingHabit, errorHabit } = useAddHabit(idUsuario ?? 0);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (idUsuario === null) {
+      setErro("Usuário não identificado.");
+      setMensagem(null);
+      return;
+    }
 
     const habit = availableHabits.find((h) => h.id === selectedHabitId);
     if (!habit || !descricao.trim()) {
@@ -27,12 +35,14 @@ export default function HabitForm({ onAdd, availableHabits }: HabitFormProps) {
     }
 
     try {
-      await onAdd(habit.id, descricao.trim());
+      await addHabit(habit.id, descricao);
+      onAdd();
       setMensagem("Hábito adicionado com sucesso!");
       setErro(null);
       setDescricao("");
       setSelectedHabitId(null);
-    } catch (error: any) {
+    } catch (error) {
+      console.error(error);
       setErro("Erro ao adicionar hábito.");
       setMensagem(null);
     }
@@ -44,7 +54,7 @@ export default function HabitForm({ onAdd, availableHabits }: HabitFormProps) {
         setMensagem(null);
       }, 3000);
 
-      return () => clearTimeout(timer); 
+      return () => clearTimeout(timer);
     }
   }, [mensagem]);
 
@@ -73,14 +83,15 @@ export default function HabitForm({ onAdd, availableHabits }: HabitFormProps) {
 
       <button
         type="submit"
-        disabled={!selectedHabitId || !descricao.trim()}
+        disabled={!selectedHabitId || !descricao.trim() || idUsuario === null || loadingHabit}
         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
       >
-        Adicionar
+        {loadingHabit ? "Adicionando..." : "Adicionar"}
       </button>
 
       {mensagem && <p className="text-green-600">{mensagem}</p>}
       {erro && <p className="text-red-600">{erro}</p>}
+      {errorHabit && <p className="text-red-600">Erro ao adicionar hábito: {errorHabit}</p>}
     </form>
   );
 }
