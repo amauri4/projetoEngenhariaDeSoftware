@@ -1,6 +1,8 @@
 from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.HabitoBaseRepository import HabitoBaseRepository
 from app.repositories.UsuarioRepositories import UserRepository
+from app.repositories.DiaHabitoMesRepository import DiaHabitoMesRepository
+from app.repositories.DiaHabitoSemanaRepository import DiaHabitoSemanaRepository
 from app.models.HabitoUsuario import HabitoUsuario
 from app.models.HabitoBase import HabitoBase
 from app.models.Usuario import Usuario
@@ -26,8 +28,8 @@ class HabitoUsuarioService:
         self.habito_usuario_repository = HabitoUsuarioRepository(db)
         self.habito_base_repository = HabitoBaseRepository(db)
         self.usuario_repository = UserRepository(db)
-        self.dia_habito_semana_repository = DiaHabitoSemana(db)
-        self.dia_habito_mes_repository = DiaHabitoMes(db)
+        self.dia_habito_semana_repository = DiaHabitoSemanaRepository(db)
+        self.dia_habito_mes_repository = DiaHabitoMesRepository(db)
         self._initialized = True
 
     def buscar_habitos_usuario(self, usuario_email: str):
@@ -50,7 +52,6 @@ class HabitoUsuarioService:
             habito_base = self.habito_base_repository.buscar_por_id(habito_base_id)
             if not habito_base:
                 raise NoResultFound(f"Hábito base com ID {habito_base_id} não encontrado.")
-            
             if not validar_frequencia(frequencia):
                 raise ValueError(f"Frequência inválida. As opções válidas são: 'diario', 'semanal', 'mensal'.")
             
@@ -75,7 +76,7 @@ class HabitoUsuarioService:
                         dia_habito_semana = DiaHabitoSemana(habito_usuario_id=novo_habito_usuario.id, dia_semana=dia)
                         self.dia_habito_semana_repository.criar(dia_habito_semana)
 
-            elif frequencia.lower() == 'diario':
+            elif frequencia.lower() == 'diaria':
                 if dias_da_semana:
                     for dia in dias_da_semana:
                         dia_habito_semana = DiaHabitoSemana(habito_usuario_id=novo_habito_usuario.id, dia_semana=dia)
@@ -110,7 +111,7 @@ class HabitoUsuarioService:
             if not habito_base:
                 raise NoResultFound(f"Hábito base com ID {novo_habito_base_id} não encontrado.")
             
-            if not self.validar_frequencia(nova_frequencia):
+            if not validar_frequencia(nova_frequencia):
                 raise ValueError(f"Frequência inválida. As opções válidas são: 'diario', 'semanal', 'mensal'.")
             
             habito_usuario.descricao = nova_descricao
@@ -127,7 +128,7 @@ class HabitoUsuarioService:
                         dia_habito_semana = DiaHabitoSemana(habito_usuario_id=habito_usuario.id, dia_semana=dia)
                         self.dia_habito_semana_repository.criar(dia_habito_semana)
 
-            elif nova_frequencia.lower() == 'diario':
+            elif nova_frequencia.lower() == 'diaria':
                 if novos_dias_da_semana:
                     self.dia_habito_semana_repository.remover_por_habito_usuario_id(habito_usuario_id)
                     for dia in novos_dias_da_semana:

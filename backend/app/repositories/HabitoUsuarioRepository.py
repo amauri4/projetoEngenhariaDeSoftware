@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
@@ -5,7 +6,7 @@ from app.models.HabitoUsuario import HabitoUsuario
 from app.models.HabitoBase import HabitoBase
 from app.models.Usuario import Usuario
 from app.models.DiaHabitoSemana import DiaHabitoSemana, DiaSemanaEnum
-from app.models.enums import FrequenciaEnum
+from app.models.enums.frequencia_enums import FrequenciaEnum
 
 class HabitoUsuarioRepository:
     def __init__(self, db: Session):
@@ -27,6 +28,7 @@ class HabitoUsuarioRepository:
         habito_base_id: int,
         usuario_id: int,
         frequencia: FrequenciaEnum,
+        data_inicio: datetime,
         quantidade_semanal: int = None,
         dias_da_semana: list[str] = None  
     ):
@@ -41,7 +43,8 @@ class HabitoUsuarioRepository:
                 habito_base_id=habito_base_id,
                 usuario_id=usuario_id,
                 frequencia=frequencia,
-                quantidade_semanal=quantidade_semanal
+                data_inicio=data_inicio,
+                vezes_na_semana=quantidade_semanal
             )
 
             self.db.add(novo_habito)
@@ -64,6 +67,7 @@ class HabitoUsuarioRepository:
         nova_descricao: str,
         novo_habito_base_id: int,
         novo_usuario_id: int,
+        nova_data_inicio: datetime,
         nova_frequencia: FrequenciaEnum,
         nova_quantidade_semanal: int = None,
         novos_dias_da_semana: list[str] = None
@@ -77,7 +81,8 @@ class HabitoUsuarioRepository:
             habito.habito_base_id = novo_habito_base_id
             habito.usuario_id = novo_usuario_id
             habito.frequencia = nova_frequencia
-            habito.quantidade_semanal = nova_quantidade_semanal
+            habito.data_inicio = nova_data_inicio
+            habito.vezes_na_semana = nova_quantidade_semanal
 
             if nova_frequencia == FrequenciaEnum.diaria:
                 self.db.query(DiaHabitoSemana).filter_by(habito_id=habito.id).delete()
