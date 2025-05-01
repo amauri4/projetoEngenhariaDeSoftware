@@ -4,6 +4,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from app.models.HabitoUsuario import HabitoUsuario
 from app.models.HabitoBase import HabitoBase
 from app.models.Usuario import Usuario
+from app.models.DiaHabitoSemana import DiaHabitoSemana, DiaSemanaEnum
+from app.models.enums import FrequenciaEnum
 
 class HabitoUsuarioRepository:
     def __init__(self, db: Session):
@@ -15,62 +17,90 @@ class HabitoUsuarioRepository:
             if not habitos_usuario:
                 raise NoResultFound("Nenhum hábito de usuário encontrado.")
             return habitos_usuario
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar hábitos de usuário: {str(e)}")
-        except SQLAlchemyError as e:
+        except (NoResultFound, SQLAlchemyError) as e:
             self.db.rollback()
             raise Exception(f"Erro ao buscar hábitos de usuário: {str(e)}")
 
-    def criar_habito_usuario(self, descricao: str, habito_base_id: int, usuario_id: int):
+    def criar_habito_usuario(
+        self,
+        descricao: str,
+        habito_base_id: int,
+        usuario_id: int,
+        frequencia: FrequenciaEnum,
+        quantidade_semanal: int = None,
+        dias_da_semana: list[str] = None  
+    ):
         try:
             habito_base = self.db.query(HabitoBase).filter_by(id=habito_base_id).first()
-            if not habito_base:
-                raise NoResultFound("Hábito base não encontrado.")
             usuario = self.db.query(Usuario).filter_by(id=usuario_id).first()
-            if not usuario:
-                raise NoResultFound("Usuário não encontrado.")
-            novo_habito_usuario = HabitoUsuario(descricao=descricao, habito_base_id=habito_base_id, usuario_id=usuario_id)
-            self.db.add(novo_habito_usuario)
+            if not habito_base or not usuario:
+                raise NoResultFound("Hábito base ou usuário não encontrado.")
+
+            novo_habito = HabitoUsuario(
+                descricao=descricao,
+                habito_base_id=habito_base_id,
+                usuario_id=usuario_id,
+                frequencia=frequencia,
+                quantidade_semanal=quantidade_semanal
+            )
+
+            self.db.add(novo_habito)
+            self.db.flush()  
+
+            if frequencia == FrequenciaEnum.diaria and dias_da_semana:
+                for dia in dias_da_semana:
+                    dia_enum = DiaSemanaEnum[dia]
+                    self.db.add(DiaHabitoSemana(habito_id=novo_habito.id, dia=dia_enum))
+
             self.db.commit()
-            return novo_habito_usuario
-        except NoResultFound as e:
-            raise Exception(f"Erro ao criar hábito de usuário: {str(e)}")
-        except SQLAlchemyError as e:
+            return novo_habito
+        except (NoResultFound, SQLAlchemyError, KeyError) as e:
             self.db.rollback()
             raise Exception(f"Erro ao criar hábito de usuário: {str(e)}")
 
-    def atualizar_habito_usuario(self, habito_usuario_id: int, nova_descricao: str, novo_habito_base_id: int, novo_usuario_id: int):
+    def atualizar_habito_usuario(
+        self,
+        habito_usuario_id: int,
+        nova_descricao: str,
+        novo_habito_base_id: int,
+        novo_usuario_id: int,
+        nova_frequencia: FrequenciaEnum,
+        nova_quantidade_semanal: int = None,
+        novos_dias_da_semana: list[str] = None
+    ):
         try:
-            habito_usuario = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
-            if not habito_usuario:
+            habito = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
+            if not habito:
                 raise NoResultFound("Hábito de usuário não encontrado.")
-            habito_base = self.db.query(HabitoBase).filter_by(id=novo_habito_base_id).first()
-            if not habito_base:
-                raise NoResultFound("Hábito base não encontrado.")
-            usuario = self.db.query(Usuario).filter_by(id=novo_usuario_id).first()
-            if not usuario:
-                raise NoResultFound("Usuário não encontrado.")
-            habito_usuario.descricao = nova_descricao
-            habito_usuario.habito_base_id = novo_habito_base_id
-            habito_usuario.usuario_id = novo_usuario_id
+
+            habito.descricao = nova_descricao
+            habito.habito_base_id = novo_habito_base_id
+            habito.usuario_id = novo_usuario_id
+            habito.frequencia = nova_frequencia
+            habito.quantidade_semanal = nova_quantidade_semanal
+
+            if nova_frequencia == FrequenciaEnum.diaria:
+                self.db.query(DiaHabitoSemana).filter_by(habito_id=habito.id).delete()
+                for dia in novos_dias_da_semana or []:
+                    dia_enum = DiaSemanaEnum[dia]
+                    self.db.add(DiaHabitoSemana(habito_id=habito.id, dia=dia_enum))
+            else:
+                self.db.query(DiaHabitoSemana).filter_by(habito_id=habito.id).delete()
+
             self.db.commit()
-            return habito_usuario
-        except NoResultFound as e:
-            raise Exception(f"Erro ao atualizar hábito de usuário: {str(e)}")
-        except SQLAlchemyError as e:
+            return habito
+        except (NoResultFound, SQLAlchemyError, KeyError) as e:
             self.db.rollback()
             raise Exception(f"Erro ao atualizar hábito de usuário: {str(e)}")
 
     def remover_habito_usuario(self, habito_usuario_id: int):
         try:
-            habito_usuario = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
-            if not habito_usuario:
+            habito = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
+            if not habito:
                 raise NoResultFound("Hábito de usuário não encontrado.")
-            self.db.delete(habito_usuario)
+            self.db.delete(habito)
             self.db.commit()
-        except NoResultFound as e:
-            raise Exception(f"Erro ao remover hábito de usuário: {str(e)}")
-        except SQLAlchemyError as e:
+        except (NoResultFound, SQLAlchemyError) as e:
             self.db.rollback()
             raise Exception(f"Erro ao remover hábito de usuário: {str(e)}")
 
@@ -79,26 +109,20 @@ class HabitoUsuarioRepository:
             usuario = self.db.query(Usuario).filter_by(email=email).first()
             if not usuario:
                 raise NoResultFound("Usuário não encontrado.")
-            
-            habitos_usuario = self.db.query(HabitoUsuario).filter_by(usuario_id=usuario.id).all()
-            if not habitos_usuario:
+            habitos = self.db.query(HabitoUsuario).filter_by(usuario_id=usuario.id).all()
+            if not habitos:
                 raise NoResultFound("Nenhum hábito encontrado para o usuário.")
-            
-            return habitos_usuario
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar hábitos por e-mail: {str(e)}")
-        except SQLAlchemyError as e:
+            return habitos
+        except (NoResultFound, SQLAlchemyError) as e:
             self.db.rollback()
             raise Exception(f"Erro ao buscar hábitos por e-mail: {str(e)}")
-        
+
     def buscar_por_id(self, habito_usuario_id: int):
         try:
-            habito_usuario = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
-            if not habito_usuario:
+            habito = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
+            if not habito:
                 raise NoResultFound("Hábito de usuário não encontrado.")
-            return habito_usuario
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar hábito de usuário por ID: {str(e)}")
-        except SQLAlchemyError as e:
+            return habito
+        except (NoResultFound, SQLAlchemyError) as e:
             self.db.rollback()
             raise Exception(f"Erro ao buscar hábito de usuário por ID: {str(e)}")
