@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.repositories.RegistroRepository import RegistroDiarioRepository
 from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from sqlalchemy.orm import Session
@@ -60,7 +61,7 @@ class RegistroDiarioService:
         except Exception as e:
             raise Exception(f"Erro ao remover o registro diário {registro_id}: {str(e)}")
 
-    def buscar_registros_por_data(self, usuario_id: int, data_inicio: str = None, data_fim: str = None):
+    def buscar_registros_por_data(self, usuario_id: int, data_inicio: datetime = None, data_fim: datetime = None):
         try:
             data_inicio = validar_formato_data(data_inicio)
             data_fim = validar_formato_data(data_fim)
@@ -69,9 +70,10 @@ class RegistroDiarioService:
         except Exception as e:
             raise Exception(f"Erro ao buscar registros por data para o usuário {usuario_id}: {str(e)}")
 
-    def buscar_registros_por_data_especifica(self, usuario_id: int, data_especifica: str):
+    def buscar_registros_por_data_especifica(self, usuario_id: int, data_especifica: datetime):
         try:
             data_especifica = validar_formato_data(data_especifica)
+            print(f"DATA VALIDADA E AJEITADA: {data_especifica}")
             registros = self.registro_diario_repository.buscar_por_data_especifica(usuario_id, data_especifica)
             return registros
         except Exception as e:

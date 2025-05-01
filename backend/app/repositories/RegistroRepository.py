@@ -97,16 +97,14 @@ class RegistroDiarioRepository:
             self.db.rollback()
             raise Exception(f"Erro ao remover registro: {str(e)}")
     
-    def buscar_por_data(self, usuario_id: int, data_inicio: str = None, data_fim: str = None):
+    def buscar_por_data(self, usuario_id: int, data_inicio: datetime = None, data_fim: datetime = None):
         try:
             query = self.db.query(RegistroDiario).join(HabitoUsuario).filter(HabitoUsuario.usuario_id == usuario_id)
             
             if data_inicio:
-                data_inicio = datetime.strptime(data_inicio, "%Y-%m-%d")
                 query = query.filter(RegistroDiario.data >= data_inicio)
             
             if data_fim:
-                data_fim = datetime.strptime(data_fim, "%Y-%m-%d")
                 query = query.filter(RegistroDiario.data <= data_fim)
             
             registros = query.all()
@@ -121,9 +119,8 @@ class RegistroDiarioRepository:
             self.db.rollback()
             raise Exception(f"Erro ao buscar registros por data: {str(e)}")
 
-    def buscar_por_data_especifica(self, usuario_id: int, data_especifica: str):
+    def buscar_por_data_especifica(self, usuario_id: int, data_especifica: datetime):
         try:
-            data_especifica = datetime.strptime(data_especifica, "%Y-%m-%d")
             registros = (
                 self.db.query(RegistroDiario)
                 .join(HabitoUsuario)
