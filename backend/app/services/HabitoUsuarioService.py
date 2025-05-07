@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 from datetime import datetime
 from app.utils.validar_frequencia import validar_frequencia
+from app.utils.verificar_data import validar_formato_data
 
 class HabitoUsuarioService:
     _instance = None
@@ -56,7 +57,9 @@ class HabitoUsuarioService:
                 raise ValueError(f"Frequência inválida. As opções válidas são: 'diario', 'semanal', 'mensal'.")
             
             if data_inicio is None:
-                data_inicio = datetime.now()
+                raise ValueError(f"A data não pode estar vazia.")
+            
+            data_inicio = validar_formato_data(data_inicio)
 
             novo_habito_usuario = self.habito_usuario_repository.criar_habito_usuario(
                 descricao=descricao, 
