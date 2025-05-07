@@ -39,10 +39,6 @@ export default function HabitsDashboardPage() {
         <h1 className="text-3xl font-bold text-center text-indigo-700 mb-4">
           Painel de Hábitos
         </h1>
-  
-        <section className="mb-8">
-          <HabitCalendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
-        </section>
 
         <section className="mb-8 mt-6">
           <HabitForm 
@@ -54,11 +50,10 @@ export default function HabitsDashboardPage() {
             }
             availableHabits={availableHabits} 
           />
+        </section>
 
-          {loading && <p>Carregando hábitos disponíveis...</p>}
-          {error && <p className="text-red-500">Erro ao carregar hábitos: {error}</p>}
-          {loadingUsuario && <p>Carregando hábitos do usuário...</p>}
-          {errorUsuario && <p className="text-red-500"> {errorUsuario}</p>}
+        <section className="mb-8">
+          <HabitCalendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
         </section>
 
         <section className="mb-8">
@@ -72,16 +67,12 @@ export default function HabitsDashboardPage() {
               setRefreshKey((prev) => prev + 1);
             }}
           />
+          {loading && <p>Carregando hábitos disponíveis...</p>}
+          {error && <p className="text-red-500">Erro ao carregar hábitos: {error}</p>}
+          {loadingUsuario && <p>Carregando hábitos do usuário...</p>}
+          {/* {errorUsuario && <p className="text-red-500"> {errorUsuario}</p>} */}
         </section>
-
-        <section className="mt-10 border-t pt-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            Visualização Gráfica (Em breve)
-          </h2>
-          <div className="h-32 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400">
-            Gráficos e estatísticas de hábitos serão exibidos aqui.
-          </div>
-        </section>
+        
       </main>
     </div>
   );
