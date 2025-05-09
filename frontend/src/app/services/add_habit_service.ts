@@ -1,16 +1,18 @@
 import { HabitoUsuario } from "@/app/types/habito_usuario";
 import { HabitoCreateInput } from "@/app/schemas/HabitoUsuarioSchema";
+import { formatHabitForAPI } from "@/app/utils/format_data"
 
 export async function addHabitService(
   validatedData: HabitoCreateInput
 ): Promise<HabitoUsuario> {
+  validatedData = formatHabitForAPI(validatedData)
   const {
     descricao,
     frequencia,
     dataInicio,
     vezesNaSemana,
     usuarioId,
-    habitoBaseId
+    habitoBaseId,
   } = validatedData;
 
   const response = await fetch(
@@ -29,6 +31,7 @@ export async function addHabitService(
   );
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
+    console.log(dataInicio);
     console.log(errorData)
     throw new Error(
       errorData?.message || "Erro ao adicionar hábito"
