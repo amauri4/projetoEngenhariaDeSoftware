@@ -49,7 +49,6 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
       return;
     }
 
-    // Validações específicas por frequência
     if (frequencia === Frequencia.SEMANAL && !vezesNaSemana) {
       setErro("Para frequência semanal, informe quantas vezes na semana.");
       return;
@@ -110,7 +109,6 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
   }, [mensagem]);
 
   useEffect(() => {
-    // Resetar dias selecionados quando mudar a frequência
     setDiasSelecionados([]);
     if (frequencia !== Frequencia.SEMANAL) {
       setVezesNaSemana(null);

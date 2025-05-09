@@ -24,7 +24,6 @@ const useAddHabit = (usuarioId: number) => {
     setError(null);
 
     try {
-      // Validação dos dados
       const validatedData: HabitoCreateInput = HabitoUsuarioSchema.parse({
         habitoBaseId,
         descricao,
@@ -36,19 +35,16 @@ const useAddHabit = (usuarioId: number) => {
         usuarioId
       });
 
-      // Chamada ao serviço
       return await addHabitService({
         ...validatedData,
-        // Garante que arrays vazios não sejam enviados
         diasSemana: validatedData.diasSemana || undefined,
         diasMes: validatedData.diasMes || undefined
       });
     } catch (err) {
-      // Tratamento de erros
+
       if (err instanceof z.ZodError) {
         const errorMessages = err.errors
           .map(e => {
-            // Mensagens mais amigáveis para o usuário
             if (e.path.includes('diasSemana')) return "Selecione os dias da semana";
             if (e.path.includes('diasMes')) return "Selecione os dias do mês";
             return e.message;
