@@ -31,6 +31,7 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
   const [dataInicio, setDataInicio] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [vezesNaSemana, setVezesNaSemana] = useState<number | null>(null);
   const [diasSelecionados, setDiasSelecionados] = useState<number[]>([]);
+  const [diasMesSelecionados, setDiasMesSelecionados] = useState<number[]>([]);
   const [mensagem, setMensagem] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -59,7 +60,7 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
       return;
     }
 
-    if (frequencia === Frequencia.MENSAL && diasSelecionados.length === 0) {
+    if (frequencia === Frequencia.MENSAL && diasMesSelecionados.length === 0) {
       setErro("Selecione pelo menos um dia do mês.");
       return;
     }
@@ -71,7 +72,8 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
         frequencia,
         dataInicio,
         frequencia === Frequencia.SEMANAL ? vezesNaSemana : null,
-        diasSelecionados
+        frequencia === Frequencia.DIARIA ? diasSelecionados : [],
+        frequencia === Frequencia.MENSAL ? diasMesSelecionados : []
       );
       
       onAdd();
@@ -95,6 +97,14 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
 
   const toggleDiaSelecionado = (dia: number) => {
     setDiasSelecionados(prev =>
+      prev.includes(dia)
+        ? prev.filter(d => d !== dia)
+        : [...prev, dia]
+    );
+  };
+
+  const toggleDiaMesSelecionado = (dia: number) => {
+    setDiasMesSelecionados(prev =>
       prev.includes(dia) 
         ? prev.filter(d => d !== dia) 
         : [...prev, dia]
@@ -228,8 +238,8 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
               <label key={dia} className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  checked={diasSelecionados.includes(dia)}
-                  onChange={() => toggleDiaSelecionado(dia)}
+                  checked={diasMesSelecionados.includes(dia)}
+                  onChange={() => toggleDiaMesSelecionado(dia)}
                   className="h-4 w-4 text-indigo-600"
                 />
                 <span>{dia}</span>

@@ -13,8 +13,10 @@ export async function addHabitService(
     vezesNaSemana,
     usuarioId,
     habitoBaseId,
+    diasSemana,
+    diasMes
   } = validatedData;
-
+  
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/habitos-usuario/${usuarioId}/habitos`,
     {
@@ -25,14 +27,15 @@ export async function addHabitService(
         habito_base_id: habitoBaseId,
         frequencia,
         data_inicio: dataInicio,
-        vezes_na_semana: vezesNaSemana
+        vezes_na_semana: vezesNaSemana,
+        dias_da_semana: diasSemana,
+        dias_do_mes: diasMes
       }),
     }
   );
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
-    console.log(dataInicio);
-    console.log(errorData)
+    console.log(errorData);
     throw new Error(
       errorData?.message || "Erro ao adicionar hábito"
     );

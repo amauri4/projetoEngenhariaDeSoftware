@@ -53,3 +53,25 @@ class DiaHabitoSemanaRepository:
         except SQLAlchemyError as e:
             self.db.rollback()
             raise Exception(f"Erro ao remover dia: {str(e)}")
+        
+    def remover_por_usuario(self, usuario_id: int):
+        try:
+            dias = self.db.query(DiaHabitoSemana)\
+                .join(DiaHabitoSemana.habito_id)\
+                .filter_by(usuario_id=usuario_id)\
+                .all()
+            
+            if not dias:
+                raise NoResultFound("Nenhum dia de hábito semanal encontrado para este usuário.")
+            
+            for dia in dias:
+                self.db.delete(dia)
+            self.db.commit()
+            
+            return len(dias)  
+            
+        except NoResultFound as e:
+            raise Exception(f"Erro ao remover dias por usuário: {str(e)}")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise Exception(f"Erro ao remover dias por usuário: {str(e)}")
