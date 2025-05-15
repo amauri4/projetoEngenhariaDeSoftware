@@ -5,6 +5,7 @@ from app.controllers.HabitoUsuarioController import habito_usuario_bp
 from app.controllers.RegistroController import registro_diario_bp
 from app.controllers.DiaHabitoMesController import dia_habito_mes_bp
 from app.controllers.DiaHabitoSemanaController import dia_habito_semana_bp
+from app.controllers.LlmController import llm_bp
 
 app = create_app()
 
@@ -15,5 +16,6 @@ if __name__ == '__main__':
     app.register_blueprint(registro_diario_bp)
     app.register_blueprint(dia_habito_mes_bp)
     app.register_blueprint(dia_habito_semana_bp)
+    app.register_blueprint(llm_bp)
 
     app.run(port=8000, debug=True)
