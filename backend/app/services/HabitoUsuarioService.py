@@ -3,6 +3,7 @@ from app.repositories.HabitoBaseRepository import HabitoBaseRepository
 from app.repositories.UsuarioRepositories import UserRepository
 from app.repositories.DiaHabitoMesRepository import DiaHabitoMesRepository
 from app.repositories.DiaHabitoSemanaRepository import DiaHabitoSemanaRepository
+from app.repositories.CategoriaRepository import CategoriaRepository
 from app.models.HabitoUsuario import HabitoUsuario
 from app.models.HabitoBase import HabitoBase
 from app.models.Usuario import Usuario
@@ -31,6 +32,7 @@ class HabitoUsuarioService:
         self.habito_usuario_repository = HabitoUsuarioRepository(db)
         self.habito_base_repository = HabitoBaseRepository(db)
         self.usuario_repository = UserRepository(db)
+        self.categoria_repository = CategoriaRepository(db)
         self.dia_habito_semana_repository = DiaHabitoSemanaRepository(db)
         self.dia_habito_mes_repository = DiaHabitoMesRepository(db)
         self._initialized = True
@@ -165,6 +167,18 @@ class HabitoUsuarioService:
             raise Exception(f"Erro no serviço ao remover hábito de usuário: {str(e)}")
         except Exception as e:
             raise Exception(f"Erro no serviço ao remover hábito: {str(e)}")
+        
+    def buscar_categorias_usuario(self, usuario_id:int):
+        try:
+            categorias_usuario = self.categoria_repository.buscar_categorias_por_usuario(usuario_id=usuario_id)
+            if not categorias_usuario:
+                raise NoResultFound("Categorias de hábito não encontradas.")
+            return categorias_usuario
+        except NoResultFound as e:
+            raise Exception(f"Erro no serviço ao buscar categorias de usuário: {str(e)}")
+        except Exception as e:
+            raise Exception(f"{str(e)}")
+            
 
 
 

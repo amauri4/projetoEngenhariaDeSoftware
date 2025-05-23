@@ -124,7 +124,7 @@ class HabitoUsuarioRepository:
 
     def buscar_por_id(self, habito_usuario_id: int):
         try:
-            habito = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
+            habito = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).all()
             if not habito:
                 raise NoResultFound("Hábito de usuário não encontrado.")
             return habito

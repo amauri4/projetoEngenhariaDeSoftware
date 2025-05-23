@@ -1,7 +1,12 @@
+from collections import defaultdict
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from app.models.CategoriasHabito import CategoriaHabito
+from ..models.HabitoBase import HabitoBase
+from ..models.HabitoUsuario import HabitoUsuario
+from sqlalchemy.orm import joinedload
 
 class CategoriaRepository:
     def __init__(self, db: Session):
@@ -55,3 +60,33 @@ class CategoriaRepository:
         except SQLAlchemyError as e:
             self.db.rollback()
             raise Exception(f"Erro ao remover categoria de hábito: {str(e)}")
+            
+    def buscar_categorias_por_usuario(self, usuario_id: int) -> dict:
+        try:
+            if not isinstance(usuario_id, int) or usuario_id <= 0:
+                raise ValueError("ID do usuário inválido")
+
+            resultados = (
+                self.db.query(
+                    CategoriaHabito.nome,
+                    func.count(HabitoUsuario.id).label('quantidade')
+                )
+                .select_from(HabitoUsuario)
+                .join(HabitoBase, HabitoUsuario.habito_base_id == HabitoBase.id)
+                .join(CategoriaHabito, HabitoBase.categoria_id == CategoriaHabito.id)
+                .filter(HabitoUsuario.usuario_id == usuario_id)
+                .group_by(CategoriaHabito.nome)
+                .all()
+            )
+
+            return dict(resultados)
+
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            error_msg = getattr(e, 'orig', str(e))
+            if hasattr(error_msg, 'args') and error_msg.args:
+                error_msg = error_msg.args[0]
+            raise Exception(f"Erro de banco de dados: {error_msg}")
+        except Exception as e:
+            self.db.rollback()
+            raise Exception(f"Erro inesperado: {str(e)}")

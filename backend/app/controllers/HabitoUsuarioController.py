@@ -125,4 +125,17 @@ def remover_habito_usuario(habito_usuario_id):
             return jsonify({"message": "Hábito removido com sucesso."}), 200
     except Exception as e:
         return jsonify({"erro": str(e)}), 400
+    
+@habito_usuario_bp.route("/<int:usuario_id>/categorias-usuario", methods=["GET"])
+def buscar_categorias_usuario(usuario_id):
+    try:
+        with get_db() as db:
+            service = HabitoUsuarioService(db)
+            habitos = service.buscar_categorias_usuario(usuario_id=usuario_id)
+            
+            return jsonify(habitos), 200
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 400
+
 
