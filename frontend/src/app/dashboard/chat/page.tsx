@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HabitoUsuario } from "../types/habito_usuario";
+import { HabitoUsuario } from "../../types/habito_usuario";
 
 export default function ChatAssistentePage() {
   const [message, setMessage] = useState("");

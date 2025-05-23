@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-
 import HabitForm from "@/app/components/habito_form";
 import HabitCalendar from "@/app/components/habito_calendar";
 import HabitList from "@/app/components/habito_listas";
-
 import { useHabits as listar_habitos } from "@/app/hooks/use_lista_habitos";
 import { useHabitosUsuario } from "@/app/hooks/use_habitos_usuarios";
 import { HabitoUsuario } from "../types/habito_usuario";
-import Link from "next/link";
 
 export default function HabitsDashboardPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -67,6 +64,7 @@ export default function HabitsDashboardPage() {
               setHabits((prev) => prev.filter((h) => h.id !== idRemovido));
               setRefreshKey((prev) => prev + 1);
             }}
+            selectedDate={selectedDate}
           />
           {loading && <p>Carregando hábitos disponíveis...</p>}
           {error && <p className="text-red-500">Erro ao carregar hábitos: {error}</p>}

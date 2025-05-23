@@ -27,7 +27,7 @@ export default function BottomNavigation() {
                 </Link>
 
                 <Link
-                    href="/chat"
+                    href="/dashboard/chat"
                     className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/chat' ? 'text-purple-600' : 'text-gray-500'}`}
                 >
                     <div className="relative">

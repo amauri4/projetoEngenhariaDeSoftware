@@ -11,20 +11,32 @@ def listar_habitos_usuario(usuario_email):
             service = HabitoUsuarioService(db)
             habitos = service.buscar_habitos_usuario(usuario_email)
 
-            habitos_json = [
-                {
+            habitos_json = []
+            for h in habitos:
+
+                dias_semana = [dia.dia.value for dia in h.dias_semana] if h.dias_semana else None
+                
+                dias_mes = [dia.dia for dia in h.dias_mes] if h.dias_mes else None
+                
+                habito_base_nome = h.habito_base.nome if h.habito_base else None
+
+                habito_json = {
                     "id": h.id,
                     "descricao": h.descricao,
-                    "habito_base_id": h.habito_base_id,
+                    "frequencia": h.frequencia.value, 
+                    "data_inicio": h.data_inicio.isoformat() if h.data_inicio else None,
+                    "vezes_na_semana": h.vezes_na_semana,
+                    "dias_semana": dias_semana,
+                    "dias_mes": dias_mes,
                     "usuario_id": h.usuario_id,
-                    "data_inicio": h.data_inicio.strftime("%Y-%m-%d %H:%M:%S") if h.data_inicio else None,
-                    "vezes_na_semana": h.vezes_na_semana
-                } for h in habitos
-            ]
+                    "habito_base_id": h.habito_base_id,
+                    "habito_base_nome": habito_base_nome  
+                }
+                habitos_json.append(habito_json)
 
             return jsonify(habitos_json), 200
     except Exception as e:
-        return jsonify({"erro": str(e)}), 400
+        return jsonify({"erro": f"Ocorreu um erro ao processar sua solicitação {e}", }), 500
 
 @habito_usuario_bp.route("/<int:usuario_id>/habitos", methods=["POST"])
 def adicionar_habito_usuario(usuario_id):
@@ -61,6 +73,7 @@ def adicionar_habito_usuario(usuario_id):
                 }
             }), 201
     except Exception as e:
+        print(str(e))
         return jsonify({"erro": str(e)}), 400
 
 @habito_usuario_bp.route("/habitos/<int:habito_usuario_id>", methods=["PUT"])
