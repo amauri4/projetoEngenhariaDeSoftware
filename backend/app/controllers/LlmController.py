@@ -1,47 +1,29 @@
 from flask import Blueprint, request, jsonify
-import requests
+from app.services.ChatService import ChatService
+from app.repositories.UsuarioRepositories import UserRepository
+from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
+from app.database.session import get_db
 
-llm_bp = Blueprint("llm", __name__, url_prefix="/llm")
+chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-
-@llm_bp.route("/chat", methods=["POST"])
-def llm_chat():
+@chat_bp.route("", methods=["POST"])
+def chat():
     data = request.get_json()
+    user_id = data.get("user_id")
+    mensagem = data.get("mensagem")
 
-    if not data:
-        return jsonify({"error": "Requisição sem JSON"}), 400
-
-    user_name = data.get("user_name")
-    message = data.get("message")
-    habits = data.get("habits", [])
-
-    if not user_name or not message:
-        return jsonify({"error": "Faltando user_name ou message"}), 400
-
-    prompt = f"Usuário: {user_name}\n"
-    prompt += "Hábitos atuais:\n"
-    for habito in habits:
-        prompt += f"- {habito.get('nome')}: {habito.get('descricao')}\n"
-    prompt += f"Pergunta do usuário: {message}\n"
-    prompt += "Resposta da IA (dicas, sugestões):"
-
-    
-    payload = {
-        "model": "mistral",
-        "prompt": prompt,
-        "max_tokens": 300,
-        "temperature": 0.7,
-        "stream": False
-    }
+    if not user_id or not mensagem:
+        return jsonify({"erro": "user_id e mensagem são obrigatórios"}), 400
 
     try:
-        response = requests.post(OLLAMA_URL, json=payload)
-        response.raise_for_status()
-        result = response.json()
-        answer = result.get("response", "").strip()
+        with get_db() as db:
+            usuario_repo = UserRepository(db)
+            habito_repo = HabitoUsuarioRepository(db)
+            chat_service = ChatService(usuario_repo, habito_repo)
 
-        return jsonify({"response": answer})
+            resposta = chat_service.processar_mensagem(user_id, mensagem)
 
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": f"Erro ao chamar Ollama: {str(e)}"}), 500
+            return jsonify({"resposta": resposta}), 200
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500

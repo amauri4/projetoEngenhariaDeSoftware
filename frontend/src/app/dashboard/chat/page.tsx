@@ -12,49 +12,62 @@ export default function ChatAssistentePage() {
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // 🔐 Recupera o ID do usuário do localStorage
   useEffect(() => {
     const id = localStorage.getItem("usuario_id");
     if (id) setUsuarioId(parseInt(id));
   }, []);
 
+  // 🔗 Busca os hábitos do usuário
   useEffect(() => {
     async function fetchHabitsUsuario() {
       if (!usuarioId) return;
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/habitos/usuario/${usuarioId}`
-      );
-      const data = await res.json();
-      setHabits(data);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/habitos/usuario/${usuarioId}`
+        );
+        const data = await res.json();
+        setHabits(data);
+      } catch (error) {
+        console.error("Erro ao buscar hábitos", error);
+      }
     }
 
     if (usuarioId) fetchHabitsUsuario();
   }, [usuarioId]);
 
+  // ✉️ Envia mensagem para o backend/chatbot
   async function sendMessage() {
     if (!message.trim()) return;
 
-    setChatLog((prev) => [...prev, { from: "user", text: message }]);
+    const userMessage = { from: "user" as const, text: message };
+    setChatLog((prev) => [...prev, userMessage]);
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/llm/chat`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_name: "Usuário", 
-          message,
-          habits,
+          user_id: usuarioId,
+          mensagem: message,
         }),
       });
 
       if (!res.ok) throw new Error("Erro na resposta do servidor");
 
       const data = await res.json();
-      setChatLog((prev) => [...prev, { from: "bot", text: data.response }]);
+
+      const botMessage = { from: "bot" as const, text: data.resposta };
+      setChatLog((prev) => [...prev, botMessage]);
     } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
       setChatLog((prev) => [
         ...prev,
-        { from: "bot", text: "Erro ao conversar com o assistente." },
+        {
+          from: "bot",
+          text: "❌ Ocorreu um erro ao conversar com o assistente.",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -62,38 +75,61 @@ export default function ChatAssistentePage() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold mb-4 text-indigo-600">IAbit</h1>
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
-        <div className="h-96 overflow-y-auto border rounded p-4 mb-4 bg-gray-50">
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-md p-6">
+        <h1 className="text-3xl font-bold mb-6 text-indigo-600 text-center">
+           IAbit - Seu Assistente de Hábitos
+        </h1>
+
+        <div className="h-[400px] overflow-y-auto border rounded-xl p-4 mb-4 bg-gray-50">
           {chatLog.map((msg, i) => (
             <div
               key={i}
               className={`mb-2 ${
-                msg.from === "user" ? "text-right" : "text-left text-blue-700"
+                msg.from === "user" ? "text-right" : "text-left"
               }`}
             >
-              <div className="inline-block bg-gray-200 rounded px-3 py-2">
+              <div
+                className={`inline-block px-4 py-2 rounded-xl ${
+                  msg.from === "user"
+                    ? "bg-indigo-500 text-white"
+                    : "bg-gray-200 text-gray-900"
+                }`}
+              >
                 {msg.text}
               </div>
             </div>
           ))}
+          {loading && (
+            <div className="text-left">
+              <div className="inline-block px-4 py-2 rounded-xl bg-gray-200">
+                Digitando...
+              </div>
+            </div>
+          )}
         </div>
 
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
           rows={3}
-          placeholder="Digite sua pergunta..."
-          className="w-full border rounded p-2 mb-2"
+          placeholder="Digite sua mensagem e aperte Enter..."
+          className="w-full border rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
         <button
           onClick={sendMessage}
           disabled={loading}
-          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50"
+          className="w-full bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition disabled:opacity-50"
         >
           {loading ? "Enviando..." : "Enviar"}
         </button>
