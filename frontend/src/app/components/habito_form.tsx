@@ -13,13 +13,13 @@ export interface HabitFormProps {
 }
 
 const DIAS_SEMANA = [
-  { id: 0, nome: "Domingo" },
   { id: 1, nome: "Segunda" },
   { id: 2, nome: "Terça" },
   { id: 3, nome: "Quarta" },
   { id: 4, nome: "Quinta" },
   { id: 5, nome: "Sexta" },
   { id: 6, nome: "Sábado" },
+  { id: 7, nome: "Domingo" },
 ];
 
 const DIAS_MES = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -71,9 +71,9 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
         descricao,
         frequencia,
         dataInicio,
-        frequencia === Frequencia.SEMANAL ? vezesNaSemana : null,
-        frequencia === Frequencia.DIARIA ? diasSelecionados : [],
-        frequencia === Frequencia.MENSAL ? diasMesSelecionados : []
+        vezesNaSemana ? vezesNaSemana : null,
+        diasSelecionados ? diasSelecionados : [],
+        diasMesSelecionados ? diasMesSelecionados : []
       );
       
       onAdd();

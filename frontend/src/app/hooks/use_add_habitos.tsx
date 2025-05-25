@@ -43,13 +43,14 @@ const useAddHabit = (usuarioId: number) => {
     } catch (err) {
 
       if (err instanceof z.ZodError) {
+        console.log(err.errors)
         const errorMessages = err.errors
           .map(e => {
             if (e.path.includes('diasSemana')) return "Selecione os dias da semana";
             if (e.path.includes('diasMes')) return "Selecione os dias do mês";
             return e.message;
           })
-          .filter((msg, i, arr) => arr.indexOf(msg) === i) // Remove duplicados
+          .filter((msg, i, arr) => arr.indexOf(msg) === i) 
           .join(". ");
         
         setError(`Erro no formulário: ${errorMessages}`);

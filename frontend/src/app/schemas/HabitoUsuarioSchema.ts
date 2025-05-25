@@ -19,8 +19,8 @@ export const HabitoUsuarioSchema = z.object({
   diasSemana: z.array(
     z.number()
       .int()
-      .min(0, "Dia inválido")
-      .max(6, "Dia inválido")
+      .min(1, "Dia inválido")
+      .max(7, "Dia inválido")
   ).optional(),
   diasMes: z.array(
     z.number()

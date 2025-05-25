@@ -7,6 +7,8 @@ import { useState } from "react";
 import { HabitDetailsModal } from "@/app/components/habit_details";
 import { format, isSameDay } from "date-fns";
 import { Frequencia } from "@/app/types/frequencia";
+import { numeroParaDia } from "@/app/utils/numero_para_dia";
+import { type } from "os";
 
 export interface HabitListProps {
   habits: HabitoUsuario[];
@@ -51,9 +53,30 @@ export default function HabitList({ habits, onRemove, selectedDate }: HabitListP
 
     switch (habit.frequencia) {
       case Frequencia.DIARIA:
-        return true;
+        
+        const diasSemanaNumeros = (habit.dias_semana as unknown as string[]).map(dia => {
+          if (!isNaN(Number(dia))) {
+            return Number(dia);
+          }
+          
+          // Se for texto, converte de acordo com os dias da semana
+          const diaLower = dia.toString().toLowerCase().trim();
+          const mapeamento: Record<string, number> = {
+            'domingo': 0,
+            'segunda': 1,
+            'terça': 2,
+            'quarta': 3,
+            'quinta': 4,
+            'sexta': 5,
+            'sábado': 6
+          };
+          
+          return mapeamento[diaLower] ?? 0;
+        });
+        
+        return diasSemanaNumeros.includes(selectedDate.getDay());
       case Frequencia.SEMANAL:
-        return habit.dias_semana?.includes(selectedDate.getDay()) ?? false;
+        return true;
       case Frequencia.MENSAL:
         return habit.dias_mes?.includes(selectedDate.getDate()) ?? false;
       default:

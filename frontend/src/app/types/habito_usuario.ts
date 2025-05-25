@@ -12,6 +12,18 @@ export interface HabitoUsuario {
     habito_base_id: number;
 }
 
+export interface HabitoUsuarioResponse {
+    id: number;
+    descricao: string;
+    frequencia: Frequencia;
+    data_inicio: Date;
+    vezes_na_semana: number | null;
+    dias_semana: string[] | null; // Array com índices dos dias (0-6, onde 0=Domingo)
+    dias_mes: number[] | null;   // Array com dias do mês (1-31)
+    usuario_id: number;
+    habito_base_id: number;
+}
+
 // Tipo para o payload da API
 export interface HabitoPayload {
     descricao: string;

@@ -7,6 +7,7 @@ import HabitCalendar from "@/app/components/habito_calendar";
 import HabitList from "@/app/components/habito_listas";
 import { useHabits as listar_habitos } from "@/app/hooks/use_lista_habitos";
 import { useHabitosUsuario } from "@/app/hooks/use_habitos_usuarios";
+import { useDiaHabitoSemana } from "@/app/hooks/use_habitos_semana";
 import { HabitoUsuario } from "../types/habito_usuario";
 
 export default function HabitsDashboardPage() {
