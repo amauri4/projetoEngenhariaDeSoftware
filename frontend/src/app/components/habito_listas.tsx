@@ -3,12 +3,16 @@
 import type { HabitoUsuario } from "@/app/types/habito_usuario";
 import { useHabits } from "@/app/hooks/use_lista_habitos";
 import useDeleteHabit from "@/app/hooks/use_remove_habitos";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HabitDetailsModal } from "@/app/components/habit_details";
 import { format, isSameDay } from "date-fns";
 import { Frequencia } from "@/app/types/frequencia";
 import { numeroParaDia } from "@/app/utils/numero_para_dia";
 import { type } from "os";
+import { RegistroDiario, RegistroDiarioUpdateInput } from "@/app/types/registro_habito";
+import { useRegistroDiario } from "@/app/hooks/use_registro_diario";
+
+// TODO: -> RESOLVER ERRO NA EXIBIÇÃO DOS HÁBITOS
 
 export interface HabitListProps {
   habits: HabitoUsuario[];
@@ -21,6 +25,14 @@ export default function HabitList({ habits, onRemove, selectedDate }: HabitListP
   const { deleteHabit, loadingDeleteHabit } = useDeleteHabit();
   const [selectedHabit, setSelectedHabit] = useState<HabitoUsuario | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { createRegistro, getRegistrosPorDataEspecifica, updateRegistro, loading, error } = useRegistroDiario();
+  const [registros, setRegistros] = useState<RegistroDiario[]>([]);
+  const [formData, setFormData] = useState({
+    data: new Date().toISOString().split('T')[0], // Data atual no formato YYYY-MM-DD
+    habito_id: '',
+    concluido: false
+  });
 
   const habitNamesMap = new Map<number, string>();
   availableHabits?.forEach((habit) => {
@@ -84,6 +96,44 @@ export default function HabitList({ habits, onRemove, selectedDate }: HabitListP
     }
   });
 
+  useEffect(() => {
+    const hoje = new Date().toISOString().split('T')[0];
+    if (!isSameDay(selectedDate, hoje)) return;
+  
+    const verificarECriarRegistros = async () => {
+      try {
+        const dataFormatada = selectedDate.toISOString().split('T')[0];
+        const usuarioId = Number(localStorage.getItem('usuario_id'));
+        
+        const registrosDoDia = await getRegistrosPorDataEspecifica(usuarioId, dataFormatada);
+  
+        for (const habit of filteredHabits) {
+          const existeRegistro = registrosDoDia.some(r => r.habito_id === habit.id);
+          if (!existeRegistro) {
+            await createRegistro({
+              data: dataFormatada,
+              habito_id: habit.id,
+              concluido: false
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao verificar/criar registros:", error);
+      }
+    };
+  
+    verificarECriarRegistros();
+  }, [selectedDate]);
+
+  const handleToggleComplete = async (registroId: number, registroData: RegistroDiarioUpdateInput) => {
+    try {
+      await updateRegistro(registroId, registroData);
+    } catch (error) {
+      console.error("Erro ao atualizar registro:", error);
+      throw error;
+    }
+  };
+
   return (
     <div className="mt-6">
       <h2 className="text-lg font-semibold mb-2">
@@ -128,6 +178,9 @@ export default function HabitList({ habits, onRemove, selectedDate }: HabitListP
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         habit={selectedHabit}
+        selectedDate={selectedDate}
+        onToggleComplete={handleToggleComplete}
+        getRegistrosPorDataEspecifica={getRegistrosPorDataEspecifica}
       />
     </div>
   );

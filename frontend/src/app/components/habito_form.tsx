@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import type { HabitoBase } from "@/app/types/habito_base";
 import useAddHabit from "@/app/hooks/use_add_habitos";
+import { useRegistroDiario } from "@/app/hooks/use_registro_diario";
 import { Frequencia } from "@/app/types/frequencia";
 import { format } from "date-fns";
+import { RegistroDiario, RegistroDiarioCreateInput } from "@/app/types/registro_habito";
 
 export interface HabitFormProps {
   availableHabits: HabitoBase[];
@@ -34,6 +36,14 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
   const [diasMesSelecionados, setDiasMesSelecionados] = useState<number[]>([]);
   const [mensagem, setMensagem] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+
+  const { createRegistro, loading, error } = useRegistroDiario();
+  const [registros, setRegistros] = useState<RegistroDiario[]>([]);
+  const [formData, setFormData] = useState({
+    data: new Date().toISOString().split('T')[0], // Data atual no formato YYYY-MM-DD
+    habito_id: '',
+    concluido: false
+  });
 
   const { addHabit, loadingHabit, errorHabit } = useAddHabit(idUsuario ?? 0);
 
@@ -65,6 +75,12 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
       return;
     }
 
+    const registroData = {
+      data: dataInicio,
+      habito_id: Number(selectedHabitId),
+      concluido: false
+    };
+
     try {
       await addHabit(
         selectedHabitId,
@@ -75,6 +91,9 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
         diasSelecionados ? diasSelecionados : [],
         diasMesSelecionados ? diasMesSelecionados : []
       );
+
+      const novoRegistro = await createRegistro(registroData);
+      console.log('Registro criado:', novoRegistro);
       
       onAdd();
       setMensagem("Hábito adicionado com sucesso!");
@@ -93,6 +112,12 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
     setVezesNaSemana(null);
     setDiasSelecionados([]);
     setErro(null);
+
+    setFormData({
+      data: new Date().toISOString().split('T')[0],
+      habito_id: '',
+      concluido: false
+    });
   };
 
   const toggleDiaSelecionado = (dia: number) => {

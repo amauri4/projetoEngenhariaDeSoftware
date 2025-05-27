@@ -16,7 +16,7 @@ load_dotenv()
 app = Flask(__name__)
 # importante para testes locais
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True, 
-     methods=["GET", "POST", "DELETE", "OPTIONS"], allow_headers=["Content-Type", "Authorization"])
+     methods=["GET", "POST", "DELETE", "OPTIONS", "PUT"], allow_headers=["Content-Type", "Authorization"])
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

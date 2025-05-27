@@ -68,7 +68,7 @@ export default function HabitsDashboardPage() {
             selectedDate={selectedDate}
           />
           {loading && <p>Carregando hábitos disponíveis...</p>}
-          {error && <p className="text-red-500">Erro ao carregar hábitos: {error}</p>}
+          {/*error && <p className="text-red-500">Erro ao carregar hábitos: {error}</p>*/}
           {loadingUsuario && <p>Carregando hábitos do usuário...</p>}
           {/* {errorUsuario && <p className="text-red-500"> {errorUsuario}</p>} */}
         </section>
