@@ -12,13 +12,13 @@ export default function ChatAssistentePage() {
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔐 Recupera o ID do usuário do localStorage
+  // Recupera o ID do usuário do localStorage
   useEffect(() => {
     const id = localStorage.getItem("usuario_id");
     if (id) setUsuarioId(parseInt(id));
   }, []);
 
-  // 🔗 Busca os hábitos do usuário
+  // Busca os hábitos do usuário
   useEffect(() => {
     async function fetchHabitsUsuario() {
       if (!usuarioId) return;
@@ -36,7 +36,7 @@ export default function ChatAssistentePage() {
     if (usuarioId) fetchHabitsUsuario();
   }, [usuarioId]);
 
-  // ✉️ Envia mensagem para o backend/chatbot
+  // Envia mensagem para o backend/chatbot
   async function sendMessage() {
     if (!message.trim()) return;
 
@@ -89,33 +89,38 @@ export default function ChatAssistentePage() {
            IAbit - Seu Assistente de Hábitos
         </h1>
 
-        <div className="h-[400px] overflow-y-auto border rounded-xl p-4 mb-4 bg-gray-50">
-          {chatLog.map((msg, i) => (
-            <div
-              key={i}
-              className={`mb-2 ${
-                msg.from === "user" ? "text-right" : "text-left"
-              }`}
-            >
-              <div
-                className={`inline-block px-4 py-2 rounded-xl ${
-                  msg.from === "user"
-                    ? "bg-indigo-500 text-white"
-                    : "bg-gray-200 text-gray-900"
-                }`}
-              >
-                {msg.text}
-              </div>
+            <div className="h-[400px] overflow-y-auto border rounded-xl p-4 mb-4 bg-gray-50">
+              {chatLog.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`mb-2 ${
+                    msg.from === "user" ? "text-right" : "text-left"
+                  }`}
+                >
+                  <div
+                    className={`inline-block px-4 py-2 rounded-xl ${
+                      msg.from === "user"
+                        ? "bg-indigo-500 text-white"
+                        : "bg-gray-200 text-gray-900"
+                    }`}
+                  >
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: msg.text.replace(/\n/g, "<br />"),
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="text-left">
+                  <div className="inline-block px-4 py-2 rounded-xl bg-gray-200">
+                    Digitando...
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-          {loading && (
-            <div className="text-left">
-              <div className="inline-block px-4 py-2 rounded-xl bg-gray-200">
-                Digitando...
-              </div>
-            </div>
-          )}
-        </div>
+
 
         <textarea
           value={message}

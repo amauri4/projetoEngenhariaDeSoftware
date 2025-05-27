@@ -1,7 +1,7 @@
 import requests
 import os
 
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 def chamar_modelo_groq(prompt: str) -> str:
@@ -13,7 +13,8 @@ def chamar_modelo_groq(prompt: str) -> str:
     body = {
         "model": "llama3-8b-8192",
         "messages": [
-            {"role": "system", "content": "Você é o IAbit um assistente especialista em hábitos e bem-estar do HabitTracker. Responda de forma breve, clara e prática. Não precisa informar a data de inicio dos hábitos"},
+            {"role": "system", "content": "Você é o IAbit, um assistente ultra objetivo e prático sobre hábitos no HabitTracker. Responda apenas com informações claras, diretas e em tópicos sempre que possível. Não use frases longas, não faça introduções ou conclusões, nem comentários adicionais. Seja sucinto."},
+            {"role": "system", "content": "Não precisa listar a data de início do hábito, apenas caso seja requisitado"},
             {"role": "user", "content": prompt}
         ],
         "temperature": 0.5,
