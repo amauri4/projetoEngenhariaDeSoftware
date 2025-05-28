@@ -35,7 +35,6 @@ class ChatService:
             f"Hábito(s) cadastrado(s):\n"
             + ("\n".join(lista_habitos) if lista_habitos else "Nenhum hábito cadastrado.") +
             f"\n\nPergunta do usuário: {mensagem}\n"
-            "Responda de forma amigável, objetiva e útil, considerando os hábitos, categorias e contexto do usuário."
         )
         return prompt
 
