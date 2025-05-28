@@ -24,7 +24,7 @@ class ChatRepository:
                 .filter(HistoricoChat.usuario_id == usuario_id)
                 .order_by(HistoricoChat.timestamp.desc())
                 .limit(limite)
-                .all()[::-1])  # Inverte para ordem cronológica
+                .all()[::-1])
 
     def deletar_historico(self, usuario_id: int):
         (self.db.query(HistoricoChat)

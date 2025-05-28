@@ -1,14 +1,23 @@
-# services/chat_service.py
 from app.repositories.UsuarioRepositories import UserRepository
 from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.CategoriaRepository import CategoriaRepository
+from app.repositories.ChatRepository import ChatRepository
+from app.models.HistoricoChat import HistoricoChat
 from app.services.GroqService import chamar_modelo_groq
 
+
 class ChatService:
-    def __init__(self, usuario_repo: UserRepository, habito_repo: HabitoUsuarioRepository, categoria_repo: CategoriaRepository):
+    def __init__(
+        self,
+        usuario_repo: UserRepository,
+        habito_repo: HabitoUsuarioRepository,
+        categoria_repo: CategoriaRepository,
+        chat_repo: ChatRepository
+    ):
         self.usuario_repo = usuario_repo
         self.habito_repo = habito_repo
         self.categoria_repo = categoria_repo
+        self.chat_repo = chat_repo
 
     def montar_prompt(self, user_id: int, mensagem: str) -> str:
         usuario = self.usuario_repo.buscar_por_id(user_id)
@@ -39,6 +48,33 @@ class ChatService:
         return prompt
 
     def processar_mensagem(self, user_id: int, mensagem: str) -> str:
+        usuario = self.usuario_repo.buscar_por_id(user_id)
+        if not usuario:
+            return "Usuário não encontrado."
+
+        mensagem_usuario = HistoricoChat(
+            usuario_id=user_id,
+            quem_enviou='user',
+            mensagem=mensagem
+        )
+        self.chat_repo.salvar_mensagem(mensagem_usuario)
+
         prompt = self.montar_prompt(user_id, mensagem)
+
+        historico = self.chat_repo.buscar_ultimas_mensagens(user_id, limite=10)
+        if historico:
+            contexto_conversa = "\n".join(
+                [f"{msg.quem_enviou}: {msg.mensagem}" for msg in historico]
+            )
+            prompt = f"{contexto_conversa}\n\n{prompt}"
+
         resposta = chamar_modelo_groq(prompt)
+
+        mensagem_bot = HistoricoChat(
+            usuario_id=user_id,
+            quem_enviou='bot',
+            mensagem=resposta
+        )
+        self.chat_repo.salvar_mensagem(mensagem_bot)
+
         return resposta

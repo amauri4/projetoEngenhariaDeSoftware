@@ -9,7 +9,7 @@ class HistoricoChat(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     usuario_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
-    quem_enviou = Column(String(10), nullable=False)  # 'user' ou 'bot'
+    quem_enviou = Column(String(10), nullable=False) 
     mensagem = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
