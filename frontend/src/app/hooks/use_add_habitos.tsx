@@ -34,7 +34,6 @@ const useAddHabit = (usuarioId: number) => {
         diasMes: frequencia === Frequencia.MENSAL ? diasMes : undefined,
         usuarioId
       });
-
       return await addHabitService({
         ...validatedData,
         diasSemana: validatedData.diasSemana || undefined,

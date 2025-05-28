@@ -7,8 +7,6 @@ import { useEffect, useState } from "react";
 import { HabitDetailsModal } from "@/app/components/habit_details";
 import { format, isSameDay } from "date-fns";
 import { Frequencia } from "@/app/types/frequencia";
-import { numeroParaDia } from "@/app/utils/numero_para_dia";
-import { type } from "os";
 import { RegistroDiario, RegistroDiarioUpdateInput } from "@/app/types/registro_habito";
 import { useRegistroDiario } from "@/app/hooks/use_registro_diario";
 
@@ -25,15 +23,9 @@ export default function HabitList({ habits, onRemove, selectedDate }: HabitListP
   const { deleteHabit, loadingDeleteHabit } = useDeleteHabit();
   const [selectedHabit, setSelectedHabit] = useState<HabitoUsuario | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [firstLoad, setFirstLoad] = useState(true);
   const { createRegistro, getRegistrosPorDataEspecifica, updateRegistro, loading, error } = useRegistroDiario();
-  const [registros, setRegistros] = useState<RegistroDiario[]>([]);
-  const [formData, setFormData] = useState({
-    data: new Date().toISOString().split('T')[0], // Data atual no formato YYYY-MM-DD
-    habito_id: '',
-    concluido: false
-  });
-
+ 
   const habitNamesMap = new Map<number, string>();
   availableHabits?.forEach((habit) => {
     habitNamesMap.set(habit.id, habit.nome);
@@ -97,8 +89,14 @@ export default function HabitList({ habits, onRemove, selectedDate }: HabitListP
   });
 
   useEffect(() => {
+    setFirstLoad(false);
+  }, [])
+
+  useEffect(() => {
     const hoje = new Date().toISOString().split('T')[0];
-    if (!isSameDay(selectedDate, hoje)) return;
+    // console.log(selectedDate)
+    // console.log(hoje)
+    //if (!isSameDay(selectedDate, hoje)) return;
   
     const verificarECriarRegistros = async () => {
       try {
@@ -123,7 +121,7 @@ export default function HabitList({ habits, onRemove, selectedDate }: HabitListP
     };
   
     verificarECriarRegistros();
-  }, [selectedDate]);
+  }, [selectedDate, firstLoad]);
 
   const handleToggleComplete = async (registroId: number, registroData: RegistroDiarioUpdateInput) => {
     try {

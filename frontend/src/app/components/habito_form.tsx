@@ -82,6 +82,7 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
     };
 
     try {
+      console.log(vezesNaSemana)
       await addHabit(
         selectedHabitId,
         descricao,
@@ -94,7 +95,7 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
 
       const novoRegistro = await createRegistro(registroData);
       console.log('Registro criado:', novoRegistro);
-      
+
       onAdd();
       setMensagem("Hábito adicionado com sucesso!");
       resetForm();
@@ -103,6 +104,10 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
       setErro(error instanceof Error ? error.message : "Erro ao adicionar hábito.");
     }
   };
+
+  useEffect(()=>{
+    {console.log(vezesNaSemana)}
+  },[vezesNaSemana])
 
   const resetForm = () => {
     setDescricao("");
@@ -130,8 +135,8 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
 
   const toggleDiaMesSelecionado = (dia: number) => {
     setDiasMesSelecionados(prev =>
-      prev.includes(dia) 
-        ? prev.filter(d => d !== dia) 
+      prev.includes(dia)
+        ? prev.filter(d => d !== dia)
         : [...prev, dia]
     );
   };
@@ -229,7 +234,10 @@ export default function HabitForm({ onAdd, availableHabits, idUsuario }: HabitFo
             min="1"
             max="7"
             value={vezesNaSemana ?? ""}
-            onChange={(e) => setVezesNaSemana(Number(e.target.value))}
+            onChange={(e) => {
+              const value = e.target.value;
+              setVezesNaSemana(value === "" ? null : Math.min(7, Math.max(1, Number(value))));
+            }}
             className="p-2 border border-gray-300 rounded-lg"
             required
           />

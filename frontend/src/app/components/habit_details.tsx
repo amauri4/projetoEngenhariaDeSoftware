@@ -6,6 +6,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { isSameDay } from "date-fns";
 import { RegistroDiarioUpdateInput } from "../types/registro_habito";
+import { useRegistroDiario } from "@/app/hooks/use_registro_diario";
 
 interface HabitDetailsModalProps {
   isOpen: boolean;
@@ -61,7 +62,7 @@ export function HabitDetailsModal({
       const registroData: RegistroDiarioUpdateInput = {
         concluido: newStatus
       };
-      await onToggleComplete(habit.id, registroData);
+      await onToggleComplete(registroId, registroData);
     } catch (error) {
       console.error("Erro ao atualizar status do hábito:", error);
     } finally {
@@ -83,11 +84,11 @@ export function HabitDetailsModal({
           const mapeamento: Record<string, number> = {
             'domingo': 0,
             'segunda': 1,
-            'terça': 2,
+            'terca': 2,
             'quarta': 3,
             'quinta': 4,
             'sexta': 5,
-            'sábado': 6
+            'sabado': 6
           };
 
           return mapeamento[diaLower] ?? 0;
