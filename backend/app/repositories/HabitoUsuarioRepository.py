@@ -131,3 +131,6 @@ class HabitoUsuarioRepository:
         except (NoResultFound, SQLAlchemyError) as e:
             self.db.rollback()
             raise Exception(f"Erro ao buscar hábito de usuário por ID: {str(e)}")
+    
+    def buscar_por_usuario(self, user_id: int) -> list[HabitoUsuario]:
+        return self.db.query(HabitoUsuario).filter(HabitoUsuario.usuario_id == user_id).all()

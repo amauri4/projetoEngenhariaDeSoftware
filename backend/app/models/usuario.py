@@ -11,6 +11,7 @@ class Usuario(Base):
     senha_hash = Column(String(255), nullable=False)
 
     habitos = relationship("HabitoUsuario", back_populates="usuario", cascade="all, delete-orphan")
+    conversas = relationship("HistoricoChat", back_populates="usuario", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Usuario(nome={self.nome}, email={self.email})>"
