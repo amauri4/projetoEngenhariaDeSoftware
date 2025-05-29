@@ -48,7 +48,8 @@ def adicionar_habito_usuario(usuario_id):
         vezes_na_semana = request.json.get("vezes_na_semana")
         dias_da_semana = request.json.get("dias_da_semana", [])
         dias_do_mes = request.json.get("dias_do_mes", [])
-        
+        print(f'AQUIII -----> {vezes_na_semana}')
+
         with get_db() as db:
             service = HabitoUsuarioService(db)
             novo_habito = service.adicionar_habito_usuario(
