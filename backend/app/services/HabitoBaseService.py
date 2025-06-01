@@ -1,8 +1,6 @@
 from app.repositories.HabitoBaseRepository import HabitoBaseRepository
 from sqlalchemy.orm import Session
-
-from app.repositories.HabitoBaseRepository import HabitoBaseRepository
-from sqlalchemy.orm import Session
+from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
 
 class HabitoBaseService:
     _instance = None
@@ -24,5 +22,5 @@ class HabitoBaseService:
             habitos_disponiveis = self.habito_repository.buscar_todos()
             return habitos_disponiveis
         except Exception as e:
-            raise Exception(f"Erro no serviço ao buscar hábitos: {str(e)}")
+             raise ServiceError(f"Erro no serviço ao buscar hábitos disponíveis: {str(e)}")
 

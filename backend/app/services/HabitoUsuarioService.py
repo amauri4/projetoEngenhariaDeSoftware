@@ -16,6 +16,7 @@ from app.utils.validar_frequencia import validar_frequencia
 from app.utils.verificar_data import validar_formato_data
 from app.utils.dia_semana_to_num import converter_numero_para_dia_semana  
 from typing import List
+from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
 
 class HabitoUsuarioService:
     _instance = None
@@ -41,28 +42,30 @@ class HabitoUsuarioService:
         try:
             usuario = self.usuario_repository.buscar_por_email(usuario_email)
             if not usuario:
-                raise NoResultFound("Usuário não encontrado.")
+                raise AuthError("Usuário não encontrado.")
             
             habitos_usuario = self.habito_usuario_repository.buscar_por_email(usuario_email)
             return habitos_usuario
-        except NoResultFound as e:
-            raise Exception(f"Erro no serviço ao buscar hábitos do usuário: {str(e)}")
+        except AuthError as e:
+            raise e
+        except Exception as e:
+            raise ServiceError(f"Erro ao buscar hábitos do usuário: {str(e)}")
 
     def adicionar_habito_usuario(self, descricao: str, habito_base_id: int, usuario_id: int, frequencia: str, data_inicio: datetime = None, vezes_na_semana: int = None, dias_da_semana: list[int] = None, dias_do_mes: list[int] = None):
         try:
             usuario = self.usuario_repository.buscar_por_id(usuario_id)
             if not usuario:
-                raise NoResultFound(f"Usuário com ID {usuario_id} não encontrado.")
+                raise AuthError(f"Usuário com ID {usuario_id} não encontrado.")
             
             habito_base = self.habito_base_repository.buscar_por_id(habito_base_id)
             if not habito_base:
-                raise NoResultFound(f"Hábito base com ID {habito_base_id} não encontrado.")
+                raise ConflictError(f"Hábito base com ID {habito_base_id} não encontrado.")
             
             if not validar_frequencia(frequencia):
-                raise ValueError(f"Frequência inválida. Opções válidas: 'diario', 'semanal', 'mensal'")
+                raise ConflictError(f"Frequência inválida. Opções válidas: 'diario', 'semanal', 'mensal'")
             
             if data_inicio is None:
-                raise ValueError("A data de início é obrigatória")
+                raise ConflictError("A data de início é obrigatória")
             
             data_inicio = validar_formato_data(data_inicio)
 
@@ -76,7 +79,7 @@ class HabitoUsuarioService:
             
             if frequencia.lower() in ['semanal', 'diaria'] and dias_da_semana:
                 if not isinstance(dias_da_semana, list):
-                    raise ValueError("dias_da_semana deve ser uma lista de números")
+                    raise ConflictError("dias_da_semana deve ser uma lista de números")
                 
                 for dia_num in dias_da_semana:
                     try:
@@ -90,7 +93,7 @@ class HabitoUsuarioService:
                 
                 if frequencia.lower() == 'semanal':
                     if vezes_na_semana is None:
-                        raise ValueError("vezes_na_semana é obrigatório para frequência semanal")
+                        raise ConflictError("vezes_na_semana é obrigatório para frequência semanal")
                     novo_habito_usuario.vezes_na_semana = vezes_na_semana
 
             if frequencia.lower() == 'mensal' and dias_do_mes:
@@ -99,7 +102,7 @@ class HabitoUsuarioService:
                 
                 for dia in dias_do_mes:
                     if dia < 1 or dia > 31:
-                        raise ValueError(f"Dia do mês inválido: {dia}. Deve ser entre 1 e 31")
+                        raise ConflictError(f"Dia do mês inválido: {dia}. Deve ser entre 1 e 31")
                     
                     self.dia_habito_mes_repository.adicionar_dia(
                         habito_id=novo_habito_usuario.id,
@@ -108,12 +111,10 @@ class HabitoUsuarioService:
             
             return novo_habito_usuario
 
-        except NoResultFound as e:
-            raise Exception(f"Erro ao adicionar hábito de usuário: {str(e)}")
-        except ValueError as e:
-            raise Exception(f"Erro de validação: {str(e)}")
+        except (AuthError, ConflictError) as e:
+            raise e
         except Exception as e:
-            raise Exception(f"Erro ao adicionar hábito de usuário: {str(e)}")
+            raise ServiceError(f"Erro ao adicionar hábito de usuário: {str(e)}")
     
     def atualizar_habito_usuario(self, habito_usuario_id: int, nova_descricao: str, 
                                 novo_habito_base_id: int, novo_usuario_id: int, 
@@ -124,7 +125,7 @@ class HabitoUsuarioService:
         try:
             habito = self.habito_usuario_repository.buscar_por_id(habito_usuario_id)
             if not habito:
-                raise NoResultFound("Hábito não encontrado")
+                raise ConflictError("Hábito não encontrado")
 
             habito.descricao = nova_descricao
             habito.habito_base_id = novo_habito_base_id
@@ -147,37 +148,39 @@ class HabitoUsuarioService:
                 if novos_dias_do_mes:
                     for dia in novos_dias_do_mes:
                         if dia < 1 or dia > 31:
-                            raise ValueError(f"Dia do mês inválido: {dia}")
+                            raise ConflictError(f"Dia do mês inválido: {dia}")
                         self.dia_habito_mes_repository.adicionar_dia(habito.id, dia)
 
             self.habito_usuario_repository.atualizar_habito_usuario(habito)
             return habito
 
+        except (AuthError, ConflictError) as e:
+            raise e
         except Exception as e:
-            raise Exception(f"Erro ao atualizar hábito: {str(e)}")
+            raise ServiceError(f"Erro ao atualizar hábito de usuário: {str(e)}")
 
     def remover_habito_usuario(self, habito_usuario_id: int):
         try:
             habito_usuario = self.habito_usuario_repository.buscar_por_id(habito_usuario_id)
             if not habito_usuario:
-                raise NoResultFound("Hábito de usuário não encontrado.")
+                raise ConflictError("Hábito de usuário não encontrado.")
             
             self.habito_usuario_repository.remover_habito_usuario(habito_usuario_id)
-        except NoResultFound as e:
-            raise Exception(f"Erro no serviço ao remover hábito de usuário: {str(e)}")
+        except ConflictError as e:
+            raise e
         except Exception as e:
-            raise Exception(f"Erro no serviço ao remover hábito: {str(e)}")
+            raise ServiceError(f"Erro ao remover hábito de usuário: {str(e)}")
         
     def buscar_categorias_usuario(self, usuario_id:int):
         try:
             categorias_usuario = self.categoria_repository.buscar_categorias_por_usuario(usuario_id=usuario_id)
             if not categorias_usuario:
-                raise NoResultFound("Categorias de hábito não encontradas.")
+                raise ConflictError("Categorias de hábito não encontradas.")
             return categorias_usuario
-        except NoResultFound as e:
-            raise Exception(f"Erro no serviço ao buscar categorias de usuário: {str(e)}")
+        except ConflictError as e:
+            raise e
         except Exception as e:
-            raise Exception(f"{str(e)}")
+            raise ServiceError(f"Erro ao buscar categorias de usuário: {str(e)}")
             
 
 

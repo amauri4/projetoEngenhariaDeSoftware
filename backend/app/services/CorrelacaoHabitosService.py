@@ -7,6 +7,7 @@ from app.utils.verificar_data import validar_formato_data
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional
+from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
 
 class CorrelacaoHabitoService:
     def __init__(self, db: Session):
@@ -65,7 +66,7 @@ class CorrelacaoHabitoService:
             return prompt
             
         except Exception as e:
-            raise Exception(f"Erro ao processar correlações: {str(e)}")
+            raise ServiceError(f"Erro ao processar correlações: {str(e)}")
 
     def buscar_correlacoes_habitos(self, usuario_id: int) -> str:
         try:
@@ -73,17 +74,17 @@ class CorrelacaoHabitoService:
             habitos_base = self.habito_base_repository.buscar_todos()
             
             if not registros:
-                raise NoResultFound("Nenhum registro encontrado para o usuário")
+                raise ServiceError("Nenhum registro encontrado para o usuário")
             if not habitos_base:
-                raise NoResultFound("Nenhum hábito base encontrado")
+                raise ServiceError("Nenhum hábito base encontrado")
             
             habitos_base_names = [habito.nome for habito in habitos_base]
             return self._processar_correlacoes(registros, habitos_base_names)
             
-        except NoResultFound as e:
-            raise
+        except ServiceError as e:
+            raise e
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro no banco de dados ao buscar correlações: {str(e)}")
+            raise ServiceError(f"Erro no banco de dados ao buscar correlações: {str(e)}")
         except Exception as e:
-            raise Exception(f"Erro inesperado ao buscar correlações: {str(e)}")
+            raise ServiceError(f"Erro inesperado ao buscar correlações: {str(e)}")

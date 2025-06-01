@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from app.models.DiaHabitoMes import DiaHabitoMes
+from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 
 class DiaHabitoMesRepository:
     def __init__(self, db: Session):
@@ -10,26 +11,24 @@ class DiaHabitoMesRepository:
     def buscar_todos(self):
         try:
             dias = self.db.query(DiaHabitoMes).all()
+            
             if not dias:
-                raise NoResultFound("Nenhum dia de hábito mensal encontrado.")
+                raise NotFoundError("Nenhum dia de hábito mensal encontrado.")
             return dias
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar dias de hábito mensal: {str(e)}")
+        
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar dias de hábito mensal: {str(e)}")
+            raise RepositoryError(f"Erro ao buscar dias de hábito mensal: {str(e)}")
 
     def buscar_por_habito(self, habito_id: int):
         try:
             dias = self.db.query(DiaHabitoMes).filter_by(habito_id=habito_id).all()
             if not dias:
-                raise NoResultFound("Nenhum dia encontrado para o hábito informado.")
+                raise NotFoundError("Nenhum dia encontrado para o hábito informado.")
             return dias
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar dias do hábito: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar dias do hábito: {str(e)}")
+            raise RepositoryError("Erro ao buscar dias do hábito.") from e
 
     def adicionar_dia(self, habito_id: int, dia: int):
         try:
@@ -39,7 +38,7 @@ class DiaHabitoMesRepository:
             return novo_dia
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao adicionar dia ao hábito mensal: {str(e)}")
+            raise RepositoryError("Erro ao adicionar dia ao hábito mensal.") from e
 
     def remover_por_usuario(self, usuario_id: int):
         try:
@@ -49,7 +48,7 @@ class DiaHabitoMesRepository:
                 .all()
             
             if not dias:
-                raise NoResultFound("Nenhum dia de hábito mensal encontrado para este usuário.")
+                raise NotFoundError("Nenhum dia de hábito mensal encontrado para este usuário.")
             
             for dia in dias:
                 self.db.delete(dia)
@@ -57,8 +56,6 @@ class DiaHabitoMesRepository:
             
             return len(dias)  
             
-        except NoResultFound as e:
-            raise Exception(f"Erro ao remover dias por usuário: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao remover dias por usuário: {str(e)}")
+            raise RepositoryError("Erro ao remover dias por usuário.") from e

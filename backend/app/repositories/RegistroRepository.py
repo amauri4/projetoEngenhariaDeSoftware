@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from app.models.RegistroDiario import RegistroDiario
 from app.models.HabitoUsuario import HabitoUsuario
+from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 from datetime import datetime
 
 class RegistroDiarioRepository:
@@ -12,14 +13,14 @@ class RegistroDiarioRepository:
     def buscar_todos(self):
         try:
             registros = self.db.query(RegistroDiario).all()
+
             if not registros:
-                raise NoResultFound("Nenhum registro encontrado.")
+                raise NotFoundError("Nenhum registro encontrado.")
             return registros
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar registros: {str(e)}")
+        
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar registros: {str(e)}")
+            raise RepositoryError("Erro ao buscar registros.") from e
 
     def buscar_por_usuario(self, usuario_id: int):
         try:
@@ -30,13 +31,11 @@ class RegistroDiarioRepository:
                 .all()
             )
             if not registros:
-                raise NoResultFound("Nenhum registro encontrado para o usuário.")
+                raise NotFoundError("Nenhum registro encontrado para o usuário.")
             return registros
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar registros do usuário: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar registros do usuário: {str(e)}")
+            raise RepositoryError("Erro ao buscar registros do usuário.") from e
 
     def buscar_concluidos_por_usuario(self, usuario_id: int):
         try:
@@ -47,13 +46,11 @@ class RegistroDiarioRepository:
                 .all()
             )
             if not registros:
-                raise NoResultFound("Nenhum registro concluído encontrado para o usuário.")
+                raise NotFoundError("Nenhum registro concluído encontrado para o usuário.")
             return registros
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar registros concluídos do usuário: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar registros concluídos do usuário: {str(e)}")
+            raise RepositoryError("Erro ao buscar registros concluídos do usuário.") from e
 
     def criar_registro(self, data, habito_id: int, concluido=False):
         try:
@@ -74,28 +71,24 @@ class RegistroDiarioRepository:
         try:
             registro = self.db.query(RegistroDiario).filter_by(id=registro_id).first()
             if not registro:
-                raise NoResultFound("Registro não encontrado.")
+                raise NotFoundError("Registro não encontrado.")
             registro.concluido = concluido
             self.db.commit()
             return registro
-        except NoResultFound as e:
-            raise Exception(f"Erro ao atualizar registro: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao atualizar registro: {str(e)}")
+            raise RepositoryError("Erro ao atualizar registro.") from e
 
     def remover_registro(self, registro_id: int):
         try:
             registro = self.db.query(RegistroDiario).filter_by(id=registro_id).first()
             if not registro:
-                raise NoResultFound("Registro não encontrado.")
+                raise NotFoundError("Registro não encontrado.")
             self.db.delete(registro)
             self.db.commit()
-        except NoResultFound as e:
-            raise Exception(f"Erro ao remover registro: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao remover registro: {str(e)}")
+            raise RepositoryError("Erro ao remover registro.") from e
     
     def buscar_por_data(self, usuario_id: int, data_inicio: datetime = None, data_fim: datetime = None):
         try:
@@ -110,14 +103,13 @@ class RegistroDiarioRepository:
             registros = query.all()
 
             if not registros:
-                raise NoResultFound("Nenhum registro encontrado para o filtro de data.")
+                raise NotFoundError("Nenhum registro encontrado para o filtro de data.")
             
             return registros
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar registros por data: {str(e)}")
+        
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar registros por data: {str(e)}")
+            raise RepositoryError("Erro ao buscar registros por data.") from e
 
     def buscar_por_data_especifica(self, usuario_id: int, data_especifica: datetime):
         try:
@@ -128,10 +120,9 @@ class RegistroDiarioRepository:
                 .all()
             )
             if not registros:
-                raise NoResultFound(f"Nenhum registro encontrado para a data {data_especifica.strftime('%Y-%m-%d')}.")
+                raise NotFoundError(f"Nenhum registro encontrado para a data {data_especifica.strftime('%Y-%m-%d')}.")
             return registros
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar registros por data específica: {str(e)}")
+        
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar registros por data específica: {str(e)}")
+            raise RepositoryError("Erro ao buscar registros por data específica.") from e

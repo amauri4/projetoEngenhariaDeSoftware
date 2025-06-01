@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from app.models.HistoricoChat import HistoricoChat
-
+from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 
 class ChatRepository:
     def __init__(self, db: Session):
@@ -16,7 +16,7 @@ class ChatRepository:
             return mensagem
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao salvar mensagem: {str(e)}")
+            raise RepositoryError("Erro ao salvar mensagem no histórico.") from e
 
     def buscar_historico_por_usuario(self, usuario_id: int) -> list[HistoricoChat]:
         try:
@@ -26,11 +26,11 @@ class ChatRepository:
                          .all())
             
             if not historico:
-                raise NoResultFound("Nenhum histórico encontrado para o usuário.")
+                raise NotFoundError("Nenhum histórico encontrado para o usuário.")
             return historico
-        except (NoResultFound, SQLAlchemyError) as e:
+        except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar histórico por usuário: {str(e)}")
+            raise RepositoryError("Erro ao buscar histórico por usuário.") from e
 
     def buscar_ultimas_mensagens(self, usuario_id: int, limite: int = 10) -> list[HistoricoChat]:
         try:
@@ -41,11 +41,11 @@ class ChatRepository:
                         .all()[::-1])
             
             if not mensagens:
-                raise NoResultFound("Nenhuma mensagem encontrada para o usuário.")
+                raise NotFoundError("Nenhuma mensagem encontrada para o usuário.")
             return mensagens
-        except (NoResultFound, SQLAlchemyError) as e:
+        except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar últimas mensagens: {str(e)}")
+            raise RepositoryError("Erro ao buscar últimas mensagens.") from e
 
     def deletar_historico(self, usuario_id: int) -> None:
         try:
@@ -54,8 +54,8 @@ class ChatRepository:
                      .delete())
             
             if result == 0:
-                raise NoResultFound("Nenhum histórico encontrado para deletar.")
+                raise NotFoundError("Nenhum histórico encontrado para deletar.")
             self.db.commit()
-        except (NoResultFound, SQLAlchemyError) as e:
+        except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao deletar histórico: {str(e)}")
+            raise RepositoryError("Erro ao deletar histórico.") from e

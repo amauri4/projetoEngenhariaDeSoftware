@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.Usuario import Usuario
 from sqlalchemy.exc import SQLAlchemyError
+from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 
 class UserRepository:
     def __init__(self, db: Session):
@@ -8,17 +9,25 @@ class UserRepository:
 
     def buscar_por_email(self, email):
         try:
-            return self.db.query(Usuario).filter_by(email=email).first()
+            usuario = self.db.query(Usuario).filter_by(email=email).first()
+        
+            if not usuario:
+                raise NotFoundError(f"Usuário com email '{email}' não encontrado.")
+            return usuario
+        
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar usuário por e-mail: {str(e)}")
+            raise RepositoryError("Erro ao buscar usuário por e-mail.") from e
 
     def buscar_por_id(self, usuario_id: int):
         try:
-            return self.db.query(Usuario).filter_by(id=usuario_id).first()
+            usuario = self.db.query(Usuario).filter_by(id=usuario_id).first()
+            if not usuario:
+                raise NotFoundError(f"Usuário com ID '{usuario_id}' não encontrado.")
+            return usuario
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar usuário por ID: {str(e)}")
+            raise RepositoryError("Erro ao buscar usuário por ID.") from e
 
     def salvar(self, user):
         try:
@@ -27,7 +36,7 @@ class UserRepository:
             return user
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao salvar usuário: {str(e)}")
+            raise RepositoryError("Erro ao salvar usuário.") from e
 
     def atualizar(self, user: Usuario):
         try:
@@ -36,7 +45,7 @@ class UserRepository:
             return user
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao atualizar usuário: {str(e)}")
+            raise RepositoryError("Erro ao atualizar usuário.") from e
 
     def deletar(self, user: Usuario):
         try:
@@ -45,7 +54,7 @@ class UserRepository:
             return True
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao deletar usuário: {str(e)}")
+            raise RepositoryError("Erro ao deletar usuário.") from e
 
     def __del__(self):
         self.db.close()

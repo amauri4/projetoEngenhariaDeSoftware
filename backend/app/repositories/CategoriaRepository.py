@@ -7,6 +7,7 @@ from app.models.CategoriasHabito import CategoriaHabito
 from ..models.HabitoBase import HabitoBase
 from ..models.HabitoUsuario import HabitoUsuario
 from sqlalchemy.orm import joinedload
+from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 
 class CategoriaRepository:
     def __init__(self, db: Session):
@@ -16,13 +17,11 @@ class CategoriaRepository:
         try:
             categorias = self.db.query(CategoriaHabito).all()
             if not categorias:
-                raise NoResultFound("Nenhuma categoria de hábito encontrada.")
+                raise NotFoundError("Nenhuma categoria de hábito encontrada.")
             return categorias
-        except NoResultFound as e:
-            raise Exception(f"Erro ao buscar categorias de hábito: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao buscar categorias de hábito: {str(e)}")
+            raise RepositoryError("Erro ao buscar categorias de hábito.") from e
 
     def criar_categoria(self, nome: str):
         try:
@@ -32,34 +31,30 @@ class CategoriaRepository:
             return nova_categoria
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao criar categoria de hábito: {str(e)}")
+            raise RepositoryError("Erro ao atualizar categoria de hábito.") from e
 
     def atualizar_categoria(self, categoria_id: int, novo_nome: str):
         try:
             categoria = self.db.query(CategoriaHabito).filter_by(id=categoria_id).first()
             if not categoria:
-                raise NoResultFound("Categoria não encontrada.")
+                raise NotFoundError("Categoria não encontrada.")
             categoria.nome = novo_nome
             self.db.commit()
             return categoria
-        except NoResultFound as e:
-            raise Exception(f"Erro ao atualizar categoria de hábito: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao atualizar categoria de hábito: {str(e)}")
-
+            raise RepositoryError("Erro ao atualizar categoria de hábito.") from e
+        
     def remover_categoria(self, categoria_id: int):
         try:
             categoria = self.db.query(CategoriaHabito).filter_by(id=categoria_id).first()
             if not categoria:
-                raise NoResultFound("Categoria não encontrada.")
+                raise NotFoundError("Categoria não encontrada.")
             self.db.delete(categoria)
             self.db.commit()
-        except NoResultFound as e:
-            raise Exception(f"Erro ao remover categoria de hábito: {str(e)}")
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise Exception(f"Erro ao remover categoria de hábito: {str(e)}")
+            raise RepositoryError("Erro ao remover categoria de hábito.") from e
             
     def buscar_categorias_por_usuario(self, usuario_id: int) -> dict:
         try:
