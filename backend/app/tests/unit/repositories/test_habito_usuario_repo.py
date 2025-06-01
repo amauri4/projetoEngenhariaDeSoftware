@@ -1,127 +1,222 @@
 import pytest
-from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
+from unittest.mock import MagicMock, patch
+from datetime import datetime
+
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.models.enums.frequencia_enums import FrequenciaEnum
+from app.models.DiaHabitoSemana import DiaSemanaEnum
 from app.models.HabitoUsuario import HabitoUsuario
 from app.models.HabitoBase import HabitoBase
-from app.models.CategoriasHabito import CategoriaHabito
 from app.models.Usuario import Usuario
+from app.models.DiaHabitoSemana import DiaHabitoSemana
+
+from app.repositories.habito_usuario_repository import HabitoUsuarioRepository
+
 
 @pytest.fixture
-def popular_usuario(db_session):
-    usuario = Usuario(nome="João", email="joao@example.com", senha_hash="senha123")
-    db_session.add(usuario)
-    db_session.commit()
-    return usuario
+def mock_db():
+    return MagicMock()
 
-@pytest.fixture
-def popular_categoria(db_session):
-    categoria = CategoriaHabito(nome="Saúde")
-    db_session.add(categoria)
-    db_session.commit()
-    return categoria
 
-@pytest.fixture
-def popular_habito_base(db_session, popular_categoria):
-    habito_base = HabitoBase(nome="Exercício", categoria_id=popular_categoria.id)
-    db_session.add(habito_base)
-    db_session.commit()
-    return habito_base
+def test_buscar_todos_sucesso(mock_db):
+    habito_mock = MagicMock()
+    mock_db.query.return_value.all.return_value = [habito_mock]
 
-@pytest.fixture
-def popular_habito_usuario(db_session, popular_usuario, popular_habito_base):
-    habito_usuario = HabitoUsuario(descricao="Caminhada diária", habito_base_id=popular_habito_base.id, usuario_id=popular_usuario.id)
-    db_session.add(habito_usuario)
-    db_session.commit()
-    return habito_usuario
+    repo = HabitoUsuarioRepository(mock_db)
+    resultado = repo.buscar_todos()
 
-@pytest.fixture
-def repo(db_session):
-    return HabitoUsuarioRepository(db_session)
+    assert resultado == [habito_mock]
+    mock_db.query.assert_called_once_with(HabitoUsuario)
 
-def test_buscar_todos(repo, db_session, popular_habito_usuario):
-    habitos_usuario = repo.buscar_todos()
 
-    assert len(habitos_usuario) > 0
-    assert habitos_usuario[0].descricao == "Caminhada diária"
-    assert habitos_usuario[0].usuario_id == popular_habito_usuario.usuario_id
+def test_buscar_todos_sem_resultado_gera_erro(mock_db):
+    mock_db.query.return_value.all.return_value = []
 
-def test_criar_habito_usuario(repo, db_session, popular_usuario, popular_habito_base):
-    novo_habito_usuario = repo.criar_habito_usuario("Leitura diária", popular_habito_base.id, popular_usuario.id)
-
-    assert novo_habito_usuario.id is not None
-    assert novo_habito_usuario.descricao == "Leitura diária"
-    assert novo_habito_usuario.habito_base_id == popular_habito_base.id
-    assert novo_habito_usuario.usuario_id == popular_usuario.id
-
-    persistido = db_session.query(HabitoUsuario).filter_by(descricao="Leitura diária").first()
-    assert persistido is not None
-    assert persistido.descricao == "Leitura diária"
-
-def test_atualizar_habito_usuario(repo, db_session, popular_habito_usuario, popular_habito_base, popular_usuario):
-    nova_descricao = "Caminhada matinal"
-    novo_habito_base_id = popular_habito_base.id
-    novo_usuario_id = popular_usuario.id
-    habito_usuario_atualizado = repo.atualizar_habito_usuario(popular_habito_usuario.id, nova_descricao, novo_habito_base_id, novo_usuario_id)
-
-    assert habito_usuario_atualizado.descricao == nova_descricao
-    assert habito_usuario_atualizado.habito_base_id == novo_habito_base_id
-    assert habito_usuario_atualizado.usuario_id == novo_usuario_id
-
-    atualizado = db_session.query(HabitoUsuario).filter_by(id=popular_habito_usuario.id).first()
-    assert atualizado.descricao == nova_descricao
-    assert atualizado.habito_base_id == novo_habito_base_id
-    assert atualizado.usuario_id == novo_usuario_id
-
-def test_remover_habito_usuario(repo, db_session, popular_habito_usuario):
-    repo.remover_habito_usuario(popular_habito_usuario.id)
-
-    removido = db_session.query(HabitoUsuario).filter_by(id=popular_habito_usuario.id).first()
-    assert removido is None
-
-def test_buscar_todos_sem_habitos(repo, db_session):
-    db_session.query(HabitoUsuario).delete()
-    db_session.commit()
-
-    with pytest.raises(Exception, match="Erro ao buscar hábitos de usuário: Nenhum hábito de usuário encontrado."):
+    repo = HabitoUsuarioRepository(mock_db)
+    with pytest.raises(Exception, match="Nenhum hábito de usuário encontrado."):
         repo.buscar_todos()
+    mock_db.rollback.assert_called_once()
 
-def test_criar_habito_usuario_habito_base_nao_encontrado(repo, db_session, popular_usuario):
-    with pytest.raises(Exception, match="Erro ao criar hábito de usuário: Hábito base não encontrado."):
-        repo.criar_habito_usuario("Leitura diária", 999, popular_usuario.id)  
 
-def test_criar_habito_usuario_usuario_nao_encontrado(repo, db_session, popular_habito_base):
-    with pytest.raises(Exception, match="Erro ao criar hábito de usuário: Usuário não encontrado."):
-        repo.criar_habito_usuario("Leitura diária", popular_habito_base.id, 999)  
+def test_criar_habito_usuario_sucesso(mock_db):
+    habito_base = MagicMock(spec=HabitoBase)
+    usuario = MagicMock(spec=Usuario)
+    mock_db.query.return_value.filter_by.return_value.first.side_effect = [habito_base, usuario]
 
-def test_atualizar_habito_usuario_habito_usuario_nao_encontrado(repo, db_session, popular_habito_base, popular_usuario):
-    with pytest.raises(Exception, match="Erro ao atualizar hábito de usuário: Hábito de usuário não encontrado."):
-        repo.atualizar_habito_usuario(999, "Caminhada diária", popular_habito_base.id, popular_usuario.id)
+    # Mock do novo hábito criado
+    novo_habito = MagicMock(spec=HabitoUsuario)
+    novo_habito.id = 1
 
-def test_atualizar_habito_usuario_habito_base_nao_encontrado(repo, db_session, popular_habito_usuario, popular_usuario):
-    with pytest.raises(Exception, match="Erro ao atualizar hábito de usuário: Hábito base não encontrado."):
-        repo.atualizar_habito_usuario(popular_habito_usuario.id, "Caminhada diária", 999, popular_usuario.id)
+    # Patch do construtor para retornar o mock criado
+    with patch("app.repositories.habito_usuario_repository.HabitoUsuario", return_value=novo_habito):
+        repo = HabitoUsuarioRepository(mock_db)
+        resultado = repo.criar_habito_usuario(
+            descricao="Dormir bem",
+            habito_base_id=1,
+            usuario_id=2,
+            frequencia=FrequenciaEnum.diaria,
+            data_inicio=datetime.now(),
+            quantidade_semanal=3,
+            dias_da_semana=["segunda", "terca"]
+        )
 
-def test_atualizar_habito_usuario_usuario_nao_encontrado(repo, db_session, popular_habito_usuario, popular_habito_base):
-    with pytest.raises(Exception, match="Erro ao atualizar hábito de usuário: Usuário não encontrado."):
-        repo.atualizar_habito_usuario(popular_habito_usuario.id, "Caminhada diária", popular_habito_base.id, 999)
+    assert resultado == novo_habito
+    mock_db.add.assert_any_call(novo_habito)
+    mock_db.commit.assert_called_once()
 
-def test_remover_habito_usuario_nao_encontrado(repo):
-    with pytest.raises(Exception, match="Erro ao remover hábito de usuário: Hábito de usuário não encontrado."):
-        repo.remover_habito_usuario(999)  
 
-def test_buscar_por_email(repo, db_session, popular_usuario, popular_habito_usuario):
-    habitos_usuario = repo.buscar_por_email("joao@example.com")
+def test_criar_habito_usuario_sem_habito_base_ou_usuario(mock_db):
+    mock_db.query.return_value.filter_by.return_value.first.side_effect = [None, None]
 
-    assert len(habitos_usuario) > 0
-    assert habitos_usuario[0].descricao == "Caminhada diária"
-    assert habitos_usuario[0].usuario_id == popular_usuario.id
+    repo = HabitoUsuarioRepository(mock_db)
+    with pytest.raises(Exception, match="Hábito base ou usuário não encontrado."):
+        repo.criar_habito_usuario(
+            descricao="Dormir bem",
+            habito_base_id=1,
+            usuario_id=2,
+            frequencia=FrequenciaEnum.semanal,
+            data_inicio=datetime.now()
+        )
+    mock_db.rollback.assert_called_once()
 
-def test_buscar_por_email_usuario_nao_encontrado(repo, db_session):
-    with pytest.raises(Exception, match="Erro ao buscar hábitos por e-mail: Usuário não encontrado."):
-        repo.buscar_por_email("nao_existe@example.com")  
 
-def test_buscar_por_email_sem_habitos(repo, db_session, popular_usuario):
-    db_session.query(HabitoUsuario).delete()
-    db_session.commit()
+def test_atualizar_habito_usuario_sucesso(mock_db):
+    habito = MagicMock(spec=HabitoUsuario)
+    habito.id = 1
+    mock_db.query.return_value.filter_by.return_value.first.return_value = habito
 
-    with pytest.raises(Exception, match="Erro ao buscar hábitos por e-mail: Nenhum hábito encontrado para o usuário."):
-        repo.buscar_por_email("joao@example.com")
+    repo = HabitoUsuarioRepository(mock_db)
+    resultado = repo.atualizar_habito_usuario(
+        habito_usuario_id=1,
+        nova_descricao="Nova desc",
+        novo_habito_base_id=2,
+        novo_usuario_id=3,
+        nova_data_inicio=datetime.now(),
+        nova_frequencia=FrequenciaEnum.diaria,
+        nova_quantidade_semanal=4,
+        novos_dias_da_semana=["segunda", "quarta"]
+    )
+
+    assert resultado == habito
+    assert habito.descricao == "Nova desc"
+    assert habito.habito_base_id == 2
+    assert habito.usuario_id == 3
+    assert habito.frequencia == FrequenciaEnum.diaria
+    mock_db.commit.assert_called_once()
+
+
+def test_atualizar_habito_usuario_nao_encontrado(mock_db):
+    mock_db.query.return_value.filter_by.return_value.first.return_value = None
+
+    repo = HabitoUsuarioRepository(mock_db)
+    with pytest.raises(Exception, match="Hábito de usuário não encontrado."):
+        repo.atualizar_habito_usuario(
+            habito_usuario_id=1,
+            nova_descricao="desc",
+            novo_habito_base_id=2,
+            novo_usuario_id=3,
+            nova_data_inicio=datetime.now(),
+            nova_frequencia=FrequenciaEnum.semanal
+        )
+    mock_db.rollback.assert_called_once()
+
+
+def test_remover_habito_usuario_sucesso(mock_db):
+    habito = MagicMock(spec=HabitoUsuario)
+    mock_db.query.return_value.filter_by.return_value.first.return_value = habito
+
+    repo = HabitoUsuarioRepository(mock_db)
+    repo.remover_habito_usuario(1)
+
+    mock_db.delete.assert_called_once_with(habito)
+    mock_db.commit.assert_called_once()
+
+
+def test_remover_habito_usuario_nao_encontrado(mock_db):
+    mock_db.query.return_value.filter_by.return_value.first.return_value = None
+
+    repo = HabitoUsuarioRepository(mock_db)
+    with pytest.raises(Exception, match="Hábito de usuário não encontrado."):
+        repo.remover_habito_usuario(1)
+    mock_db.rollback.assert_called_once()
+
+
+def test_buscar_por_email_sucesso(mock_db):
+    usuario = MagicMock(spec=Usuario)
+    usuario.id = 1
+    habito1 = MagicMock(spec=HabitoUsuario)
+    habito2 = MagicMock(spec=HabitoUsuario)
+
+    mock_db.query.return_value.filter_by.return_value.first.return_value = usuario
+    mock_db.query.return_value.filter_by.return_value.all.return_value = [habito1, habito2]
+
+    repo = HabitoUsuarioRepository(mock_db)
+    resultado = repo.buscar_por_email("teste@email.com")
+
+    assert resultado == [habito1, habito2]
+
+
+def test_buscar_por_email_usuario_nao_encontrado(mock_db):
+    mock_db.query.return_value.filter_by.return_value.first.return_value = None
+
+    repo = HabitoUsuarioRepository(mock_db)
+    with pytest.raises(Exception, match="Usuário não encontrado."):
+        repo.buscar_por_email("teste@email.com")
+    mock_db.rollback.assert_called_once()
+
+
+def test_buscar_por_email_sem_habitos(mock_db):
+    usuario = MagicMock(spec=Usuario)
+    usuario.id = 1
+
+    mock_db.query.return_value.filter_by.return_value.first.return_value = usuario
+    mock_db.query.return_value.filter_by.return_value.all.return_value = []
+
+    repo = HabitoUsuarioRepository(mock_db)
+    with pytest.raises(Exception, match="Nenhum hábito encontrado para o usuário."):
+        repo.buscar_por_email("teste@email.com")
+    mock_db.rollback.assert_called_once()
+
+
+def test_buscar_por_id_sucesso(mock_db):
+    habito1 = MagicMock(spec=HabitoUsuario)
+    mock_db.query.return_value.filter_by.return_value.all.return_value = [habito1]
+
+    repo = HabitoUsuarioRepository(mock_db)
+    resultado = repo.buscar_por_id(1)
+
+    assert resultado == [habito1]
+
+
+def test_buscar_por_id_nao_encontrado(mock_db):
+    mock_db.query.return_value.filter_by.return_value.all.return_value = []
+
+    repo = HabitoUsuarioRepository(mock_db)
+    with pytest.raises(Exception, match="Hábito de usuário não encontrado."):
+        repo.buscar_por_id(1)
+    mock_db.rollback.assert_called_once()
+
+
+def test_buscar_por_usuario_sucesso(mock_db):
+    usuario = MagicMock(spec=Usuario)
+    usuario.id = 1
+    habito1 = MagicMock(spec=HabitoUsuario)
+
+    mock_db.query.return_value.filter_by.return_value.first.return_value = usuario
+    mock_db.query.return_value.filter.return_value.all.return_value = [habito1]
+
+    repo = HabitoUsuarioRepository(mock_db)
+    resultado = repo.buscar_por_usuario(1)
+
+    assert resultado == [habito1]
+
+
+def test_buscar_por_usuario_usuario_nao_encontrado(mock_db):
+    mock_db.query.return_value.filter_by.return_value.first.return_value = None
+
+    repo = HabitoUsuarioRepository(mock_db)
+    with pytest.raises(Exception, match="Usuário não encontrado."):
+        repo.buscar_por_usuario(1)
+    mock_db.rollback.assert_called_once()

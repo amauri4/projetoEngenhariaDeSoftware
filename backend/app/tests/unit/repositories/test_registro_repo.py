@@ -1,77 +1,189 @@
 import pytest
-from datetime import date
-from sqlalchemy.orm import Session
+from unittest.mock import MagicMock, patch
+from datetime import datetime
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import SQLAlchemyError
 
-from app.models.Usuario import Usuario
-from app.models.HabitoBase import HabitoBase
-from app.models.HabitoUsuario import HabitoUsuario
+from app.repositories.registro_diario_repository import RegistroDiarioRepository
 from app.models.RegistroDiario import RegistroDiario
-from app.repositories.RegistroRepository import RegistroDiarioRepository
+from app.models.HabitoUsuario import HabitoUsuario
+
 
 @pytest.fixture
-def repo(db_session: Session):
-    return RegistroDiarioRepository(db=db_session)
+def mock_db():
+    return MagicMock()
+
 
 @pytest.fixture
-def usuario(db_session):
-    user = Usuario(nome="João", email="joao@example.com", senha_hash="senha123")
-    db_session.add(user)
-    db_session.commit()
-    return user
+def repo(mock_db):
+    return RegistroDiarioRepository(mock_db)
 
-@pytest.fixture
-def habito_base(db_session):
-    habito = HabitoBase(nome="Dormir cedo", categoria_id=1)
-    db_session.add(habito)
-    db_session.commit()
-    return habito
 
-@pytest.fixture
-def usuario_com_registros(db_session, usuario, habito_base):
-    habito_usuario = HabitoUsuario(
-        descricao="Dormir cedo",
-        habito_base_id=habito_base.id,
-        usuario_id=usuario.id
+def test_buscar_todos_sucesso(repo, mock_db):
+    registro_mock = MagicMock(spec=RegistroDiario)
+    mock_db.query.return_value.all.return_value = [registro_mock]
+
+    resultado = repo.buscar_todos()
+
+    assert resultado == [registro_mock]
+    mock_db.query.assert_called_once_with(RegistroDiario)
+    mock_db.query.return_value.all.assert_called_once()
+
+
+def test_buscar_todos_nao_encontra(repo, mock_db):
+    mock_db.query.return_value.all.return_value = []
+
+    with pytest.raises(Exception) as e:
+        repo.buscar_todos()
+    assert "Nenhum registro encontrado" in str(e.value)
+    # rollback não é chamado porque o erro é NoResultFound capturado diretamente
+
+
+def test_buscar_todos_erro_sqlalchemy(repo, mock_db):
+    mock_db.query.return_value.all.side_effect = SQLAlchemyError("Erro DB")
+    with pytest.raises(Exception) as e:
+        repo.buscar_todos()
+    assert "Erro ao buscar registros" in str(e.value)
+    mock_db.rollback.assert_called_once()
+
+
+def test_criar_registro_sucesso(repo, mock_db):
+    habito_mock = MagicMock(spec=HabitoUsuario)
+    habito_mock.id = 1
+    mock_db.query.return_value.filter_by.return_value.first.return_value = habito_mock
+    mock_db.add.return_value = None
+    mock_db.commit.return_value = None
+
+    data = datetime.now()
+    resultado = repo.criar_registro(data=data, habito_id=1, concluido=True)
+
+    assert resultado.concluido is True
+    assert resultado.habito_id == 1
+    mock_db.add.assert_called_once()
+    mock_db.commit.assert_called_once()
+
+
+def test_criar_registro_habito_nao_encontrado(repo, mock_db):
+    mock_db.query.return_value.filter_by.return_value.first.return_value = None
+    with pytest.raises(Exception) as e:
+        repo.criar_registro(datetime.now(), habito_id=999)
+    assert "Hábito não encontrado" in str(e.value)
+
+
+def test_criar_registro_erro_sqlalchemy(repo, mock_db):
+    habito_mock = MagicMock(spec=HabitoUsuario)
+    mock_db.query.return_value.filter_by.return_value.first.return_value = habito_mock
+    mock_db.add.side_effect = SQLAlchemyError("Erro DB")
+
+    with pytest.raises(Exception) as e:
+        repo.criar_registro(datetime.now(), habito_id=1)
+    assert "Erro ao criar registro" in str(e.value)
+    mock_db.rollback.assert_called_once()
+
+
+def test_atualizar_registro_sucesso(repo, mock_db):
+    registro_mock = MagicMock(spec=RegistroDiario)
+    mock_db.query.return_value.filter_by.return_value.first.return_value = registro_mock
+    mock_db.commit.return_value = None
+
+    resultado = repo.atualizar_registro(registro_id=1, concluido=True)
+    assert resultado == registro_mock
+    assert registro_mock.concluido is True
+    mock_db.commit.assert_called_once()
+
+
+def test_atualizar_registro_nao_encontrado(repo, mock_db):
+    mock_db.query.return_value.filter_by.return_value.first.return_value = None
+    with pytest.raises(Exception) as e:
+        repo.atualizar_registro(1, True)
+    assert "Registro não encontrado" in str(e.value)
+
+
+def test_remover_registro_sucesso(repo, mock_db):
+    registro_mock = MagicMock(spec=RegistroDiario)
+    mock_db.query.return_value.filter_by.return_value.first.return_value = registro_mock
+    mock_db.delete.return_value = None
+    mock_db.commit.return_value = None
+
+    repo.remover_registro(1)
+    mock_db.delete.assert_called_once_with(registro_mock)
+    mock_db.commit.assert_called_once()
+
+
+def test_remover_registro_nao_encontrado(repo, mock_db):
+    mock_db.query.return_value.filter_by.return_value.first.return_value = None
+    with pytest.raises(Exception) as e:
+        repo.remover_registro(1)
+    assert "Registro não encontrado" in str(e.value)
+
+
+def test_buscar_por_usuario_sucesso(repo, mock_db):
+    registro_mock = MagicMock(spec=RegistroDiario)
+    mock_db.query.return_value.join.return_value.filter.return_value.all.return_value = [registro_mock]
+
+    resultado = repo.buscar_por_usuario(usuario_id=1)
+    assert resultado == [registro_mock]
+
+
+def test_buscar_por_usuario_nao_encontra(repo, mock_db):
+    mock_db.query.return_value.join.return_value.filter.return_value.all.return_value = []
+    with pytest.raises(Exception) as e:
+        repo.buscar_por_usuario(1)
+    assert "Nenhum registro encontrado para o usuário" in str(e.value)
+
+
+def test_buscar_concluidos_por_usuario_sucesso(repo, mock_db):
+    registro_mock = MagicMock(spec=RegistroDiario)
+    mock_db.query.return_value.join.return_value.filter.return_value.all.return_value = [registro_mock]
+
+    resultado = repo.buscar_concluidos_por_usuario(usuario_id=1)
+    assert resultado == [registro_mock]
+
+
+def test_buscar_concluidos_por_usuario_nao_encontra(repo, mock_db):
+    mock_db.query.return_value.join.return_value.filter.return_value.all.return_value = []
+    with pytest.raises(Exception) as e:
+        repo.buscar_concluidos_por_usuario(1)
+    assert "Nenhum registro concluído encontrado para o usuário" in str(e.value)
+
+
+def test_buscar_por_data_com_filtros(repo, mock_db):
+    registro_mock = MagicMock(spec=RegistroDiario)
+    query_mock = MagicMock()
+    mock_db.query.return_value.join.return_value.filter.return_value = query_mock
+    query_mock.filter.return_value = query_mock
+    query_mock.all.return_value = [registro_mock]
+
+    resultado = repo.buscar_por_data(
+        usuario_id=1,
+        data_inicio=datetime(2020, 1, 1),
+        data_fim=datetime(2020, 12, 31)
     )
-    db_session.add(habito_usuario)
-    db_session.commit()
+    assert resultado == [registro_mock]
 
-    registro1 = RegistroDiario(data=date.today(), concluido=True, habito_id=habito_usuario.id)
-    registro2 = RegistroDiario(data=date.today(), concluido=False, habito_id=habito_usuario.id)
-    db_session.add_all([registro1, registro2])
-    db_session.commit()
 
-    return habito_usuario
+def test_buscar_por_data_sem_resultado(repo, mock_db):
+    query_mock = MagicMock()
+    mock_db.query.return_value.join.return_value.filter.return_value = query_mock
+    query_mock.filter.return_value = query_mock
+    query_mock.all.return_value = []
+    with pytest.raises(Exception) as e:
+        repo.buscar_por_data(usuario_id=1)
+    assert "Nenhum registro encontrado para o filtro de data" in str(e.value)
 
-def test_buscar_por_usuario(repo, usuario_com_registros):
-    registros = repo.buscar_por_usuario(usuario_com_registros.usuario_id)
 
-    assert len(registros) == 2
-    assert all(r.habito.usuario_id == usuario_com_registros.usuario_id for r in registros)
+def test_buscar_por_data_especifica_sucesso(repo, mock_db):
+    registro_mock = MagicMock(spec=RegistroDiario)
+    mock_db.query.return_value.join.return_value.filter.return_value.all.return_value = [registro_mock]
 
-def test_buscar_concluidos_por_usuario(repo, usuario_com_registros):
-    registros = repo.buscar_concluidos_por_usuario(usuario_com_registros.usuario_id)
+    data_especifica = datetime(2020, 1, 1)
+    resultado = repo.buscar_por_data_especifica(usuario_id=1, data_especifica=data_especifica)
+    assert resultado == [registro_mock]
 
-    assert len(registros) == 1
-    assert registros[0].concluido is True
-    assert registros[0].habito.usuario_id == usuario_com_registros.usuario_id
 
-def test_buscar_por_usuario_sem_registros(repo, usuario):
-    with pytest.raises(Exception, match="Erro ao buscar registros do usuário: Nenhum registro encontrado para o usuário."):
-        repo.buscar_por_usuario(usuario_id=usuario.id)
-
-def test_buscar_concluidos_por_usuario_sem_resultado(repo, db_session, usuario, habito_base):
-    habito_usuario = HabitoUsuario(
-        descricao="Exercício",
-        habito_base_id=habito_base.id,
-        usuario_id=usuario.id
-    )
-    db_session.add(habito_usuario)
-    db_session.commit()
-
-    registro = RegistroDiario(data=date.today(), concluido=False, habito_id=habito_usuario.id)
-    db_session.add(registro)
-    db_session.commit()
-
-    with pytest.raises(Exception, match="Erro ao buscar registros concluídos do usuário: Nenhum registro concluído encontrado para o usuário."):
-        repo.buscar_concluidos_por_usuario(usuario_id=usuario.id)
+def test_buscar_por_data_especifica_sem_resultado(repo, mock_db):
+    mock_db.query.return_value.join.return_value.filter.return_value.all.return_value = []
+    data_especifica = datetime(2020, 1, 1)
+    with pytest.raises(Exception) as e:
+        repo.buscar_por_data_especifica(usuario_id=1, data_especifica=data_especifica)
+    assert "Nenhum registro encontrado para a data" in str(e.value)
