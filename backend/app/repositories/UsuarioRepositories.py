@@ -9,11 +9,7 @@ class UserRepository:
 
     def buscar_por_email(self, email):
         try:
-            usuario = self.db.query(Usuario).filter_by(email=email).first()
-        
-            if not usuario:
-                raise NotFoundError(f"Usuário com email '{email}' não encontrado.")
-            return usuario
+            return self.db.query(Usuario).filter_by(email=email).first()
         
         except SQLAlchemyError as e:
             self.db.rollback()
