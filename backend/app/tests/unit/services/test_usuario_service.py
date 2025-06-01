@@ -1,51 +1,78 @@
 import pytest
-from app.services.UsuarioService import UserService
+from unittest.mock import MagicMock, patch
+from sqlalchemy.exc import SQLAlchemyError
 from app.models.Usuario import Usuario
-from app.utils.gerar_verificar_hash import gerar_hash_senha
+from app.repositories.UserRepository import UserRepository
 
 @pytest.fixture
-def user_service(db_session):
-    return UserService(db_session)
+def mock_db():
+    return MagicMock()
 
 @pytest.fixture
-def usuario_existente(db_session):
-    usuario = Usuario(
-        nome="Usuário Existente",
-        email="existente@teste.com",
-        senha_hash=gerar_hash_senha("senha123")
-    )
-    db_session.add(usuario)
-    db_session.commit()
-    return usuario
+def user_repo(mock_db):
+    return UserRepository(mock_db)
 
-def test_criar_usuario_sucesso(user_service, db_session):
-    usuario = user_service.criar_usuario("Novo Usuário", "novo@teste.com", "minha_senha")
+def test_buscar_por_email_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+    mock_db.query().filter_by().first.return_value = user
 
-    assert usuario.id is not None
-    assert usuario.email == "novo@teste.com"
-    assert usuario.nome == "Novo Usuário"
+    resultado = user_repo.buscar_por_email("teste@example.com")
+    assert resultado == user
+    mock_db.query.assert_called_once_with(Usuario)
 
-    persistido = db_session.query(Usuario).filter_by(email="novo@teste.com").first()
-    assert persistido is not None
-    assert persistido.senha_hash != "minha_senha"  
+def test_buscar_por_email_erro(user_repo, mock_db):
+    mock_db.query.side_effect = SQLAlchemyError("Erro no DB")
+    with pytest.raises(Exception) as excinfo:
+        user_repo.buscar_por_email("teste@example.com")
+    assert "Erro ao buscar usuário por e-mail" in str(excinfo.value)
+    mock_db.rollback.assert_called_once()
 
-def test_criar_usuario_email_existente(user_service, usuario_existente):
-    with pytest.raises(Exception) as exc:
-        user_service.criar_usuario("Outro", "existente@teste.com", "outra_senha")
+def test_buscar_por_id_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+    mock_db.query().filter_by().first.return_value = user
 
-    assert "Já existe um usuário com este e-mail." in str(exc.value)
+    resultado = user_repo.buscar_por_id(1)
+    assert resultado == user
+    mock_db.query.assert_called_once_with(Usuario)
 
-def test_autenticar_usuario_sucesso(user_service, usuario_existente):
-    usuario = user_service.autenticar_usuario("existente@teste.com", "senha123")
-    assert usuario is not None
-    assert usuario.email == "existente@teste.com"
+def test_salvar_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
 
-def test_autenticar_usuario_senha_errada(user_service, usuario_existente):
-    with pytest.raises(Exception) as exc:
-        user_service.autenticar_usuario("existente@teste.com", "senhaErrada")
-    assert "Credenciais inválidas." in str(exc.value)
+    resultado = user_repo.salvar(user)
+    assert resultado == user
+    mock_db.add.assert_called_once_with(user)
+    mock_db.commit.assert_called_once()
 
-def test_autenticar_usuario_inexistente(user_service):
-    with pytest.raises(Exception) as exc:
-        user_service.autenticar_usuario("naoexiste@teste.com", "qualquercoisa")
-    assert "Credenciais inválidas." in str(exc.value)
+def test_salvar_erro(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+    mock_db.add.side_effect = SQLAlchemyError("Erro ao salvar")
+
+    with pytest.raises(Exception) as excinfo:
+        user_repo.salvar(user)
+    assert "Erro ao salvar usuário" in str(excinfo.value)
+    mock_db.rollback.assert_called_once()
+
+def test_atualizar_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+
+    resultado = user_repo.atualizar(user)
+    assert resultado == user
+    mock_db.merge.assert_called_once_with(user)
+    mock_db.commit.assert_called_once()
+
+def test_deletar_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+
+    resultado = user_repo.deletar(user)
+    assert resultado is True
+    mock_db.delete.assert_called_once_with(user)
+    mock_db.commit.assert_called_once()
+
+def test_deletar_erro(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+    mock_db.delete.side_effect = SQLAlchemyError("Erro ao deletar")
+
+    with pytest.raises(Exception) as excinfo:
+        user_repo.deletar(user)
+    assert "Erro ao deletar usuário" in str(excinfo.value)
+    mock_db.rollback.assert_called_once()

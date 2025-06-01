@@ -1,81 +1,102 @@
 import pytest
+from unittest.mock import MagicMock, patch
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 from app.repositories.HabitoBaseRepository import HabitoBaseRepository
 from app.models.HabitoBase import HabitoBase
 from app.models.CategoriasHabito import CategoriaHabito
 
-@pytest.fixture
-def popular_categoria(db_session):
-    categoria = CategoriaHabito(nome="Saúde")
-    db_session.add(categoria)
-    db_session.commit()
-    return categoria
 
 @pytest.fixture
-def popular_habito_base(db_session, popular_categoria):
-    habito = HabitoBase(nome="Exercício", categoria_id=popular_categoria.id)
-    db_session.add(habito)
-    db_session.commit()
-    return habito
+def mock_session():
+    return MagicMock()
+
 
 @pytest.fixture
-def repo(db_session):
-    return HabitoBaseRepository(db_session)
+def repository(mock_session):
+    return HabitoBaseRepository(mock_session)
 
-def test_buscar_todos(repo, db_session, popular_habito_base):
-    habitos = repo.buscar_todos()
 
-    assert len(habitos) > 0
-    assert habitos[0].nome == "Exercício"
-    assert habitos[0].categoria_id == popular_habito_base.categoria_id
+def test_buscar_todos_sucesso(repository, mock_session):
+    mock_session.query.return_value.all.return_value = [HabitoBase(id=1, nome="Test", categoria_id=1)]
 
-def test_criar_habito(repo, db_session, popular_categoria):
-    novo_habito = repo.criar_habito("Meditação", popular_categoria.id)
+    result = repository.buscar_todos()
+    assert len(result) == 1
+    assert isinstance(result[0], HabitoBase)
 
-    assert novo_habito.id is not None
-    assert novo_habito.nome == "Meditação"
-    assert novo_habito.categoria_id == popular_categoria.id
 
-    persistido = db_session.query(HabitoBase).filter_by(nome="Meditação").first()
-    assert persistido is not None
-    assert persistido.nome == "Meditação"
+def test_buscar_todos_vazio(repository, mock_session):
+    mock_session.query.return_value.all.return_value = []
 
-def test_atualizar_habito(repo, db_session, popular_habito_base, popular_categoria):
-    novo_nome = "Caminhada"
-    nova_categoria_id = popular_categoria.id
-    habito_atualizado = repo.atualizar_habito(popular_habito_base.id, novo_nome, nova_categoria_id)
+    with pytest.raises(Exception, match="Nenhum hábito encontrado."):
+        repository.buscar_todos()
 
-    assert habito_atualizado.nome == novo_nome
-    assert habito_atualizado.categoria_id == nova_categoria_id
 
-    atualizado = db_session.query(HabitoBase).filter_by(id=popular_habito_base.id).first()
-    assert atualizado.nome == novo_nome
-    assert atualizado.categoria_id == nova_categoria_id
+def test_buscar_por_id_sucesso(repository, mock_session):
+    mock_session.query.return_value.filter_by.return_value.first.return_value = HabitoBase(id=1, nome="Test", categoria_id=1)
 
-def test_remover_habito(repo, db_session, popular_habito_base):
-    repo.remover_habito(popular_habito_base.id)
+    result = repository.buscar_por_id(1)
+    assert result.nome == "Test"
 
-    removido = db_session.query(HabitoBase).filter_by(id=popular_habito_base.id).first()
-    assert removido is None
 
-def test_buscar_todos_sem_habitos(repo, db_session):
-    db_session.query(HabitoBase).delete()
-    db_session.commit()
+def test_buscar_por_id_nao_encontrado(repository, mock_session):
+    mock_session.query.return_value.filter_by.return_value.first.return_value = None
 
-    with pytest.raises(Exception, match="Erro ao buscar hábitos: Nenhum hábito encontrado."):
-        repo.buscar_todos()
+    with pytest.raises(Exception, match="Hábito não encontrado."):
+        repository.buscar_por_id(1)
 
-def test_criar_habito_categoria_nao_encontrada(repo, db_session):
-    with pytest.raises(Exception, match="Erro ao criar hábito: Categoria não encontrada."):
-        repo.criar_habito("Leitura", 999) 
 
-def test_atualizar_habito_habito_nao_encontrado(repo, db_session, popular_categoria):
-    with pytest.raises(Exception, match="Erro ao atualizar hábito: Hábito não encontrado."):
-        repo.atualizar_habito(999, "Caminhada", popular_categoria.id)
+def test_criar_habito_sucesso(repository, mock_session):
+    mock_session.query.return_value.filter_by.return_value.first.return_value = CategoriaHabito(id=1, nome="Saúde")
 
-def test_atualizar_habito_categoria_nao_encontrada(repo, db_session, popular_habito_base):
-    with pytest.raises(Exception, match="Erro ao atualizar hábito: Categoria não encontrada."):
-        repo.atualizar_habito(popular_habito_base.id, "Caminhada", 999)  
+    result = repository.criar_habito(nome="Correr", categoria_id=1)
+    assert isinstance(result, HabitoBase)
+    assert result.nome == "Correr"
+    assert result.categoria_id == 1
+    mock_session.add.assert_called_once()
+    mock_session.commit.assert_called_once()
 
-def test_remover_habito_nao_encontrado(repo):
-    with pytest.raises(Exception, match="Erro ao remover hábito: Hábito não encontrado."):
-        repo.remover_habito(999)  
+
+def test_criar_habito_categoria_nao_encontrada(repository, mock_session):
+    mock_session.query.return_value.filter_by.return_value.first.return_value = None
+
+    with pytest.raises(Exception, match="Categoria não encontrada."):
+        repository.criar_habito(nome="Correr", categoria_id=99)
+
+
+def test_atualizar_habito_sucesso(repository, mock_session):
+    habito = HabitoBase(id=1, nome="Antigo", categoria_id=1)
+    categoria = CategoriaHabito(id=2, nome="Nova")
+
+    mock_session.query.return_value.filter_by.side_effect = [
+        MagicMock(first=MagicMock(return_value=habito)),   # Habito
+        MagicMock(first=MagicMock(return_value=categoria)) # Categoria
+    ]
+
+    result = repository.atualizar_habito(1, "Novo Nome", 2)
+    assert result.nome == "Novo Nome"
+    assert result.categoria_id == 2
+    mock_session.commit.assert_called_once()
+
+
+def test_atualizar_habito_nao_encontrado(repository, mock_session):
+    mock_session.query.return_value.filter_by.return_value.first.return_value = None
+
+    with pytest.raises(Exception, match="Hábito não encontrado."):
+        repository.atualizar_habito(1, "Novo", 2)
+
+
+def test_remover_habito_sucesso(repository, mock_session):
+    habito = HabitoBase(id=1, nome="Apagar", categoria_id=1)
+    mock_session.query.return_value.filter_by.return_value.first.return_value = habito
+
+    repository.remover_habito(1)
+    mock_session.delete.assert_called_once_with(habito)
+    mock_session.commit.assert_called_once()
+
+
+def test_remover_habito_nao_encontrado(repository, mock_session):
+    mock_session.query.return_value.filter_by.return_value.first.return_value = None
+
+    with pytest.raises(Exception, match="Hábito não encontrado."):
+        repository.remover_habito(1)

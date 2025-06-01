@@ -1,54 +1,78 @@
 import pytest
-from app.repositories.CategoriaRepository import CategoriaRepository
-from app.models.CategoriasHabito import CategoriaHabito
+from unittest.mock import MagicMock, patch
+from sqlalchemy.exc import SQLAlchemyError
+from app.models.Usuario import Usuario
+from app.repositories.UserRepository import UserRepository
 
 @pytest.fixture
-def popular_categoria(db_session):
-    categoria = CategoriaHabito(nome="Saúde")
-    db_session.add(categoria)
-    db_session.commit()
-    return categoria
+def mock_db():
+    return MagicMock()
 
 @pytest.fixture
-def repo(db_session):
-    return CategoriaRepository(db_session)
+def user_repo(mock_db):
+    return UserRepository(mock_db)
 
-def test_buscar_todas(repo, db_session, popular_categoria):
-    categorias = repo.buscar_todas()
+def test_buscar_por_email_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+    mock_db.query().filter_by().first.return_value = user
 
-    assert len(categorias) > 0
-    assert categorias[0].nome == "Saúde"
+    resultado = user_repo.buscar_por_email("teste@example.com")
+    assert resultado == user
+    mock_db.query.assert_called_once_with(Usuario)
 
-def test_criar_categoria(repo, db_session):
-    nova_categoria = repo.criar_categoria("Bem-estar")
+def test_buscar_por_email_erro(user_repo, mock_db):
+    mock_db.query.side_effect = SQLAlchemyError("Erro no DB")
+    with pytest.raises(Exception) as excinfo:
+        user_repo.buscar_por_email("teste@example.com")
+    assert "Erro ao buscar usuário por e-mail" in str(excinfo.value)
+    mock_db.rollback.assert_called_once()
 
-    assert nova_categoria.id is not None
-    assert nova_categoria.nome == "Bem-estar"
+def test_buscar_por_id_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+    mock_db.query().filter_by().first.return_value = user
 
-    persistida = db_session.query(CategoriaHabito).filter_by(nome="Bem-estar").first()
-    assert persistida is not None
-    assert persistida.nome == "Bem-estar"
+    resultado = user_repo.buscar_por_id(1)
+    assert resultado == user
+    mock_db.query.assert_called_once_with(Usuario)
 
-def test_atualizar_categoria(repo, popular_categoria):
-    popular_categoria.nome = "Saúde e Bem-estar"
-    categoria_atualizada = repo.atualizar_categoria(popular_categoria.id, "Saúde e Bem-estar")
+def test_salvar_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
 
-    assert categoria_atualizada.nome == "Saúde e Bem-estar"
-    atualizado = repo.buscar_todas()
-    assert atualizado[0].nome == "Saúde e Bem-estar"
+    resultado = user_repo.salvar(user)
+    assert resultado == user
+    mock_db.add.assert_called_once_with(user)
+    mock_db.commit.assert_called_once()
 
-def test_remover_categoria(repo, db_session, popular_categoria):
-    resultado = repo.remover_categoria(popular_categoria.id)
+def test_salvar_erro(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+    mock_db.add.side_effect = SQLAlchemyError("Erro ao salvar")
 
-    assert resultado is None  
+    with pytest.raises(Exception) as excinfo:
+        user_repo.salvar(user)
+    assert "Erro ao salvar usuário" in str(excinfo.value)
+    mock_db.rollback.assert_called_once()
 
-    removida = db_session.query(CategoriaHabito).filter_by(id=popular_categoria.id).first()
-    assert removida is None
+def test_atualizar_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
 
-def test_buscar_todas_sem_categoria(repo, db_session):
-    db_session.query(CategoriaHabito).delete()
-    db_session.commit()
+    resultado = user_repo.atualizar(user)
+    assert resultado == user
+    mock_db.merge.assert_called_once_with(user)
+    mock_db.commit.assert_called_once()
 
-    with pytest.raises(Exception, match="Erro ao buscar categorias de hábito: Nenhuma categoria de hábito encontrada."):
-        repo.buscar_todas()
+def test_deletar_sucesso(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
 
+    resultado = user_repo.deletar(user)
+    assert resultado is True
+    mock_db.delete.assert_called_once_with(user)
+    mock_db.commit.assert_called_once()
+
+def test_deletar_erro(user_repo, mock_db):
+    user = Usuario(id=1, email="teste@example.com")
+    mock_db.delete.side_effect = SQLAlchemyError("Erro ao deletar")
+
+    with pytest.raises(Exception) as excinfo:
+        user_repo.deletar(user)
+    assert "Erro ao deletar usuário" in str(excinfo.value)
+    mock_db.rollback.assert_called_once()
