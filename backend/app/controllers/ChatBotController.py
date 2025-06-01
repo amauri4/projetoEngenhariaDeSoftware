@@ -4,8 +4,14 @@ from app.repositories.UsuarioRepositories import UserRepository
 from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.CategoriaRepository import CategoriaRepository
 from app.repositories.ChatRepository import ChatRepository
+from app.repositories.RegistroRepository import RegistroDiarioRepository
+from app.clients.GroqClient import GroqClient
 from app.database.session import get_db
+from pathlib import Path
+from dotenv import load_dotenv
 import traceback
+import os
+
 
 chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
 
@@ -16,11 +22,17 @@ def build_chat_service(db):
     categoria_repo = CategoriaRepository(db)
     chat_repo = ChatRepository(db)
 
+    load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent.parent / ".test.env")
+
+    groq_api_key = os.getenv("GROQ_API_KEY")
+    groq_client = GroqClient(api_key=groq_api_key)
+
     return ChatService(
         usuario_repo=usuario_repo,
         habito_repo=habito_repo,
         categoria_repo=categoria_repo,
-        chat_repo=chat_repo
+        chat_repo=chat_repo,
+        groq_client=groq_client  
     )
 
 

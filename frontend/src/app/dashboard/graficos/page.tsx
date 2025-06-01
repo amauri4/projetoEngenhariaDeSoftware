@@ -5,6 +5,7 @@ import PieChart from '@/app/components/pie_chart';
 import BarChart from '@/app/components/bar_chart';
 import ProgressChart from '@/app/components/progress_chart';
 import { buscarCategoriasDoUsuario } from '@/app/services/habit_service';
+import { useCorrelacoes } from '@/app/hooks/use_correlacao_habitos';
 
 const CATEGORY_COLORS = [
   '#8B5CF6', '#7C3AED', '#6D28D9', '#5B21B6', '#4C1D95',
@@ -42,6 +43,14 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAnalysis, setShowAnalysis] = useState(false);
+
+  const {
+    correlacoes,
+    loading: loadingCorrelacoes,
+    error: errorCorrelacoes,
+    buscarCorrelacoes
+  } = useCorrelacoes();
 
   useEffect(() => {
     async function loadData() {
@@ -49,7 +58,7 @@ export default function DashboardPage() {
         // Buscar categorias da API
         const id = 1;
         const categoriasApi = await buscarCategoriasDoUsuario(id);
-        
+
         const categoriesData = Object.entries(categoriasApi).map(([name, value], index) => ({
           name,
           value,
@@ -80,8 +89,10 @@ export default function DashboardPage() {
           weeklyProgress: weeklyProgressData
         });
 
+        await buscarCorrelacoes(id);
+
       } catch (err) {
-        if (err instanceof Error){
+        if (err instanceof Error) {
           setError(null);
         }
         console.error("Erro ao carregar dados:", err);
@@ -96,10 +107,10 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 p-6">
 
-        <header className="mb-8 md:mb-10 flex flex-col items-center text-center space-y-2">
-            <h1 className="text-3xl md:text-3xl font-bold text-purple-900">Meu Progresso</h1>
-            <p className="text-md md:text-base text-purple-700">Visualize seu desempenho e conquistas</p>
-        </header>
+      <header className="mb-8 md:mb-10 flex flex-col items-center text-center space-y-2">
+        <h1 className="text-3xl md:text-3xl font-bold text-purple-900">Meu Progresso</h1>
+        <p className="text-md md:text-base text-purple-700">Visualize seu desempenho e conquistas</p>
+      </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Gráfico de Pizza - Categorias */}
@@ -125,13 +136,52 @@ export default function DashboardPage() {
         <ProgressChart data={chartData.weeklyProgress} />
       </div>
 
-      {/* Área para Interações com LLM */}
+      {/* Área para Interações com LLM - ATUALIZADA */}
       <div className="bg-white rounded-xl p-6 shadow-md">
         <h2 className="text-xl font-semibold text-purple-800 mb-4">Análise Personalizada</h2>
         <div className="min-h-40 p-4 border-2 border-dashed border-purple-200 rounded-lg bg-purple-50">
-          <p className="text-purple-600 text-center">
-            Área para integração com modelos de IA e análises personalizadas
-          </p>
+          {!showAnalysis ? (
+            <button
+              onClick={() => setShowAnalysis(true)}
+              className="w-full h-full flex flex-col items-center justify-center space-y-2"
+            >
+              <svg className="w-10 h-10 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <p className="text-purple-600 font-medium">Gerar análise de correlações entre hábitos</p>
+            </button>
+          ) : (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-purple-700">Correlações entre seus hábitos:</h3>
+
+              {loadingCorrelacoes && (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+                </div>
+              )}
+
+              {errorCorrelacoes && (
+                <p className="text-red-500 text-center">{errorCorrelacoes}</p>
+              )}
+
+              {correlacoes && !loadingCorrelacoes && (
+                <div className="bg-purple-100 p-3 rounded-md">
+                  <ul className="list-disc pl-5 space-y-1 text-purple-800">
+                    {correlacoes.split('\n').map((item, index) => (
+                      item.trim() && <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowAnalysis(false)}
+                className="mt-2 text-sm text-purple-600 hover:text-purple-800"
+              >
+                Ocultar análise
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

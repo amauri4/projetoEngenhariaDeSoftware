@@ -3,8 +3,7 @@ from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.CategoriaRepository import CategoriaRepository
 from app.repositories.ChatRepository import ChatRepository
 from app.models.HistoricoChat import HistoricoChat
-from app.services.GroqService import chamar_modelo_groq
-
+from app.clients.GroqClient import GroqClient
 
 class ChatService:
     def __init__(
@@ -12,12 +11,15 @@ class ChatService:
         usuario_repo: UserRepository,
         habito_repo: HabitoUsuarioRepository,
         categoria_repo: CategoriaRepository,
-        chat_repo: ChatRepository
+        chat_repo: ChatRepository,
+        groq_client: GroqClient
+
     ):
         self.usuario_repo = usuario_repo
         self.habito_repo = habito_repo
         self.categoria_repo = categoria_repo
         self.chat_repo = chat_repo
+        self.groq_client = groq_client
 
     def montar_prompt(self, user_id: int, mensagem: str) -> str:
         usuario = self.usuario_repo.buscar_por_id(user_id)
@@ -68,7 +70,7 @@ class ChatService:
             )
             prompt = f"{contexto_conversa}\n\n{prompt}"
 
-        resposta = chamar_modelo_groq(prompt)
+        resposta = self.groq_client.gerar_resposta_chat(prompt)
 
         mensagem_bot = HistoricoChat(
             usuario_id=user_id,
