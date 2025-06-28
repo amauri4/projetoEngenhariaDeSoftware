@@ -15,7 +15,7 @@ def listar_registros_usuario(usuario_id):
                 {
                     "id": r.id,
                     "data": r.data,
-                    "habito_id": r.habito_id,
+                    "habito_id": r.item_id,
                     "concluido": r.concluido
                 } for r in registros
             ]
@@ -35,7 +35,7 @@ def listar_registros_concluidos_usuario(usuario_id):
                 {
                     "id": r.id,
                     "data": r.data,
-                    "habito_id": r.habito_id,
+                    "habito_id": r.item_id,
                     "concluido": r.concluido
                 } for r in registros_concluidos
             ]
@@ -60,7 +60,7 @@ def criar_registro_diario():
                 "registro_diario": {
                     "id": novo_registro.id,
                     "data": novo_registro.data,
-                    "habito_id": novo_registro.habito_id,
+                    "habito_id": novo_registro.item_id,
                     "concluido": novo_registro.concluido
                 }
             }), 201
@@ -81,7 +81,7 @@ def atualizar_registro_diario(registro_id):
                 "registro_diario": {
                     "id": registro_atualizado.id,
                     "data": registro_atualizado.data,
-                    "habito_id": registro_atualizado.habito_id,
+                    "habito_id": registro_atualizado.item_id,
                     "concluido": registro_atualizado.concluido
                 }
             }), 200
@@ -113,7 +113,7 @@ def listar_registros_por_data(usuario_id):
                 {
                     "id": r.id,
                     "data": r.data,
-                    "habito_id": r.habito_id,
+                    "habito_id": r.item_id,
                     "concluido": r.concluido
                 } for r in registros
             ]
@@ -138,7 +138,7 @@ def listar_registros_por_data_especifica(usuario_id):
                 {
                     "id": r.id,
                     "data": r.data,
-                    "habito_id": r.habito_id,
+                    "habito_id": r.item_id,
                     "concluido": r.concluido
                 } for r in registros
             ]

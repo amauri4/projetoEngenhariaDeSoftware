@@ -28,7 +28,7 @@ def listar_habitos_usuario(usuario_email):
                     "vezes_na_semana": h.vezes_na_semana,
                     "dias_semana": dias_semana,
                     "dias_mes": dias_mes,
-                    "usuario_id": h.usuario_id,
+                    "usuario_id": h.ator_id,
                     "habito_base_id": h.habito_base_id,
                     "habito_base_nome": habito_base_nome  
                 }
@@ -69,7 +69,7 @@ def adicionar_habito_usuario(usuario_id):
                     "id": novo_habito.id,
                     "descricao": novo_habito.descricao,
                     "habito_base_id": novo_habito.habito_base_id,
-                    "usuario_id": novo_habito.usuario_id,
+                    "usuario_id": novo_habito.ator_id,
                     "vezes_na_semana": novo_habito.vezes_na_semana
                 }
             }), 201
@@ -109,7 +109,7 @@ def atualizar_habito_usuario(habito_usuario_id):
                     "id": habito_atualizado.id,
                     "descricao": habito_atualizado.descricao,
                     "habito_base_id": habito_atualizado.habito_base_id,
-                    "usuario_id": habito_atualizado.usuario_id,
+                    "usuario_id": habito_atualizado.ator_id,
                     "vezes_na_semana": habito_atualizado.vezes_na_semana
                 }
             }), 200

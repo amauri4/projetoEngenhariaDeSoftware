@@ -72,7 +72,7 @@ export default function HabitList({ habits, onRemove, selectedDate }: HabitListP
             'quarta': 3,
             'quinta': 4,
             'sexta': 5,
-            'sábado': 6
+            'sabado': 6
           };
           
           return mapeamento[diaLower] ?? 0;

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
-from app.models.RegistroDiario import RegistroDiario
-from app.models.HabitoUsuario import HabitoUsuario
+from app.models.RegistroDeOcorrencia import RegistroDeOcorrencia
+from app.models.InstanciaDeHabito import InstanciaDeHabito
 from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 from datetime import datetime
 
@@ -12,7 +12,7 @@ class RegistroDiarioRepository:
 
     def buscar_todos(self):
         try:
-            registros = self.db.query(RegistroDiario).all()
+            registros = self.db.query(RegistroDeOcorrencia).all()
 
             if not registros:
                 raise NotFoundError("Nenhum registro encontrado.")
@@ -25,9 +25,9 @@ class RegistroDiarioRepository:
     def buscar_por_usuario(self, usuario_id: int):
         try:
             registros = (
-                self.db.query(RegistroDiario)
-                .join(HabitoUsuario)
-                .filter(HabitoUsuario.usuario_id == usuario_id)
+                self.db.query(RegistroDeOcorrencia)
+                .join(InstanciaDeHabito)
+                .filter(InstanciaDeHabito.ator_id == usuario_id)
                 .all()
             )
             if not registros:
@@ -40,9 +40,9 @@ class RegistroDiarioRepository:
     def buscar_concluidos_por_usuario(self, usuario_id: int):
         try:
             registros = (
-                self.db.query(RegistroDiario)
-                .join(HabitoUsuario)
-                .filter(HabitoUsuario.usuario_id == usuario_id, RegistroDiario.concluido == True)
+                self.db.query(RegistroDeOcorrencia)
+                .join(InstanciaDeHabito)
+                .filter(InstanciaDeHabito.ator_id == usuario_id, RegistroDeOcorrencia.concluido == True)
                 .all()
             )
             if not registros:
@@ -54,10 +54,10 @@ class RegistroDiarioRepository:
 
     def criar_registro(self, data, habito_id: int, concluido=False):
         try:
-            habito = self.db.query(HabitoUsuario).filter_by(id=habito_id).first()
+            habito = self.db.query(InstanciaDeHabito).filter_by(id=habito_id).first()
             if not habito:
                 raise NoResultFound("Hábito não encontrado.")
-            novo_registro = RegistroDiario(data=data, habito_id=habito_id, concluido=concluido)
+            novo_registro = RegistroDeOcorrencia(data=data, item_id=habito_id, concluido=concluido)
             self.db.add(novo_registro)
             self.db.commit()
             return novo_registro
@@ -69,7 +69,7 @@ class RegistroDiarioRepository:
 
     def atualizar_registro(self, registro_id: int, concluido: bool):
         try:
-            registro = self.db.query(RegistroDiario).filter_by(id=registro_id).first()
+            registro = self.db.query(RegistroDeOcorrencia).filter_by(id=registro_id).first()
             if not registro:
                 raise NotFoundError("Registro não encontrado.")
             registro.concluido = concluido
@@ -81,7 +81,7 @@ class RegistroDiarioRepository:
 
     def remover_registro(self, registro_id: int):
         try:
-            registro = self.db.query(RegistroDiario).filter_by(id=registro_id).first()
+            registro = self.db.query(RegistroDeOcorrencia).filter_by(id=registro_id).first()
             if not registro:
                 raise NotFoundError("Registro não encontrado.")
             self.db.delete(registro)
@@ -92,13 +92,13 @@ class RegistroDiarioRepository:
     
     def buscar_por_data(self, usuario_id: int, data_inicio: datetime = None, data_fim: datetime = None):
         try:
-            query = self.db.query(RegistroDiario).join(HabitoUsuario).filter(HabitoUsuario.usuario_id == usuario_id)
+            query = self.db.query(RegistroDeOcorrencia).join(InstanciaDeHabito).filter(InstanciaDeHabito.ator_id == usuario_id)
             
             if data_inicio:
-                query = query.filter(RegistroDiario.data >= data_inicio)
+                query = query.filter(RegistroDeOcorrencia.data >= data_inicio)
             
             if data_fim:
-                query = query.filter(RegistroDiario.data <= data_fim)
+                query = query.filter(RegistroDeOcorrencia.data <= data_fim)
             
             registros = query.all()
 
@@ -114,9 +114,9 @@ class RegistroDiarioRepository:
     def buscar_por_data_especifica(self, usuario_id: int, data_especifica: datetime):
         try:
             registros = (
-                self.db.query(RegistroDiario)
-                .join(HabitoUsuario)
-                .filter(HabitoUsuario.usuario_id == usuario_id, RegistroDiario.data == data_especifica)
+                self.db.query(RegistroDeOcorrencia)
+                .join(InstanciaDeHabito)
+                .filter(InstanciaDeHabito.ator_id == usuario_id, RegistroDeOcorrencia.data == data_especifica)
                 .all()
             )
             if not registros:

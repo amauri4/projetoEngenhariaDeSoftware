@@ -4,9 +4,8 @@ from app.repositories.UsuarioRepositories import UserRepository
 from app.repositories.DiaHabitoMesRepository import DiaHabitoMesRepository
 from app.repositories.DiaHabitoSemanaRepository import DiaHabitoSemanaRepository
 from app.repositories.CategoriaRepository import CategoriaRepository
-from app.models.HabitoUsuario import HabitoUsuario
 from app.models.HabitoBase import HabitoBase
-from app.models.Usuario import Usuario
+from app.models.UsuarioPessoal import UsuarioPessoal
 from app.models.DiaHabitoSemana import DiaHabitoSemana
 from app.models.DiaHabitoMes import DiaHabitoMes
 from sqlalchemy.orm import Session

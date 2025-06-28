@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models.Usuario import Usuario
+from app.models.UsuarioPessoal import UsuarioPessoal
 from app.database.session import get_db
 from app.services.UsuarioService import UserService
 from app.utils.jwt import criar_token
@@ -16,7 +16,7 @@ def registrar_usuario():
     try:
         with get_db() as db: 
             service = UserService(db)
-            usuario = service.criar_usuario(Usuario(nome=nome,email=email, senha_hash=senha))
+            usuario = service.criar_usuario(UsuarioPessoal(nome=nome,email=email, senha_hash=senha))
             return jsonify({
                 "id": usuario.id,
                 "nome": usuario.nome,

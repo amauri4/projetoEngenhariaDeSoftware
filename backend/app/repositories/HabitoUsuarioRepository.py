@@ -2,9 +2,9 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
-from app.models.HabitoUsuario import HabitoUsuario
+from app.models.InstanciaDeHabito import InstanciaDeHabito
 from app.models.HabitoBase import HabitoBase
-from app.models.Usuario import Usuario
+from app.models.UsuarioPessoal import UsuarioPessoal
 from app.models.DiaHabitoSemana import DiaHabitoSemana, DiaSemanaEnum
 from app.models.enums.frequencia_enums import FrequenciaEnum
 from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
@@ -15,7 +15,7 @@ class HabitoUsuarioRepository:
 
     def buscar_todos(self):
         try:
-            habitos_usuario = self.db.query(HabitoUsuario).all()
+            habitos_usuario = self.db.query(InstanciaDeHabito).all()
             if not habitos_usuario:
                 raise NotFoundError("Nenhum hábito de usuário encontrado.")
             return habitos_usuario
@@ -35,15 +35,15 @@ class HabitoUsuarioRepository:
     ):
         try:
             habito_base = self.db.query(HabitoBase).filter_by(id=habito_base_id).first()
-            usuario = self.db.query(Usuario).filter_by(id=usuario_id).first()
+            usuario = self.db.query(UsuarioPessoal).filter_by(id=usuario_id).first()
 
             if not habito_base:
                 raise NotFoundError(f"Hábito base com ID {habito_base_id} não encontrado.")
 
-            novo_habito = HabitoUsuario(
+            novo_habito = InstanciaDeHabito(
                 descricao=descricao,
                 habito_base_id=habito_base_id,
-                usuario_id=usuario_id,
+                ator_id=usuario_id,
                 frequencia=frequencia,
                 data_inicio=data_inicio,
                 vezes_na_semana=quantidade_semanal
@@ -75,13 +75,13 @@ class HabitoUsuarioRepository:
         novos_dias_da_semana: list[str] = None
     ):
         try:
-            habito = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
+            habito = self.db.query(InstanciaDeHabito).filter_by(id=habito_usuario_id).first()
             if not habito:
                 raise NotFoundError(f"Hábito de usuário com ID {habito_usuario_id} não encontrado.")
 
             habito.descricao = nova_descricao
             habito.habito_base_id = novo_habito_base_id
-            habito.usuario_id = novo_usuario_id
+            habito.ator_id = novo_usuario_id
             habito.frequencia = nova_frequencia
             habito.data_inicio = nova_data_inicio
             habito.vezes_na_semana = nova_quantidade_semanal
@@ -102,7 +102,7 @@ class HabitoUsuarioRepository:
         
     def remover_habito_usuario(self, habito_usuario_id: int):
         try:
-            habito = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).first()
+            habito = self.db.query(InstanciaDeHabito).filter_by(id=habito_usuario_id).first()
             if not habito:
                 raise NotFoundError(f"Hábito de usuário com ID {habito_usuario_id} não encontrado.")
             self.db.delete(habito)
@@ -113,10 +113,10 @@ class HabitoUsuarioRepository:
 
     def buscar_por_email(self, email: str):
         try:
-            usuario = self.db.query(Usuario).filter_by(email=email).first()
+            usuario = self.db.query(UsuarioPessoal).filter_by(email=email).first()
             if not usuario:
                 raise NotFoundError(f"Usuário com e-mail {email} não encontrado.")
-            habitos = self.db.query(HabitoUsuario).filter_by(usuario_id=usuario.id).all()
+            habitos = self.db.query(InstanciaDeHabito).filter_by(ator_id=usuario.id).all()
             if not habitos:
                 raise NotFoundError(f"Nenhum hábito encontrado para o usuário com e-mail {email}.")
             return habitos
@@ -126,7 +126,7 @@ class HabitoUsuarioRepository:
 
     def buscar_por_id(self, habito_usuario_id: int):
         try:
-            habito = self.db.query(HabitoUsuario).filter_by(id=habito_usuario_id).all()
+            habito = self.db.query(InstanciaDeHabito).filter_by(id=habito_usuario_id).all()
             if not habito:
                 raise NotFoundError(f"Hábito de usuário com ID {habito_usuario_id} não encontrado.")
             return habito
@@ -134,12 +134,12 @@ class HabitoUsuarioRepository:
             self.db.rollback()
             raise RepositoryError(f"Erro no banco ao buscar hábito de usuário por ID {habito_usuario_id}.") from e
     
-    def buscar_por_usuario(self, user_id: int) -> list[HabitoUsuario]:
+    def buscar_por_usuario(self, user_id: int) -> list[InstanciaDeHabito]:
         try:
-            usuario = self.db.query(Usuario).filter_by(id=user_id).first()
+            usuario = self.db.query(UsuarioPessoal).filter_by(id=user_id).first()
             if not usuario:
                 raise NotFoundError(f"Usuário com ID {user_id} não encontrado.")
-            return self.db.query(HabitoUsuario).filter(HabitoUsuario.usuario_id == user_id).all()
+            return self.db.query(InstanciaDeHabito).filter(InstanciaDeHabito.ator_id == user_id).all()
         except (NoResultFound, SQLAlchemyError) as e:
             self.db.rollback()
             raise RepositoryError("Erro ao buscar hábitos por usuário.") from e

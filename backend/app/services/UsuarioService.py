@@ -1,5 +1,5 @@
 from app.repositories.UsuarioRepositories import UserRepository
-from app.models.Usuario import Usuario
+from app.models.UsuarioPessoal import UsuarioPessoal
 from sqlalchemy.orm import Session
 from app.utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha
 from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
@@ -19,14 +19,14 @@ class UserService:
         self.user_repository = UserRepository(db)
         self._initialized = True
 
-    def criar_usuario(self, usuario: Usuario):
+    def criar_usuario(self, usuario: UsuarioPessoal):
         try:
             usuario_existente = self.user_repository.buscar_por_email(usuario.email)
             if usuario_existente:
                 raise ConflictError("Já existe um usuário com este e-mail.")
 
             senha_hash = gerar_hash_senha(usuario.senha_hash)
-            novo_usuario = Usuario(
+            novo_usuario = UsuarioPessoal(
                 nome=usuario.nome,
                 email=usuario.email,
                 senha_hash=senha_hash

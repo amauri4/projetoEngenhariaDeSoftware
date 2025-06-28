@@ -5,9 +5,8 @@ from app.utils.sync import sync_categorias_from_json
 from dotenv import load_dotenv
 from app.models.CategoriasHabito import CategoriaHabito
 from app.models.HabitoBase import HabitoBase
-from app.models.HabitoUsuario import HabitoUsuario
-from app.models.RegistroDiario import RegistroDiario
-from app.models.Usuario import Usuario
+from app.models.InstanciaDeHabito import InstanciaDeHabito
+from app.models.RegistroDeOcorrencia import RegistroDeOcorrencia
 import os
 from flask_cors import CORS
 

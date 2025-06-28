@@ -16,8 +16,7 @@ class DiaHabitoSemana(Base):
     __tablename__ = "dias_habito_semana"
 
     id = Column(Integer, primary_key=True)
-    habito_id = Column(Integer, ForeignKey('habitos.id'), nullable=False)
+    habito_id = Column(Integer, ForeignKey('instancias_de_habitos.id'), nullable=False)
     dia = Column(Enum(DiaSemanaEnum), nullable=False)  
 
-    habito = relationship("HabitoUsuario", back_populates="dias_semana")
-
+    habito = relationship("InstanciaDeHabito", back_populates="dias_semana")

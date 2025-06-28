@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from app.models.CategoriasHabito import CategoriaHabito
 from ..models.HabitoBase import HabitoBase
-from ..models.HabitoUsuario import HabitoUsuario
+from ..models.InstanciaDeHabito import InstanciaDeHabito
 from sqlalchemy.orm import joinedload
 from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 
@@ -64,12 +64,12 @@ class CategoriaRepository:
             resultados = (
                 self.db.query(
                     CategoriaHabito.nome,
-                    func.count(HabitoUsuario.id).label('quantidade')
+                    func.count(InstanciaDeHabito.id).label('quantidade')
                 )
-                .select_from(HabitoUsuario)
-                .join(HabitoBase, HabitoUsuario.habito_base_id == HabitoBase.id)
+                .select_from(InstanciaDeHabito)
+                .join(HabitoBase, InstanciaDeHabito.habito_base_id == HabitoBase.id)
                 .join(CategoriaHabito, HabitoBase.categoria_id == CategoriaHabito.id)
-                .filter(HabitoUsuario.usuario_id == usuario_id)
+                .filter(InstanciaDeHabito.ator_id == usuario_id)
                 .group_by(CategoriaHabito.nome)
                 .all()
             )

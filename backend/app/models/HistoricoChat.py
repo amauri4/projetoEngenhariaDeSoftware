@@ -8,12 +8,12 @@ class HistoricoChat(Base):
     __tablename__ = 'historico_chat'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    usuario_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
+    ator_id = Column(Integer, ForeignKey('atores.id'), nullable=False)
     quem_enviou = Column(String(10), nullable=False) 
     mensagem = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
-    usuario = relationship("Usuario", back_populates="conversas")
+    ator = relationship("Ator", back_populates="conversas")
 
     def __repr__(self):
         return (f"<HistoricoChat(usuario_id={self.usuario_id}, quem_enviou='{self.quem_enviou}', "

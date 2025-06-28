@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models.Usuario import Usuario
+from app.models.UsuarioPessoal import UsuarioPessoal
 from sqlalchemy.exc import SQLAlchemyError
 from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 
@@ -9,7 +9,7 @@ class UserRepository:
 
     def buscar_por_email(self, email):
         try:
-            return self.db.query(Usuario).filter_by(email=email).first()
+            return self.db.query(UsuarioPessoal).filter_by(email=email).first()
         
         except SQLAlchemyError as e:
             self.db.rollback()
@@ -17,7 +17,7 @@ class UserRepository:
 
     def buscar_por_id(self, usuario_id: int):
         try:
-            usuario = self.db.query(Usuario).filter_by(id=usuario_id).first()
+            usuario = self.db.query(UsuarioPessoal).filter_by(id=usuario_id).first()
             if not usuario:
                 raise NotFoundError(f"Usuário com ID '{usuario_id}' não encontrado.")
             return usuario
@@ -34,7 +34,7 @@ class UserRepository:
             self.db.rollback()
             raise RepositoryError("Erro ao salvar usuário.") from e
 
-    def atualizar(self, user: Usuario):
+    def atualizar(self, user: UsuarioPessoal):
         try:
             self.db.merge(user)  
             self.db.commit()
@@ -43,7 +43,7 @@ class UserRepository:
             self.db.rollback()
             raise RepositoryError("Erro ao atualizar usuário.") from e
 
-    def deletar(self, user: Usuario):
+    def deletar(self, user: UsuarioPessoal):
         try:
             self.db.delete(user)
             self.db.commit()
