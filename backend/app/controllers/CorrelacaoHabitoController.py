@@ -34,6 +34,7 @@ def buscar_correlacoes_habitos(usuario_id):
         }), 400
         
     except Exception as e:
+        print(f'\n\n{str(e)}\n\n')
         return jsonify({
             "success": False,
             "data": None,

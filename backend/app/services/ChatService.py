@@ -55,7 +55,7 @@ class ChatService:
             return "Usuário não encontrado."
 
         mensagem_usuario = HistoricoChat(
-            usuario_id=user_id,
+            ator_id=user_id,
             quem_enviou='user',
             mensagem=mensagem
         )
@@ -73,7 +73,7 @@ class ChatService:
         resposta = self.groq_client.gerar_resposta_chat(prompt)
 
         mensagem_bot = HistoricoChat(
-            usuario_id=user_id,
+            ator_id=user_id,
             quem_enviou='bot',
             mensagem=resposta
         )

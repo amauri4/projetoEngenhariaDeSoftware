@@ -86,6 +86,7 @@ def atualizar_registro_diario(registro_id):
                 }
             }), 200
     except Exception as e:
+        print(f'\n\n{str(e)}\n\n')
         return jsonify({"erro": str(e)}), 400
 
 @registro_diario_bp.route("/registros/<int:registro_id>", methods=["DELETE"])

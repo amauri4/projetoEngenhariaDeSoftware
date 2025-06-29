@@ -21,7 +21,7 @@ class CorrelacaoHabitoService:
                 'id': op.id,
                 'data': op.data,
                 'concluido': op.concluido,
-                'habito_id': op.habito_id
+                'habito_id': op.item_id
             } for op in registros]
 
             df_operacoes = pd.DataFrame(dados_operacoes)

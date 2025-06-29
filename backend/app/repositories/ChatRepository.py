@@ -21,7 +21,7 @@ class ChatRepository:
     def buscar_historico_por_usuario(self, usuario_id: int) -> list[HistoricoChat]:
         try:
             historico = (self.db.query(HistoricoChat)
-                         .filter(HistoricoChat.usuario_id == usuario_id)
+                         .filter(HistoricoChat.ator_id == usuario_id)
                          .order_by(HistoricoChat.timestamp.asc())
                          .all())
             
@@ -35,7 +35,7 @@ class ChatRepository:
     def buscar_ultimas_mensagens(self, usuario_id: int, limite: int = 10) -> list[HistoricoChat]:
         try:
             mensagens = (self.db.query(HistoricoChat)
-                        .filter(HistoricoChat.usuario_id == usuario_id)
+                        .filter(HistoricoChat.ator_id == usuario_id)
                         .order_by(HistoricoChat.timestamp.desc())
                         .limit(limite)
                         .all()[::-1])
@@ -50,7 +50,7 @@ class ChatRepository:
     def deletar_historico(self, usuario_id: int) -> None:
         try:
             result = (self.db.query(HistoricoChat)
-                     .filter(HistoricoChat.usuario_id == usuario_id)
+                     .filter(HistoricoChat.ator_id == usuario_id)
                      .delete())
             
             if result == 0:
