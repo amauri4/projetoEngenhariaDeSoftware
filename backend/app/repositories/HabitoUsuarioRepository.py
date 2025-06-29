@@ -60,6 +60,7 @@ class HabitoUsuarioRepository:
             self.db.commit()
             return novo_habito
         except SQLAlchemyError as e:
+            print(f'\n\n{str(e)}\n\n')
             self.db.rollback()
             raise RepositoryError("Erro ao criar hábito de usuário.") from e
 
@@ -133,6 +134,16 @@ class HabitoUsuarioRepository:
         except SQLAlchemyError as e:
             self.db.rollback()
             raise RepositoryError(f"Erro no banco ao buscar hábito de usuário por ID {habito_usuario_id}.") from e
+        
+    def buscar_todos_por_id(self, usuario_id: int):
+        try:
+            habitos = self.db.query(InstanciaDeHabito).filter_by(ator_id=usuario_id).all()
+            if not habitos:
+                raise NotFoundError(f"Hábito de usuário com ID {usuario_id} não encontrado.")
+            return habitos
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RepositoryError(f"Erro no banco ao buscar hábito de usuário por ID {usuario_id}.") from e
     
     def buscar_por_usuario(self, user_id: int) -> list[InstanciaDeHabito]:
         try:
