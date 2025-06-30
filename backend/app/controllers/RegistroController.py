@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from app.database.session import get_db
-from app.services.RegistroService import RegistroDiarioService
 from app.services.TemplateMethod.OcorrenciaHabitoService import ServicoDeOcorrenciasDeHabito
 
 registro_diario_bp = Blueprint("registro_diario", __name__, url_prefix="/registros-diarios")
