@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 from app.database.session import get_db
-from app.services.HabitoUsuarioService import HabitoUsuarioService
 from app.exceptions.service_exceptions import AuthError, ConflictError, ServiceError
 from app.repositories.UsuarioRepositories import UserRepository
 from app.services.ItemService import ServicoDeItem
 from app.services.StrategyItem.StrategyHabito import EstrategiaDeHabito
+from app.services.CorrelacaoHabitosService import CorrelacaoHabitoService
 
 habito_usuario_bp = Blueprint("habito_usuario", __name__, url_prefix="/habitos-usuario")
 
@@ -67,60 +67,47 @@ def adicionar_habito(usuario_id):
             return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
 
 @habito_usuario_bp.route("/habitos/<int:habito_usuario_id>", methods=["PUT"])
-def atualizar_habito_usuario(habito_usuario_id):
-    try:
-        nova_descricao = request.json.get("descricao")
-        novo_habito_base_id = request.json.get("habito_base_id")
-        novo_usuario_id = request.json.get("usuario_id")
-        nova_frequencia = request.json.get("frequencia")
-        nova_data_inicio = request.json.get("data_inicio")
-        nova_vezes_na_semana = request.json.get("vezes_na_semana")
-        novos_dias_da_semana = request.json.get("dias_da_semana", [])
-        novos_dias_do_mes = request.json.get("dias_do_mes", [])
-        
-        with get_db() as db:
-            service = HabitoUsuarioService(db)
-            habito_atualizado = service.atualizar_habito_usuario(
-                habito_usuario_id, 
-                nova_descricao, 
-                novo_habito_base_id, 
-                novo_usuario_id, 
-                nova_frequencia, 
-                nova_data_inicio,
-                nova_vezes_na_semana,
-                novos_dias_da_semana,
-                novos_dias_do_mes
-            )
+def atualizar_habito(habito_usuario_id):
+    with get_db() as db:
+        dados = request.get_json()
+        if not dados:
+            return jsonify({"erro": "Corpo da requisição não pode ser vazio."}), 400
+
+        try:
+            servico = ServicoDeItem(db)
+            estrategia = EstrategiaDeHabito(db)
+            
+            habito_atualizado = servico.atualizar(habito_usuario_id, dados, estrategia)
 
             return jsonify({
-                "message": "Hábito atualizado com sucesso.",
-                "habito_usuario": {
-                    "id": habito_atualizado.id,
-                    "descricao": habito_atualizado.descricao,
-                    "habito_base_id": habito_atualizado.habito_base_id,
-                    "usuario_id": habito_atualizado.ator_id,
-                    "vezes_na_semana": habito_atualizado.vezes_na_semana
-                }
+                "mensagem": "Hábito atualizado com sucesso.",
+                "habito": { "id": habito_atualizado.id, "descricao": habito_atualizado.descricao }
             }), 200
-    except Exception as e:
-        return jsonify({"erro": str(e)}), 400
+        except (AuthError, ConflictError, ServiceError) as e:
+            return jsonify({"erro": str(e)}), 400
+        except Exception as e:
+            return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
 
 @habito_usuario_bp.route("/habitos/<int:habito_usuario_id>", methods=["DELETE"])
-def remover_habito_usuario(habito_usuario_id):
-    try:
-        with get_db() as db:
-            service = HabitoUsuarioService(db)
-            service.remover_habito_usuario(habito_usuario_id)
+def remover_habito(habito_usuario_id):
+    with get_db() as db:
+        try:
+            servico = ServicoDeItem(db)
+            estrategia = EstrategiaDeHabito(db)
+            
+            servico.remover(habito_usuario_id, estrategia)
 
-            return jsonify({"message": "Hábito removido com sucesso."}), 200
-    except Exception as e:
-        return jsonify({"erro": str(e)}), 400
+            return jsonify({"mensagem": "Hábito removido com sucesso."}), 204 
+        except (AuthError, ConflictError, ServiceError) as e:
+            return jsonify({"erro": str(e)}), 400
+        except Exception as e:
+            return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
     
 @habito_usuario_bp.route("/<int:usuario_id>/categorias-usuario", methods=["GET"])
 def buscar_categorias_usuario(usuario_id):
     try:
         with get_db() as db:
-            service = HabitoUsuarioService(db)
+            service = CorrelacaoHabitoService(db)
             habitos = service.buscar_categorias_usuario(usuario_id=usuario_id)
             
             return jsonify(habitos), 200

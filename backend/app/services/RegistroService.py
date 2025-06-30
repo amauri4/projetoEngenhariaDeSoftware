@@ -75,7 +75,6 @@ class RegistroDiarioService:
     def buscar_registros_por_data_especifica(self, usuario_id: int, data_especifica: datetime):
         try:
             data_especifica = validar_formato_data(data_especifica)
-            print(f"DATA VALIDADA E AJEITADA: {data_especifica}")
             registros = self.registro_diario_repository.buscar_por_data_especifica(usuario_id, data_especifica)
             return registros
         except Exception as e:

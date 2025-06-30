@@ -8,10 +8,12 @@ import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional
 from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
+from app.repositories.CategoriaRepository import CategoriaRepository
 
 class CorrelacaoHabitoService:
     def __init__(self, db: Session):
         self.registro_repository = RegistroDiarioRepository(db)
+        self.categoria_repository = CategoriaRepository(db)
         self.habito_base_repository = HabitoBaseRepository(db)
         self.db = db
 
@@ -88,3 +90,14 @@ class CorrelacaoHabitoService:
             raise ServiceError(f"Erro no banco de dados ao buscar correlações: {str(e)}")
         except Exception as e:
             raise ServiceError(f"Erro inesperado ao buscar correlações: {str(e)}")
+        
+    def buscar_categorias_usuario(self, usuario_id:int):
+        try:
+            categorias_usuario = self.categoria_repository.buscar_categorias_por_usuario(usuario_id=usuario_id)
+            if not categorias_usuario:
+                raise ConflictError("Categorias de hábito não encontradas.")
+            return categorias_usuario
+        except ConflictError as e:
+            raise e
+        except Exception as e:
+            raise ServiceError(f"Erro ao buscar categorias de usuário: {str(e)}")

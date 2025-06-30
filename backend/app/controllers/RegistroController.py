@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.database.session import get_db
 from app.services.RegistroService import RegistroDiarioService
+from app.services.TemplateMethod.OcorrenciaHabitoService import ServicoDeOcorrenciasDeHabito
 
 registro_diario_bp = Blueprint("registro_diario", __name__, url_prefix="/registros-diarios")
 
@@ -8,8 +9,8 @@ registro_diario_bp = Blueprint("registro_diario", __name__, url_prefix="/registr
 def listar_registros_usuario(usuario_id):
     try:
         with get_db() as db:
-            service = RegistroDiarioService(db)
-            registros = service.buscar_registros_usuario(usuario_id)
+            servico = ServicoDeOcorrenciasDeHabito(db)
+            ocorrencias = servico.buscar_ocorrencias_por_ator(usuario_id)
 
             registros_json = [
                 {
@@ -17,7 +18,7 @@ def listar_registros_usuario(usuario_id):
                     "data": r.data,
                     "habito_id": r.item_id,
                     "concluido": r.concluido
-                } for r in registros
+                } for r in ocorrencias
             ]
 
             return jsonify(registros_json), 200
@@ -28,32 +29,35 @@ def listar_registros_usuario(usuario_id):
 def listar_registros_concluidos_usuario(usuario_id):
     try:
         with get_db() as db:
-            service = RegistroDiarioService(db)
-            registros_concluidos = service.buscar_registros_concluidos_usuario(usuario_id)
+            servico = ServicoDeOcorrenciasDeHabito(db)
+            ocorrencias = servico.buscar_ocorrencias_concluidas_por_ator(usuario_id)
 
-            registros_concluidos_json = [
+            registros_json = [
                 {
                     "id": r.id,
                     "data": r.data,
                     "habito_id": r.item_id,
                     "concluido": r.concluido
-                } for r in registros_concluidos
+                } for r in ocorrencias
             ]
 
-            return jsonify(registros_concluidos_json), 200
+            return jsonify(registros_json), 200
     except Exception as e:
         return jsonify({"erro": str(e)}), 400
 
 @registro_diario_bp.route("/registros", methods=["POST"])
 def criar_registro_diario():
     try:
-        data = request.json.get("data")
-        habito_id = request.json.get("habito_id")
-        concluido = request.json.get("concluido", False)
+        data = request.get_json()
+        data_dia = data.get("data")
+        habito_id = data.get("habito_id")
+        concluido = data.get("concluido")
+        if not habito_id or not data_dia:
+            return jsonify({"erro": "O campo 'habito_id' e o campo 'data' são obrigatórios."}), 400
 
         with get_db() as db:
-            service = RegistroDiarioService(db)
-            novo_registro = service.criar_registro_diario(data, habito_id, concluido)
+            service = ServicoDeOcorrenciasDeHabito(db)
+            novo_registro = service.criar_ocorrencia_unica(item_id=habito_id, data_str=data_dia, status=concluido)
 
             return jsonify({
                 "message": "Registro diário criado com sucesso.",
@@ -73,8 +77,8 @@ def atualizar_registro_diario(registro_id):
         concluido = request.json.get("concluido")
 
         with get_db() as db:
-            service = RegistroDiarioService(db)
-            registro_atualizado = service.atualizar_registro_diario(registro_id, concluido)
+            service = ServicoDeOcorrenciasDeHabito(db)
+            registro_atualizado = service.atualizar_status_ocorrencia(registro_id, concluido)
 
             return jsonify({
                 "message": "Registro diário atualizado com sucesso.",
@@ -93,8 +97,8 @@ def atualizar_registro_diario(registro_id):
 def remover_registro_diario(registro_id):
     try:
         with get_db() as db:
-            service = RegistroDiarioService(db)
-            service.remover_registro_diario(registro_id)
+            service = ServicoDeOcorrenciasDeHabito(db)
+            service.remover_ocorrencia(registro_id)
 
             return jsonify({"message": "Registro diário removido com sucesso."}), 200
     except Exception as e:
@@ -107,8 +111,8 @@ def listar_registros_por_data(usuario_id):
         data_fim = request.args.get("data_fim")
         
         with get_db() as db:
-            service = RegistroDiarioService(db)
-            registros = service.buscar_registros_por_data(usuario_id, data_inicio, data_fim)
+            service = ServicoDeOcorrenciasDeHabito(db)
+            registros = service.buscar_ocorrencias_por_data(usuario_id, data_inicio, data_fim)
 
             registros_json = [
                 {
@@ -132,8 +136,8 @@ def listar_registros_por_data_especifica(usuario_id):
             return jsonify({"erro": "A data específica é obrigatória."}), 400
 
         with get_db() as db:
-            service = RegistroDiarioService(db)
-            registros = service.buscar_registros_por_data_especifica(usuario_id, data_especifica)
+            service = ServicoDeOcorrenciasDeHabito(db)
+            registros = service.buscar_ocorrencias_por_data_especifica(usuario_id, data_especifica)
 
             registros_json = [
                 {
