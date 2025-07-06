@@ -11,6 +11,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import traceback
 import os
+from app.services.StrategyPrompt.PromptHabitosStrategy import PromptHabitosStrategy
+from app.services.ChatService import ChatService
 
 
 chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
@@ -27,12 +29,15 @@ def build_chat_service(db):
     groq_api_key = os.getenv("GROQ_API_KEY")
     groq_client = GroqClient(api_key=groq_api_key)
 
+    prompt_strategy = PromptHabitosStrategy(db)
+
     return ChatService(
         usuario_repo=usuario_repo,
         habito_repo=habito_repo,
         categoria_repo=categoria_repo,
         chat_repo=chat_repo,
-        groq_client=groq_client  
+        groq_client=groq_client,
+        prompt_strategy=prompt_strategy 
     )
 
 
