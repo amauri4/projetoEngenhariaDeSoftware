@@ -3,7 +3,7 @@ from app.database.session import get_db
 from app.exceptions.service_exceptions import AuthError, ConflictError, ServiceError
 from app.repositories.UsuarioRepositories import UserRepository
 from app.services.ItemService import ServicoDeItem
-from app.services.StrategyItem.StrategyHabito import EstrategiaDeHabito
+from backend.app.services.StrategyItem.Habito import EstrategiaDeHabito
 from app.services.CorrelacaoHabitosService import CorrelacaoHabitoService
 
 habito_usuario_bp = Blueprint("habito_usuario", __name__, url_prefix="/habitos-usuario")

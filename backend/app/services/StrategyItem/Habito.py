@@ -8,7 +8,7 @@ from app.models.InstanciaDeHabito import InstanciaDeHabito
 from app.models.DiaHabitoSemana import DiaHabitoSemana
 from app.models.DiaHabitoMes import DiaHabitoMes
 from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
-from app.services.StrategyItem.IstrategyItem import IEstrategiaDeItem
+from backend.app.services.StrategyItem.Iitem import IEstrategiaDeItem
 from app.database import session
 from app.utils.validar_frequencia import validar_frequencia
 from app.utils.verificar_data import validar_formato_data

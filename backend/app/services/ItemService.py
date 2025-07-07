@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.services.StrategyItem.IstrategyItem import IEstrategiaDeItem
+from backend.app.services.StrategyItem.Iitem import IEstrategiaDeItem
 from app.exceptions.service_exceptions import ServiceError
 from typing import Dict, Any
 

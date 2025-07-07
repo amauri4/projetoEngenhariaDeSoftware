@@ -1,7 +1,7 @@
-from .ItemRastreavel import ItemRastreavel
+from app.models.ItemRastreavel import ItemRastreavel
 from app.models.UsuarioPessoal import UsuarioPessoal
-from app.models.Gerente import Gerente
-from app.models.Funcionario import Funcionario
+from app.models.Aplicacao2.Gerente import Gerente
+from app.models.Aplicacao2.Funcionario import Funcionario
 from sqlalchemy import Column, Integer, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database.base import Base
