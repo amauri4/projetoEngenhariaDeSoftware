@@ -6,5 +6,5 @@ class PromptStrategy(ABC):
         pass
 
     @abstractmethod
-    def get_system_prompt(self) -> str:
+    def criar_contexto_chat(self) -> str:
         pass

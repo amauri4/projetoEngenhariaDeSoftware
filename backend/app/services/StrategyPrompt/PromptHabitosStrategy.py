@@ -16,7 +16,7 @@ class PromptHabitosStrategy(PromptStrategy):
     def montar_prompt(self, user_id: int, mensagem: str) -> str:
         usuario = self.usuario_repo.buscar_por_id(user_id)
         habitos = self.habito_repo.buscar_por_usuario(user_id)
-        categorias = self.categoria_repo.buscar_categorias_por_usuario(user_id)
+        
         if not usuario:
             return "Usuário não encontrado."
 
@@ -40,7 +40,7 @@ class PromptHabitosStrategy(PromptStrategy):
         )
         return prompt
 
-    def get_system_prompt(self) -> str:
+    def criar_contexto_chat(self) -> str:
         return """
         Você é o IAbit, um assistente inteligente, especialista em desenvolvimento de hábitos, produtividade e construção de rotinas. Sua missão é ajudar os usuários a alcançarem seus objetivos, propondo hábitos, sugerindo rotinas e dando orientações práticas, diretas e personalizadas.
 
