@@ -15,9 +15,9 @@ class ChatService:
         self.prompt_strategy = prompt_strategy
 
     def processar_mensagem(self, user_id: int, mensagem: str) -> str:
-        usuario = self.prompt_strategy.montar_prompt(user_id, mensagem)
-        if "não encontrado" in usuario.lower():
-            return usuario
+        prompt_usuario = self.prompt_strategy.montar_prompt(user_id, mensagem)
+        if "não encontrado" in prompt_usuario.lower():
+            return prompt_usuario
 
         mensagem_usuario = HistoricoChat(
             ator_id=user_id,
@@ -26,7 +26,6 @@ class ChatService:
         )
         self.chat_repo.salvar_mensagem(mensagem_usuario)
 
-        prompt_usuario = self.prompt_strategy.montar_prompt(user_id, mensagem)
         system_prompt = self.prompt_strategy.criar_contexto_chat()
 
         historico = self.chat_repo.buscar_ultimas_mensagens(user_id, limite=10)
