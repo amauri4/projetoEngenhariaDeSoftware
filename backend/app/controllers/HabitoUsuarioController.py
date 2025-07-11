@@ -3,7 +3,7 @@ from app.database.session import get_db
 from app.exceptions.service_exceptions import AuthError, ConflictError, ServiceError
 from app.repositories.UsuarioRepositories import UserRepository
 from app.services.ItemService import ServicoDeItem
-from backend.app.services.StrategyItem.Habito import EstrategiaDeHabito
+from app.services.TemplateMethodItem.Habito import EstrategiaDeHabito
 from app.services.CorrelacaoHabitosService import CorrelacaoHabitoService
 
 habito_usuario_bp = Blueprint("habito_usuario", __name__, url_prefix="/habitos-usuario")
@@ -14,13 +14,12 @@ def listar_habitos_por_ator(usuario_email):
         try:
             ator_repo = UserRepository(db)
             servico = ServicoDeItem(db)
-            estrategia = EstrategiaDeHabito(db)
 
             ator = ator_repo.buscar_por_email(usuario_email)
             if not ator:
                 raise AuthError("Ator não encontrado.")
 
-            habitos = servico.buscar_por_ator(ator.id, estrategia)
+            habitos = servico.buscar_por_ator(ator.id, EstrategiaDeHabito)
 
             habitos_json = []
             for h in habitos:
@@ -52,10 +51,8 @@ def adicionar_habito(usuario_id):
             return jsonify({"erro": "Corpo da requisição não pode ser vazio."}), 400
 
         try:
-            servico = ServicoDeItem(db)
-            estrategia = EstrategiaDeHabito(db)
-            
-            novo_habito = servico.adicionar(ator_id=usuario_id, dados=dados, estrategia=estrategia)
+            servico = ServicoDeItem(db)            
+            novo_habito = servico.adicionar(ator_id=usuario_id, dados=dados, estrategia=EstrategiaDeHabito)
 
             return jsonify({
                 "mensagem": "Hábito adicionado com sucesso.",
@@ -74,10 +71,8 @@ def atualizar_habito(habito_usuario_id):
             return jsonify({"erro": "Corpo da requisição não pode ser vazio."}), 400
 
         try:
-            servico = ServicoDeItem(db)
-            estrategia = EstrategiaDeHabito(db)
-            
-            habito_atualizado = servico.atualizar(habito_usuario_id, dados, estrategia)
+            servico = ServicoDeItem(db)            
+            habito_atualizado = servico.atualizar(habito_usuario_id, dados, EstrategiaDeHabito)
 
             return jsonify({
                 "mensagem": "Hábito atualizado com sucesso.",
@@ -92,10 +87,8 @@ def atualizar_habito(habito_usuario_id):
 def remover_habito(habito_usuario_id):
     with get_db() as db:
         try:
-            servico = ServicoDeItem(db)
-            estrategia = EstrategiaDeHabito(db)
-            
-            servico.remover(habito_usuario_id, estrategia)
+            servico = ServicoDeItem(db)            
+            servico.remover(habito_usuario_id, EstrategiaDeHabito)
 
             return jsonify({"mensagem": "Hábito removido com sucesso."}), 204 
         except (AuthError, ConflictError, ServiceError) as e:

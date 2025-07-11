@@ -1,4 +1,4 @@
-from app.services.TemplateMethod.OcorrenciaService import ServicoDeGeracaoDeOcorrencias
+from app.services.TemplateMethodOcorrencia.OcorrenciaService import ServicoDeGeracaoDeOcorrencias
 from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.RegistroRepository import RegistroDiarioRepository
 from app.models.InstanciaDeHabito import InstanciaDeHabito

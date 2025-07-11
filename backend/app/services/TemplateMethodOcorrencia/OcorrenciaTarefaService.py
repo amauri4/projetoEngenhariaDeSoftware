@@ -8,7 +8,7 @@ from app.repositories.Aplicacao2.TarefaRepository import TarefaRepository
 from app.repositories.RegistroRepository import RegistroDeOcorrencia 
 from app.exceptions.service_exceptions import ServiceError
 from app.exceptions.repository_exceptions import RepositoryError, NotFoundError
-from app.services.TemplateMethod.OcorrenciaService import ServicoDeGeracaoDeOcorrencias
+from app.services.TemplateMethodOcorrencia.OcorrenciaService import ServicoDeGeracaoDeOcorrencias
 from app.utils.verificar_data import validar_formato_data
 
 class ServicoDeOcorrenciaDeTarefa(ServicoDeGeracaoDeOcorrencias):
