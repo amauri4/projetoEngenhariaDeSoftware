@@ -14,7 +14,7 @@ class Funcionario(Ator):
     }
 
     chefe_id = Column(Integer, ForeignKey('atores.id'), nullable=True)
-    chefe = relationship("Gerente", back_populates="equipe", remote_side=[id])
+    chefe = relationship("Gerente", back_populates="equipe", foreign_keys=[chefe_id])
 
     tarefas_atribuidas = relationship(
         "InstanciaDeTarefa",

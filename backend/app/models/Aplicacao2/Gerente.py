@@ -11,4 +11,4 @@ class Gerente(Ator):
     equipe = relationship("Funcionario", back_populates="chefe", foreign_keys="[Funcionario.chefe_id]")
 
     # relacionamento para ver as tarefas criadas por este gerente
-    tarefas_criadas = relationship("InstanciaDeTarefa", foreign_keys="[InstanciaDeTarefa.ator_id]", back_populates="criador")
+    tarefas_criadas = relationship("InstanciaDeTarefa", foreign_keys="[InstanciaDeTarefa.ator_id]", back_populates="criador", overlaps="itens_rastreaveis,ator")

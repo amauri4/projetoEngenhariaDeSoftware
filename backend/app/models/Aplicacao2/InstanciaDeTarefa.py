@@ -16,7 +16,7 @@ class InstanciaDeTarefa(ItemRastreavel):
     prazo_final = Column(Date, nullable=True)
 
     # relacionamento de volta para o criador (Gerente)
-    criador = relationship("Gerente", foreign_keys=[ItemRastreavel.ator_id], back_populates="tarefas_criadas")
+    criador = relationship("Gerente", foreign_keys=[ItemRastreavel.ator_id], back_populates="tarefas_criadas", overlaps="ator,itens_rastreaveis")
 
     # relacionamento de volta para o responsável (Funcionário)
     responsavel = relationship("Funcionario", foreign_keys=[id_funcionario_responsavel], back_populates="tarefas_atribuidas")
