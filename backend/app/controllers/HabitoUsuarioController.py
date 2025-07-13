@@ -52,7 +52,7 @@ def adicionar_habito(usuario_id):
 
         try:
             servico = ServicoDeItem(db)            
-            novo_habito = servico.adicionar(ator_id=usuario_id, dados=dados, estrategia=EstrategiaDeHabito)
+            novo_habito = servico.adicionar(ator_id=usuario_id, dados=dados, implementacao=EstrategiaDeHabito)
 
             return jsonify({
                 "mensagem": "Hábito adicionado com sucesso.",

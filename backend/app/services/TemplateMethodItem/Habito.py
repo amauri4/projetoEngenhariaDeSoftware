@@ -55,10 +55,10 @@ class EstrategiaDeHabito(ServicoDeItem):
     def _logica_pos_adicionar(self, novo_habito: InstanciaDeHabito, dados_originais: Dict[str, Any]) -> None:
         frequencia = dados_originais.get('frequencia', '').lower()
         
-        if frequencia in [FrequenciaEnum.SEMANAL, FrequenciaEnum.DIARIA] and 'dias_da_semana' in dados_originais:
+        if frequencia in ['semanal', 'diaria'] and 'dias_da_semana' in dados_originais:
             self._adicionar_dias_semana(novo_habito.id, dados_originais['dias_da_semana'])
         
-        if frequencia == FrequenciaEnum.MENSAL and 'dias_do_mes' in dados_originais:
+        if frequencia == 'mensal' and 'dias_do_mes' in dados_originais:
             self._adicionar_dias_mes(novo_habito.id, dados_originais['dias_do_mes'])
 
     def _preparar_dados_atualizar(self, item_id: int, dados: Dict[str, Any]) -> Dict[str, Any]:
