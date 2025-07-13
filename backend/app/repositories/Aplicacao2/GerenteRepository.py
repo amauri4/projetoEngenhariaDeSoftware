@@ -71,3 +71,10 @@ class GerenteRepository:
         except SQLAlchemyError as e:
             self.db.rollback()
             raise RepositoryError("Erro ao buscar tarefas criadas pelo gerente.") from e
+        
+    def buscar_por_id(self, gerente_id: int) -> Optional[Gerente]:
+        try:
+            return self.db.query(Gerente).filter(Gerente.id == gerente_id).first()
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RepositoryError("Erro ao buscar gerente por ID.") from e

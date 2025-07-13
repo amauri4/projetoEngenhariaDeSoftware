@@ -19,9 +19,6 @@ chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
 
 
 def build_chat_service(db):
-    usuario_repo = UserRepository(db)
-    habito_repo = HabitoUsuarioRepository(db)
-    categoria_repo = CategoriaRepository(db)
     chat_repo = ChatRepository(db)
 
     load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent.parent / ".test.env")
@@ -32,9 +29,6 @@ def build_chat_service(db):
     prompt_strategy = PromptHabitosStrategy(db)
 
     return ChatService(
-        usuario_repo=usuario_repo,
-        habito_repo=habito_repo,
-        categoria_repo=categoria_repo,
         chat_repo=chat_repo,
         groq_client=groq_client,
         prompt_strategy=prompt_strategy 
