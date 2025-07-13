@@ -1,4 +1,4 @@
-from app.repositories.UsuarioRepositories import UserRepository
+from app.repositories.AtorRepository import UserRepository
 from app.models.UsuarioPessoal import UsuarioPessoal
 from sqlalchemy.orm import Session
 from app.utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha

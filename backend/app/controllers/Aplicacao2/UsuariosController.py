@@ -7,13 +7,10 @@ from app.exceptions.repository_exceptions import NotFoundError
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-# --- ROTAS PARA GERENTES ---
+# --- ROTAS PARA CHEFES ---
 
 @auth_bp.route("/gerentes/registrar", methods=["POST"])
 def registrar_gerente():
-    """
-    Cria (registra) um novo Gerente no sistema.
-    """
     with get_db() as db:
         dados = request.get_json()
         if not dados or not all(k in dados for k in ["nome", "email", "senha"]):
@@ -41,9 +38,6 @@ def registrar_gerente():
 
 @auth_bp.route("/gerentes/login", methods=["POST"])
 def login_gerente():
-    """
-    Autentica um Gerente e retorna seus dados.
-    """
     with get_db() as db:
         dados = request.get_json()
         if not dados or not all(k in dados for k in ["email", "senha"]):
@@ -70,9 +64,6 @@ def login_gerente():
 
 @auth_bp.route("/funcionarios/registrar", methods=["POST"])
 def registrar_funcionario():
-    """
-    Cria (registra) um novo Funcionário no sistema.
-    """
     with get_db() as db:
         dados = request.get_json()
         if not dados or not all(k in dados for k in ["nome", "email", "senha"]):
@@ -96,16 +87,12 @@ def registrar_funcionario():
                 }
             }), 201
         except (ConflictError, NotFoundError, ServiceError) as e:
-            # NotFoundError ocorre se o chefe_id for inválido
             return jsonify({"erro": str(e)}), 400
         except Exception as e:
             return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
 
 @auth_bp.route("/funcionarios/login", methods=["POST"])
 def login_funcionario():
-    """
-    Autentica um Funcionário e retorna seus dados.
-    """
     with get_db() as db:
         dados = request.get_json()
         if not dados or not all(k in dados for k in ["email", "senha"]):

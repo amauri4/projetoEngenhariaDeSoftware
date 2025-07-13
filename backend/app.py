@@ -8,6 +8,8 @@ from app.controllers.DiaHabitoSemanaController import dia_habito_semana_bp
 from app.controllers.ChatBotController import chat_bp
 from app.controllers.CorrelacaoHabitoController import operacoes_extra_bp
 from app.controllers.Aplicacao2.UsuariosController import auth_bp
+from app.controllers.Aplicacao2.TarefaController import tarefa_bp
+from app.controllers.Aplicacao2.OcorrenciaTarefaController import ocorrencia_tarefa_bp
 
 app = create_app()
 
@@ -21,5 +23,7 @@ if __name__ == '__main__':
     app.register_blueprint(chat_bp)
     app.register_blueprint(operacoes_extra_bp)
     app.register_blueprint(auth_bp)
-
+    app.register_blueprint(tarefa_bp)
+    app.register_blueprint(ocorrencia_tarefa_bp)
+    
     app.run(port=8000, debug=True)

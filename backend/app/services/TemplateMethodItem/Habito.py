@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.HabitoBaseRepository import HabitoBaseRepository
-from app.repositories.UsuarioRepositories import UserRepository
+from app.repositories.AtorRepository import UserRepository
 from app.repositories.DiaHabitoMesRepository import DiaHabitoMesRepository 
 from app.repositories.DiaHabitoSemanaRepository import DiaHabitoSemanaRepository 
 from app.models.InstanciaDeHabito import InstanciaDeHabito

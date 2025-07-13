@@ -96,3 +96,66 @@ def remover_tarefa(tarefa_id):
             return jsonify({"erro": str(e)}), 400
         except Exception as e:
             return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
+
+#  --------------------------------------------------------------------
+#  1. Adicionar uma nova tarefa
+#  --------------------------------------------------------------------
+#  Método: POST
+#  Rota:   /tarefas/gerente/1
+# 
+#  Descrição: O Gerente com ID 1 está criando uma nova tarefa e
+#  atribuindo-a ao Funcionário com ID 2.
+# 
+#  Corpo da Requisição (Body):
+# {
+#     "descricao": "Elaborar o relatório de performance do segundo trimestre",
+#     "data_inicio": "2025-07-14",
+#     "responsavel_id": 2,
+#     "prazo_final": "2025-07-25"
+# }
+
+
+#  --------------------------------------------------------------------
+#  2. Listar tarefas relacionadas a um ator
+#  --------------------------------------------------------------------
+# 
+#  Exemplo A: Listar tarefas CRIADAS pelo Gerente de ID 1
+#  Método: GET
+#  Rota:   /tarefas/ator/1
+#  Corpo da Requisição: (Nenhum)
+# 
+# 
+#  Exemplo B: Listar tarefas ATRIBUÍDAS ao Funcionário de ID 2
+#  Método: GET
+#  Rota:   /tarefas/ator/2
+#  Corpo da Requisição: (Nenhum)
+
+
+#  --------------------------------------------------------------------
+#  3. Atualizar uma tarefa existente
+#  --------------------------------------------------------------------
+#  Método: PUT
+#  Rota:   /tarefas/3  (Assumindo que a tarefa criada no passo 1 recebeu o ID 3)
+# 
+#  Descrição: Atualiza a descrição e o prazo da tarefa.
+#  Você pode enviar apenas os campos que deseja alterar.
+# 
+#  Corpo da Requisição (Body):
+# {
+#     "descricao": "Elaborar e apresentar o relatório de performance do Q2",
+#     "prazo_final": "2025-07-28"
+# }
+
+
+#  --------------------------------------------------------------------
+#  4. Remover uma tarefa
+#  --------------------------------------------------------------------
+#  Método: DELETE
+#  Rota:   /tarefas/3
+#  Corpo da Requisição: (Nenhum)
+# 
+#  Descrição: Remove permanentemente a tarefa com ID 3 do sistema.
+#  Se a operação for bem-sucedida, a API retornará uma resposta vazia
+#  com o status HTTP 204 No Content.
+
+

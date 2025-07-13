@@ -34,6 +34,7 @@ class TarefaRepository:
             self.db.refresh(nova_tarefa)
             return nova_tarefa
         except SQLAlchemyError as e:
+            print(e)
             self.db.rollback()
             raise RepositoryError("Erro ao criar a tarefa.") from e
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.database.session import get_db
 from app.exceptions.service_exceptions import AuthError, ConflictError, ServiceError
-from app.repositories.UsuarioRepositories import UserRepository
+from app.repositories.AtorRepository import UserRepository
 from app.services.ItemService import ServicoDeItem
 from app.services.TemplateMethodItem.Habito import EstrategiaDeHabito
 from app.services.CorrelacaoHabitosService import CorrelacaoHabitoService

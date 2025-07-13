@@ -1,5 +1,5 @@
 from app.services.StrategyPrompt.PromptStrategy import PromptStrategy
-from app.repositories.UsuarioRepositories import UserRepository
+from app.repositories.AtorRepository import UserRepository
 from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.CategoriaRepository import CategoriaRepository
 from app.database import session 

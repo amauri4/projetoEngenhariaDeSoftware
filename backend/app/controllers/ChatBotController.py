@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.services.ChatService import ChatService
-from app.repositories.UsuarioRepositories import UserRepository
+from app.repositories.AtorRepository import UserRepository
 from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.CategoriaRepository import CategoriaRepository
 from app.repositories.ChatRepository import ChatRepository
