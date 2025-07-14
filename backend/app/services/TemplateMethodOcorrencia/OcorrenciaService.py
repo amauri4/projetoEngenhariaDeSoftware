@@ -9,6 +9,7 @@ from app.exceptions.repository_exceptions import NotFoundError
 class ServicoDeGeracaoDeOcorrencias(ABC):
     def __init__(self, db: Session):
         self.db = db
+        self.ocorrencia_repo = self._get_repositorio_ocorrencia()
 
     @abstractmethod
     def _get_repositorio_item(self) -> Any:

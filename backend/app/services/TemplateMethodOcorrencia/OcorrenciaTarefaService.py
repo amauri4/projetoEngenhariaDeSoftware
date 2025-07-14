@@ -1,7 +1,7 @@
 from datetime import date
 from typing import List, Dict, Any
 from app.models.Aplicacao2.InstanciaDeTarefa import InstanciaDeTarefa
-from app.models.RegistroDeOcorrencia import RegistroDeOcorrencia
+from app.repositories.RegistroRepository import RegistroDiarioRepository
 from app.repositories.Aplicacao2.TarefaRepository import TarefaRepository 
 from app.repositories.RegistroRepository import RegistroDeOcorrencia 
 from app.services.TemplateMethodOcorrencia.OcorrenciaService import ServicoDeGeracaoDeOcorrencias
@@ -12,8 +12,8 @@ class ServicoDeOcorrenciaDeTarefa(ServicoDeGeracaoDeOcorrencias):
     def _get_repositorio_item(self) -> TarefaRepository:
         return TarefaRepository(self.db)
 
-    def _get_repositorio_ocorrencia(self) -> RegistroDeOcorrencia:
-        return RegistroDeOcorrencia(self.db)
+    def _get_repositorio_ocorrencia(self) -> RegistroDiarioRepository:
+        return RegistroDiarioRepository(self.db)
 
     def _validar_formato_data(self, data_str: str) -> date:
         return validar_formato_data(data_str)
@@ -36,37 +36,23 @@ class ServicoDeOcorrenciaDeTarefa(ServicoDeGeracaoDeOcorrencias):
         if prazo_final:
             nova_ocorrencia = RegistroDeOcorrencia(
                 item_rastreavel_id=item_id,
-                data_prevista=prazo_final,
-                status=False 
+                data=prazo_final,
+                concluido=False 
             )
             ocorrencias.append(nova_ocorrencia)
 
         return ocorrencias
 
-    # --- MÉTODO ADICIONADO ---
     def criar_ocorrencia_unica(self, item_id: int, data_str: str, status: bool) -> RegistroDeOcorrencia:
-        """
-        Implementação para criar uma ocorrência única para uma tarefa.
-        Útil para adicionar marcos ou registros manuais a uma tarefa.
-        """
-        # 1. Valida se a tarefa existe
         item_repo = self._get_repositorio_item()
+        ocorrencia_repo = self._get_repositorio_ocorrencia()
+
         tarefa = item_repo.buscar_por_id(item_id)
         if not tarefa:
             raise NotFoundError(f"Tarefa com ID {item_id} não encontrada.")
 
-        # 2. Valida o formato da data
         data_prevista = self._validar_formato_data(data_str)
 
-        # 3. Cria a nova ocorrência
-        nova_ocorrencia = RegistroDeOcorrencia(
-            item_id=item_id,
-            data_prevista=data_prevista,
-            status=status
-        )
-
-        # 4. Salva no banco de dados, evitando duplicatas
-        # (Assumindo que o repositório tem este método)
-        self.ocorrencia_repo.salvar_se_nao_existir(nova_ocorrencia)
+        nova_ocorrencia = ocorrencia_repo.criar_registro(data_prevista, item_id, status)
 
         return nova_ocorrencia

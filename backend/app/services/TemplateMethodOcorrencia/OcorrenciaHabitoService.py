@@ -58,11 +58,13 @@ class ServicoDeOcorrenciasDeHabito(ServicoDeGeracaoDeOcorrencias):
     
     def criar_ocorrencia_unica(self, item_id: int, data_str: str, status: bool) -> List[RegistroDeOcorrencia]:
         try:
-            habito_usuario = self.item_repo.buscar_por_id(item_id)
+            item_repo = self._get_repositorio_item()
+            ocorrencia_repo = self._get_repositorio_ocorrencia()
+            habito_usuario = item_repo.buscar_por_id(item_id)
             if not habito_usuario:
                 raise NoResultFound("Hábito não encontrado.")
             data = self._validar_formato_data(data_str)
-            novo_registro = self.ocorrencia_repo.criar_registro(data, item_id, status)
+            novo_registro = ocorrencia_repo.criar_registro(data, item_id, status)
             return novo_registro
         except (NoResultFound, ValueError) as e:
             raise e

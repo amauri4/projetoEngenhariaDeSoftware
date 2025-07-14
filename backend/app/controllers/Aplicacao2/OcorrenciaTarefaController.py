@@ -10,9 +10,9 @@ ocorrencia_tarefa_bp = Blueprint("ocorrencia_tarefa", __name__, url_prefix="/oco
 def _serializar_ocorrencia(ocorrencia):
     return {
         "id": ocorrencia.id,
-        "data_prevista": ocorrencia.data_prevista.isoformat() if ocorrencia.data_prevista else None,
-        "status": ocorrencia.status,
-        "tarefa_id": ocorrencia.item_rastreavel_id,
+        "data": ocorrencia.data.isoformat() if ocorrencia.data else None,
+        "status": ocorrencia.concluido,
+        "tarefa_id": ocorrencia.item_id,
         "tarefa_descricao": ocorrencia.item.descricao if ocorrencia.item else "N/A"
     }
 
