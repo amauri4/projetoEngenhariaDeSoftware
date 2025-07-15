@@ -46,7 +46,6 @@ class PromptTreinoStrategy(PromptStrategy):
                 f"Treinos atuais:\n"
                 + ("\n".join(lista_treinos) if lista_treinos else "Nenhum treino cadastrado.") +
                 f"\n\nPergunta do aluno: {mensagem}\n"
-                f"\nCom base no contexto acima, responda como um assistente de treinos especializado, focando em dicas, cuidados e sugestões de exercícios."
             )
             return prompt
         except Exception as e:
