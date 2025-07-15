@@ -8,14 +8,13 @@ import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional
 from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
-from app.services.StrategyInsight.IstrategyInsight import IEstrategiaDeInsight
+from app.services.TemplateMethodInsight.IstrategyInsight import IEstrategiaDeInsight
 
 class EstrategiaCorrelacaoDeHabitos(IEstrategiaDeInsight):
     def __init__(self, db: session):
         self.registro_repository = RegistroDiarioRepository(db)
         self.habito_base_repository = HabitoBaseRepository(db)
         self.db = db
-
 
     def _buscar_dados_usuairo_insight(self, usuario_id: int):
         registros = self.registro_repository.buscar_por_usuario(usuario_id)
@@ -25,8 +24,7 @@ class EstrategiaCorrelacaoDeHabitos(IEstrategiaDeInsight):
             raise ServiceError("Nenhum registro encontrado para o usuário")
         if not habitos_base:
             raise ServiceError("Nenhum hábito base encontrado")
-        data = [registros,habitos_base_names]
-        return data
+        return [registros,habitos_base_names]
     
     # pensei em dados ser uma lista de dicionarios
     def _processar_dados_insight(self, dados: List[Dict]):
@@ -78,16 +76,3 @@ class EstrategiaCorrelacaoDeHabitos(IEstrategiaDeInsight):
             return prompt
         except Exception as e:
             raise ServiceError(f"Erro ao processar correlações: {str(e)}")
-
-    def gerar_insight(self, usuairo_id: int):
-        try:
-            dados =  self._buscar_dados_usuairo_insight(usuairo_id)          
-            return self._processar_dados_insight(dados)
-        except ServiceError as e:
-            raise e
-        except SQLAlchemyError as e:
-            self.db.rollback()
-            raise ServiceError(f"Erro no banco de dados ao buscar correlações: {str(e)}")
-        except Exception as e:
-            raise ServiceError(f"Erro inesperado ao buscar correlações: {str(e)}")
-        pass
