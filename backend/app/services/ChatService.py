@@ -26,7 +26,7 @@ class ChatService:
         )
         self.chat_repo.salvar_mensagem(mensagem_usuario)
 
-        system_prompt = self.prompt_strategy.criar_contexto_chat()
+        system_prompt = self.prompt_strategy.contexto
 
         historico = self.chat_repo.buscar_ultimas_mensagens(user_id, limite=10)
 
