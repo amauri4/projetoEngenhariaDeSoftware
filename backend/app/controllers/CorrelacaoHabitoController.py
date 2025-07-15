@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.database.session import get_db
-from app.services.StrategyInsight.InsightCorrelacaoDeHabitos import EstrategiaCorrelacaoDeHabitos
+from app.services.TemplateMethodInsight.InsightCorrelacaoDeHabitos import EstrategiaCorrelacaoDeHabitos
 from sqlalchemy.orm.exc import NoResultFound
 
 operacoes_extra_bp = Blueprint("operacoes_extra", __name__, url_prefix="/operacoes-extra")
