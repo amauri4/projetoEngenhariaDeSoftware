@@ -75,7 +75,6 @@ class TarefaEstrategiaService(ServicoDeItem):
                 joinedload(InstanciaDeTarefa.criador),
                 joinedload(InstanciaDeTarefa.responsavel)
             )
-
             if ator.tipo_ator == 'gerente':
                 return query.filter(InstanciaDeTarefa.ator_id == ator_id).all()
             elif ator.tipo_ator == 'funcionario':
