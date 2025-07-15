@@ -8,6 +8,21 @@ class ChatRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def criar_historicochat(self, ator_id: int, mensagem: str, quem_enviou: str) -> HistoricoChat:
+        try:
+            nova_mensagem = HistoricoChat(
+                ator_id=ator_id,
+                mensagem=mensagem,
+                quem_enviou=quem_enviou
+            )
+            self.db.add(nova_mensagem)
+            self.db.commit()
+            self.db.refresh(nova_mensagem)
+            return nova_mensagem
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RepositoryError("Erro ao criar e salvar mensagem no histórico.") from e
+
     def salvar_mensagem(self, mensagem: HistoricoChat) -> HistoricoChat:
         try:
             self.db.add(mensagem)

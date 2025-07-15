@@ -1,5 +1,4 @@
 from app.repositories.ChatRepository import ChatRepository
-from app.models.HistoricoChat import HistoricoChat
 from app.clients.GroqClient import GroqClient
 from app.services.StrategyPrompt.PromptStrategy import PromptStrategy
 
@@ -19,12 +18,7 @@ class ChatService:
         if "não encontrado" in prompt_usuario.lower():
             return prompt_usuario
 
-        mensagem_usuario = HistoricoChat(
-            ator_id=user_id,
-            quem_enviou='user',
-            mensagem=mensagem
-        )
-        self.chat_repo.salvar_mensagem(mensagem_usuario)
+        self.chat_repo.criar_historicochat(user_id, mensagem, 'user')
 
         system_prompt = self.prompt_strategy.contexto
 
@@ -39,11 +33,6 @@ class ChatService:
 
         resposta = self.groq_client.gerar_resposta_chat(system_prompt, prompt_com_historico)
 
-        mensagem_bot = HistoricoChat(
-            ator_id=user_id,
-            quem_enviou='bot',
-            mensagem=resposta
-        )
-        self.chat_repo.salvar_mensagem(mensagem_bot)
+        self.chat_repo.criar_historicochat(user_id, resposta, 'bot')
 
         return resposta
