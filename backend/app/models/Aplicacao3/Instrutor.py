@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from app.models.Ator import Ator
+from app.models.Framework.Ator import Ator
 
 class Instrutor(Ator):
     __tablename__ = 'instrutores'

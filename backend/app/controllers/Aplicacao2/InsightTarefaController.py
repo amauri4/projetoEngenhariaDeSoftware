@@ -1,16 +1,16 @@
 from flask import Blueprint, jsonify
 from app.database.session import get_db
-from app.services.TemplateMethodInsight.InsightProdutividadeDeEquipe import EstrategiaProdutividadeDeEquipe
+from app.services.Aplicacao2.InsightProdutividadeDeEquipe import InsightProdutividadeDeEquipe
 from app.exceptions.service_exceptions import ServiceError
 from sqlalchemy.orm.exc import NoResultFound
 
-insight_bp = Blueprint("insights", __name__, url_prefix="/insights")
+insight2_bp = Blueprint("insight2", __name__, url_prefix="/insight2")
 
-@insight_bp.route("/produtividade-equipe/<int:gerente_id>", methods=["GET"])
+@insight2_bp.route("/produtividade-equipe/<int:gerente_id>", methods=["GET"])
 def buscar_insight_produtividade_equipe(gerente_id):
     try:
         with get_db() as db:
-            service = EstrategiaProdutividadeDeEquipe(db)
+            service = InsightProdutividadeDeEquipe(db)
             resultado = service.gerar_insight(gerente_id)
             
             return jsonify({

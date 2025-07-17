@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
-from app.models.Ator import Ator
+from app.models.Framework.Ator import Ator
 from app.models.Aplicacao2.Gerente import Gerente
 from app.models.Aplicacao2.Funcionario import Funcionario
 from app.models.Aplicacao2.InstanciaDeTarefa import InstanciaDeTarefa

@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
-from app.repositories.ChatRepository import ChatRepository
-from app.models.HistoricoChat import HistoricoChat
+from app.repositories.Framework.ChatRepository import ChatRepository
+from app.models.Framework.HistoricoChat import HistoricoChat
 
 
 @pytest.fixture

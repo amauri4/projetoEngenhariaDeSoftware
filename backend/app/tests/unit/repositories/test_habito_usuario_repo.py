@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.models.enums.frequencia_enums import FrequenciaEnum
+from app.models.Aplicacao1.frequencia_enums import FrequenciaEnum
 from app.models.DiaHabitoSemana import DiaSemanaEnum
 from app.models.HabitoUsuario import HabitoUsuario
 from app.models.HabitoBase import HabitoBase

@@ -3,7 +3,7 @@ from app.models.Aplicacao2.Gerente import Gerente
 from app.models.Aplicacao2.Funcionario import Funcionario
 from app.repositories.Aplicacao2.GerenteRepository import GerenteRepository
 from app.repositories.Aplicacao2.FuncionarioRepository import FuncionarioRepository
-from app.repositories.AtorRepository import UserRepository 
+from app.repositories.Framework.AtorRepository import UserRepository 
 from app.utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha
 from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
 from app.exceptions.repository_exceptions import NotFoundError

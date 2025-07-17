@@ -3,10 +3,11 @@ from app.models.Aplicacao2.Gerente import Gerente
 from app.models.Aplicacao2.Funcionario import Funcionario
 from app.repositories.Aplicacao2.GerenteRepository import GerenteRepository
 from app.repositories.Aplicacao2.FuncionarioRepository import FuncionarioRepository
-from app.repositories.AtorRepository import UserRepository 
+from app.repositories.Framework.AtorRepository import UserRepository 
 from app.utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha
 from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
 from app.exceptions.repository_exceptions import NotFoundError
+from typing import List
 
 class GerenteService:
     _instance = None
@@ -56,3 +57,12 @@ class GerenteService:
             raise
         except Exception as e:
             raise ServiceError(f"Erro inesperado ao autenticar gerente: {str(e)}")
+
+    def buscar_equipe(self, gerente_id: int) -> List[Funcionario]:
+        try:
+            equipe = self.gerente_repository.buscar_equipe_por_gerente(gerente_id)
+            return equipe
+        except NotFoundError as e:
+            raise e
+        except Exception as e:
+            raise ServiceError(f"Erro inesperado ao buscar a equipe do gerente: {str(e)}")

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.database.session import get_db
-from app.services.OcorrenciaService import ServicoDeOcorrencia
-from app.services.TemplateMethodOcorrencia.OcorrenciaTarefaService import ServicoDeOcorrenciaDeTarefa
+from app.services.Framework.OcorrenciaService import ServicoDeOcorrencia
+from app.services.Aplicacao2.OcorrenciaTarefa import OcorrenciaTarefa
 from app.exceptions.service_exceptions import ServiceError
 from app.exceptions.repository_exceptions import NotFoundError
 
@@ -23,7 +23,7 @@ def listar_ocorrencias_por_ator(ator_id):
             servico = ServicoDeOcorrencia(db)
             ocorrencias = servico.buscar_por_ator(
                 ator_id=ator_id,
-                implementacao=ServicoDeOcorrenciaDeTarefa
+                implementacao=OcorrenciaTarefa
             )
             return jsonify([_serializar_ocorrencia(o) for o in ocorrencias]), 200
         except (NotFoundError, ServiceError) as e:
@@ -38,7 +38,7 @@ def listar_ocorrencias_concluidas_por_ator(ator_id):
             servico = ServicoDeOcorrencia(db)
             ocorrencias = servico.buscar_concluidas_por_ator(
                 ator_id=ator_id,
-                implementacao=ServicoDeOcorrenciaDeTarefa
+                implementacao=OcorrenciaTarefa
             )
             return jsonify([_serializar_ocorrencia(o) for o in ocorrencias]), 200
         except (NotFoundError, ServiceError) as e:
@@ -63,7 +63,7 @@ def criar_ocorrencia_de_tarefa():
                 item_id=tarefa_id, 
                 data_str=data_prevista, 
                 status=status,
-                implementacao=ServicoDeOcorrenciaDeTarefa
+                implementacao=OcorrenciaTarefa
             )
             return jsonify({
                 "mensagem": "Ocorrência de tarefa criada com sucesso.",
@@ -86,7 +86,7 @@ def atualizar_status_ocorrencia(ocorrencia_id):
             ocorrencia_atualizada = servico.atualizar_status(
                 ocorrencia_id=ocorrencia_id, 
                 novo_status=dados["status"],
-                implementacao=ServicoDeOcorrenciaDeTarefa
+                implementacao=OcorrenciaTarefa
             )
             return jsonify({
                 "mensagem": "Ocorrência atualizada com sucesso.",
@@ -104,7 +104,7 @@ def remover_ocorrencia(ocorrencia_id):
             servico = ServicoDeOcorrencia(db)
             servico.remover(
                 ocorrencia_id=ocorrencia_id,
-                implementacao=ServicoDeOcorrenciaDeTarefa
+                implementacao=OcorrenciaTarefa
             )
             return '', 204
         except (NotFoundError, ServiceError) as e:
@@ -126,7 +126,7 @@ def listar_ocorrencias_por_data(ator_id):
                 ator_id=ator_id, 
                 data_inicio=data_inicio, 
                 data_fim=data_fim,
-                implementacao=ServicoDeOcorrenciaDeTarefa
+                implementacao=OcorrenciaTarefa
             )
             return jsonify([_serializar_ocorrencia(o) for o in ocorrencias]), 200
         except (NotFoundError, ServiceError) as e:
@@ -148,7 +148,7 @@ def listar_ocorrencias_por_data_especifica(ator_id):
             ocorrencias = servico.buscar_por_data_especifica(
                 ator_id=ator_id, 
                 data_especifica=data_especifica,
-                implementacao=ServicoDeOcorrenciaDeTarefa
+                implementacao=OcorrenciaTarefa
             )
             return jsonify([_serializar_ocorrencia(o) for o in ocorrencias]), 200
         except (NotFoundError, ServiceError) as e:

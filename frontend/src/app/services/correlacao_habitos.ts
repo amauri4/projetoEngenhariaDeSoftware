@@ -3,7 +3,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export const buscarCorrelacoesHabitos = async (usuarioId: number): Promise<string> => {
     try {
         const response = await fetch(
-            `${API_URL}/operacoes-extra/correlacoes/${usuarioId}`,
+            `${API_URL}/insight1/correlacoes/${usuarioId}`,
             {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
