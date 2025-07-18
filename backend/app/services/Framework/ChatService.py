@@ -1,8 +1,4 @@
-<<<<<<< HEAD:backend/app/services/ChatService.py
-from app.repositories.ChatRepository import ChatRepository
-=======
 from app.repositories.Framework.ChatRepository import ChatRepository
->>>>>>> 20489edc843354ffc9445665636f6560ef1d2144:backend/app/services/Framework/ChatService.py
 from app.clients.GroqClient import GroqClient
 from app.services.Framework.IStrategyPrompt import IStrategyPrompt
 
