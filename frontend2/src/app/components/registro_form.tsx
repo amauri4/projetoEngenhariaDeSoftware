@@ -51,7 +51,7 @@ export default function RegisterForm({ userType }: RegisterFormProps) {
         setLoading(true);
 
         const isGerente = userType === 'gerente';
-        const endpoint = isGerente ? "/auth/gerentes/registrar" : "/auth/funcionarios/registrar";
+        const endpoint = isGerente ? "/auth2/gerentes/registrar" : "/auth2/funcionarios/registrar";
         
         const payload: any = {
             nome: formData.nome,

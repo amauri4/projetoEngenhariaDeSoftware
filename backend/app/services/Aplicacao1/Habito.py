@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 from app.repositories.Aplicacao1.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.Aplicacao1.HabitoBaseRepository import HabitoBaseRepository
-from app.repositories.Framework.AtorRepository import UserRepository
+from app.repositories.Framework.AtorRepository import AtorRepository
 from app.repositories.Aplicacao1.DiaHabitoMesRepository import DiaHabitoMesRepository 
 from app.repositories.Aplicacao1.DiaHabitoSemanaRepository import DiaHabitoSemanaRepository 
 from app.models.Aplicacao1.InstanciaDeHabito import InstanciaDeHabito
@@ -19,7 +19,7 @@ from app.models.Aplicacao1.InstanciaDeHabito import FrequenciaEnum
 
 class EstrategiaDeHabito(ItemTemplate):
     def _preparar_dados_adicionar(self, ator_id: int, dados: Dict[str, Any]) -> Dict[str, Any]:
-        ator_repo = UserRepository(self.db)
+        ator_repo = AtorRepository(self.db)
         habito_base_repo = HabitoBaseRepository(self.db)
 
         if not ator_repo.buscar_por_id(ator_id):

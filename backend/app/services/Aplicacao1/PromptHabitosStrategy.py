@@ -1,5 +1,5 @@
 from app.services.Framework.IStrategyPrompt import IStrategyPrompt
-from app.repositories.Framework.AtorRepository import UserRepository
+from app.repositories.Framework.AtorRepository import AtorRepository
 from app.repositories.Aplicacao1.HabitoUsuarioRepository import HabitoUsuarioRepository
 from app.repositories.Aplicacao1.CategoriaRepository import CategoriaRepository
 from app.database import session 
@@ -9,7 +9,7 @@ from typing import Any
 class PromptHabitosStrategy(IStrategyPrompt):
     def __init__(self, db: session):
         self.db = db
-        self.usuario_repo = UserRepository(db)
+        self.usuario_repo = AtorRepository(db)
         self.habito_repo = HabitoUsuarioRepository(db)
         self.categoria_repo = CategoriaRepository(db)
         self.contexto = """

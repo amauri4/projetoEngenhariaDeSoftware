@@ -8,7 +8,7 @@ from app.exceptions.service_exceptions import ServiceError
 from app.exceptions.repository_exceptions import RepositoryError, NotFoundError
 from app.services.Framework.ItemTemplate import ItemTemplate
 from typing import Dict, Any, List
-from app.repositories.Framework.AtorRepository import UserRepository
+from app.repositories.Framework.AtorRepository import AtorRepository
 from app.exceptions.service_exceptions import ServiceError
 from app.exceptions.repository_exceptions import RepositoryError, NotFoundError
 from app.utils.verificar_data import validar_formato_data
@@ -66,7 +66,7 @@ class ItemTarefa(ItemTemplate):
 
     def buscar_por_ator(self, ator_id: int) -> List[InstanciaDeTarefa]:
         try:
-            ator_repo = UserRepository(self.db)
+            ator_repo = AtorRepository(self.db)
             ator = ator_repo.buscar_por_id(ator_id)
             if not ator:
                 raise NotFoundError(f"Ator com ID {ator_id} não encontrado.")

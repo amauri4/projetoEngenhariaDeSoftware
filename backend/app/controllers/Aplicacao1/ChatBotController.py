@@ -14,9 +14,7 @@ import os
 from app.services.Aplicacao1.PromptHabitosStrategy import PromptHabitosStrategy
 from app.services.Framework.ChatService import ChatService
 
-
 chat1_bp = Blueprint("chat1", __name__, url_prefix="/chat1")
-
 
 def build_chat_service(db):
     chat_repo = ChatRepository(db)
@@ -33,7 +31,6 @@ def build_chat_service(db):
         groq_client=groq_client,
         prompt_strategy=prompt_strategy 
     )
-
 
 @chat1_bp.route("", methods=["POST"])
 def chat():
@@ -57,7 +54,6 @@ def chat():
             "erro": "Erro interno no servidor",
             "detalhes": str(e)
         }), 500
-
 
 @chat1_bp.route("/historico/<int:user_id>", methods=["GET"])
 def historico(user_id):
@@ -83,7 +79,6 @@ def historico(user_id):
             "erro": "Erro ao buscar histórico",
             "detalhes": str(e)
         }), 500
-
 
 @chat1_bp.route("/historico/<int:user_id>", methods=["DELETE"])
 def limpar_historico(user_id):

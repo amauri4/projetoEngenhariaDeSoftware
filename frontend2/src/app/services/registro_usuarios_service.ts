@@ -8,7 +8,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
  * @returns O objeto do gerente criado.
  */
 export async function registerGerenteService(data: RegistrationData): Promise<{ mensagem: string; gerente: AuthenticatedUser }> {
-  const response = await fetch(`${API_URL}/auth/gerentes/registrar`, {
+  const response = await fetch(`${API_URL}/auth2/gerentes/registrar`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -28,7 +28,7 @@ export async function registerGerenteService(data: RegistrationData): Promise<{ 
  * @returns O objeto do gerente autenticado.
  */
 export async function loginGerenteService(credentials: LoginData): Promise<AuthenticatedUser> {
-  const response = await fetch(`${API_URL}/auth/gerentes/login`, {
+  const response = await fetch(`${API_URL}/auth2/gerentes/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
@@ -48,7 +48,7 @@ export async function loginGerenteService(credentials: LoginData): Promise<Authe
  * @returns O objeto do funcionário criado.
  */
 export async function registerFuncionarioService(data: RegistrationData): Promise<{ mensagem: string; funcionario: AuthenticatedUser }> {
-  const response = await fetch(`${API_URL}/auth/funcionarios/registrar`, {
+  const response = await fetch(`${API_URL}/auth2/funcionarios/registrar`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -68,7 +68,7 @@ export async function registerFuncionarioService(data: RegistrationData): Promis
  * @returns O objeto do funcionário autenticado.
  */
 export async function loginFuncionarioService(credentials: LoginData): Promise<AuthenticatedUser> {
-  const response = await fetch(`${API_URL}/auth/funcionarios/login`, {
+  const response = await fetch(`${API_URL}/auth2/funcionarios/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),

@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.exceptions.repository_exceptions  import RepositoryError, NotFoundError
 from app.models.Framework.Ator import Ator
 
-class UserRepository:
+class AtorRepository:
     def __init__(self, db: Session):
         self.db = db
 

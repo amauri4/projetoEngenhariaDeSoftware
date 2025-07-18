@@ -1,4 +1,4 @@
-from app.repositories.Framework.AtorRepository import UserRepository
+from app.repositories.Framework.AtorRepository import AtorRepository
 from app.models.Aplicacao1.UsuarioPessoal import UsuarioPessoal
 from sqlalchemy.orm import Session
 from app.utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha
@@ -16,7 +16,7 @@ class UserService:
     def __init__(self, db: Session):
         if self._initialized:
             return
-        self.user_repository = UserRepository(db)
+        self.user_repository = AtorRepository(db)
         self._initialized = True
 
     def criar_usuario(self, usuario: UsuarioPessoal):

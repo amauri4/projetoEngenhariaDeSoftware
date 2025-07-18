@@ -19,12 +19,12 @@ export default function BottomNavigation() {
                 </Link>
 
                 <Link
-                    href="/dashboard/chat"
-                    className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/chat' ? 'text-purple-600' : 'text-gray-500'}`}
+                    href="/dashboard/chat2"
+                    className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/chat2' ? 'text-purple-600' : 'text-gray-500'}`}
                 >
                     <div className="relative">
                         <FaRobot className="text-xl" />
-                        {pathname === '/chat' && (
+                        {pathname === '/chat2' && (
                             <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-purple-500"></span>
                         )}
                     </div>
