@@ -28,7 +28,7 @@ export default function BottomNavigation() {
                             <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-purple-500"></span>
                         )}
                     </div>
-                    <span className="text-xs mt-1">IAbit</span>
+                    <span className="text-xs mt-1">GymBot</span>
                 </Link>
 
                 {/* <Link
