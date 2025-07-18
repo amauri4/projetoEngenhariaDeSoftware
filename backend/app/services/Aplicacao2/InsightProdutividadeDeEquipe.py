@@ -1,18 +1,19 @@
 from sqlalchemy.orm import Session
 from datetime import date
 from app.services.Framework.InsightTemplate import InsightTemplate
+from app.services.Aplicacao2.ItemTarefa import ItemTarefa
 from app.exceptions.service_exceptions import ServiceError
-from app.services.Aplicacao2.ItemTarefa import ItemTemplate
+from app.services.Framework.ItemService import ItemService
 from app.repositories.Framework.RegistroDeOcorrenciaRepository import RegistroDeOcorrenciaRepository
 
 class InsightProdutividadeDeEquipe(InsightTemplate):
     def __init__(self, db: Session):
         self.db = db
-        self.tarefa_service = ItemTemplate(db)
+        self.tarefa_service = ItemService(db)
         self.ocorrencia_tarefa_repo = RegistroDeOcorrenciaRepository(db)
 
     def _buscar_dados_usuairo_insight(self, usuario_id: int):
-        tarefas  = self.tarefa_service.buscar_por_ator(usuario_id)
+        tarefas  = self.tarefa_service.buscar_por_ator(usuario_id, ItemTarefa)
         if tarefas is None:
             raise ServiceError("Nenhuma tarefa encontrada para o gerente.")
         # obter id das tarefas
