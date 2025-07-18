@@ -15,4 +15,4 @@ class Aluno(Ator):
         'inherit_condition': id == Ator.id
     }
 
-    treinos_atribuidos = relationship("InstanciaDeTreino",foreign_keys="[InstanciaDeTreino.id_aluno_responsavel]",back_populates="responsavel")
+    treinos_recebidos = relationship("InstanciaDeTreino",foreign_keys="[InstanciaDeTreino.id_aluno_responsavel]",back_populates="responsavel")

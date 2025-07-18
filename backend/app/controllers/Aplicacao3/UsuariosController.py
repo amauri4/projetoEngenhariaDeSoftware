@@ -107,3 +107,27 @@ def login_aluno():
             return jsonify({"erro": str(e)}), 401
         except Exception as e:
             return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
+        
+@auth3_bp.route("/<int:instrutor_id>/alunos", methods=["GET"])
+def listar_equipe_do_gerente(instrutor_id):
+    with get_db() as db:
+        try:
+            servico = InstrutorService(db)
+            alunos = servico.buscar_alunos(instrutor_id)
+
+            alunos_json = [
+                {
+                    "id": aluno.id,
+                    "nome": aluno.nome,
+                    "email": aluno.email
+                }
+                for aluno in alunos
+            ]
+
+            return jsonify(alunos_json), 200
+        except NotFoundError as e:
+            return jsonify({"erro": str(e)}), 404
+        except ServiceError as e:
+            return jsonify({"erro": str(e)}), 400
+        except Exception as e:
+            return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500

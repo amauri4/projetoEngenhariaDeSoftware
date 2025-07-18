@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { registerInstrutorService, registerAlunoService } from "@/app/services/registro_usuarios_service";
 
-type UserType = 'gerente' | 'funcionario';
+type UserType = 'instrutor' | 'aluno';
 
 interface FormData {
     nome: string;
     email: string;
     senha: string;
-    chefe_id?: string; 
+    instrutor_id?: string; 
 }
 
 interface RegisterFormProps {
@@ -18,23 +19,24 @@ interface RegisterFormProps {
 
 export default function RegisterForm({ userType }: RegisterFormProps) {
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    
     const [formData, setFormData] = useState<FormData>({
         nome: "",
         email: "",
         senha: "",
-        chefe_id: "",
+        instrutor_id: "",
     });
-    const [erroMensagem, setErroMensagem] = useState<string>("");
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setFormData({
             nome: "",
             email: "",
             senha: "",
-            chefe_id: "",
+            instrutor_id: "",
         });
-        setErroMensagem("");
+        setError(null); 
     }, [userType]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,11 +49,8 @@ export default function RegisterForm({ userType }: RegisterFormProps) {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setErroMensagem("");
         setLoading(true);
-
-        const isGerente = userType === 'gerente';
-        const endpoint = isGerente ? "/auth3/gerentes/registrar" : "/auth3/funcionarios/registrar";
+        setError(null);
         
         const payload: any = {
             nome: formData.nome,
@@ -59,26 +58,20 @@ export default function RegisterForm({ userType }: RegisterFormProps) {
             senha: formData.senha,
         };
 
-        if (!isGerente && formData.chefe_id) {
-            payload.chefe_id = parseInt(formData.chefe_id, 10);
+        if (userType === 'aluno' && formData.instrutor_id) {
+            payload.instrutor_id = parseInt(formData.instrutor_id, 10);
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const { erro } = await response.json();
-                throw new Error(erro || "Não foi possível registrar.");
+            if (userType === 'instrutor') {
+                await registerInstrutorService(payload);
+            } else {
+                await registerAlunoService(payload);
             }
-
             router.push("/login?message=Conta criada com sucesso!");
-        } catch (error) {
-            console.error("Erro ao registrar:", error);
-            setErroMensagem(error instanceof Error ? error.message : "Erro desconhecido.");
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
         } finally {
             setLoading(false);
         }
@@ -116,33 +109,32 @@ export default function RegisterForm({ userType }: RegisterFormProps) {
                 disabled={loading}
             />
 
-            {/* Campo condicional para ID do Chefe */}
-            {userType === 'funcionario' && (
+            {userType === 'aluno' && (
                 <InputField
-                    id="chefe_id"
-                    label="ID do Chefe (Opcional)"
+                    id="instrutor_id"
+                    label="ID do Instrutor (Opcional)"
                     type="number"
-                    value={formData.chefe_id || ''}
+                    value={formData.instrutor_id || ''}
                     onChange={handleChange}
-                    placeholder="ID do seu gerente"
+                    placeholder="ID do seu instrutor"
                     required={false} 
                     disabled={loading}
                 />
             )}
 
-            {erroMensagem && (
+            {error && (
                 <div
                     className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
                     role="alert"
                 >
-                    {erroMensagem}
+                    {error}
                 </div>
             )}
 
             <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300 disabled:opacity-50"
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition duration-300 disabled:opacity-50"
             >
                 {loading ? "Criando conta..." : "Criar Conta"}
             </button>
@@ -174,7 +166,7 @@ function InputField({ id, label, type, value, onChange, placeholder, required = 
                 onChange={onChange}
                 required={required}
                 disabled={disabled}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-gray-100"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none disabled:bg-gray-100"
                 placeholder={placeholder}
             />
         </div>

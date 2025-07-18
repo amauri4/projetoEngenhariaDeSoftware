@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.services.Framework.ChatService import ChatService
-from app.repositories.Framework.AtorRepository import UserRepository
+from app.repositories.Framework.AtorRepository import AtorRepository
 from app.repositories.Framework.ChatRepository import ChatRepository
 from app.repositories.Framework.RegistroDeOcorrenciaRepository import RegistroDeOcorrenciaRepository
 from app.clients.GroqClient import GroqClient

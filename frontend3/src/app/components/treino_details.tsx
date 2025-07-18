@@ -1,30 +1,30 @@
 "use client";
 
-import { Tarefa } from "@/app/types/tarefa";
+import { Treino } from "@/app/types/treino";
 import { Ocorrencia } from "@/app/types/ocorrencia";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { format } from "date-fns";
-import { getOcorrenciasPorDataEspecificaService, updateOcorrenciaStatusService } from "@/app/services/ocorrencia_tarefa_service";
+import { getOcorrenciasPorDataEspecificaService, updateOcorrenciaTreinoStatusService } from "@/app/services/ocorrencia_treino_service";
 import { useAuth } from "@/app/hooks/use_auth";
 
-type UserRole = 'gerente' | 'funcionario';
+type UserRole = 'instrutor' | 'aluno';
 
-interface TarefaDetailsModalProps {
+interface TreinoDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  tarefa: Tarefa | null;
+  treino: Treino | null;
   userType: UserRole;
   selectedDate?: Date; 
 }
 
-export function TarefaDetailsModal({
+export function TreinoDetailsModal({
   isOpen,
   onClose,
-  tarefa,
+  treino,
   userType,
   selectedDate,
-}: TarefaDetailsModalProps) {
+}: TreinoDetailsModalProps) {
   const { id: atorId } = useAuth();
   const [isCompleted, setIsCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export function TarefaDetailsModal({
 
   useEffect(() => {
     const fetchCompletionStatus = async () => {
-      if (!tarefa || !isOpen || !atorId || userType !== 'funcionario' || !selectedDate) {
+      if (!treino || !isOpen || !atorId || userType !== 'aluno' || !selectedDate) {
         setOcorrencia(null);
         setIsCompleted(false);
         return;
@@ -41,9 +41,11 @@ export function TarefaDetailsModal({
       try {
         setLoading(true);
         const dataFormatada = format(selectedDate, 'yyyy-MM-dd');
-        const registros = await getOcorrenciasPorDataEspecificaService(tarefa.criador_id, dataFormatada);
-
-        const registroAtual = registros.find(r => r.tarefa_id === tarefa.id);
+        // --- MODIFICAÇÃO: A busca de ocorrências agora usa o ID do criador do treino (o instrutor) ---
+        // Isso alinha a lógica com o exemplo funcional fornecido (TarefaDetailsModal).
+        const registros = await getOcorrenciasPorDataEspecificaService(treino.criador_id, dataFormatada);
+        
+        const registroAtual = registros.find(r => r.treino_id === treino.id);
         
         if (registroAtual) {
           setOcorrencia(registroAtual);
@@ -53,7 +55,7 @@ export function TarefaDetailsModal({
           setIsCompleted(false);
         }
       } catch (error) {
-        console.error("Erro ao verificar status da tarefa:", error);
+        console.error("Erro ao verificar status do treino:", error);
         setOcorrencia(null);
         setIsCompleted(false);
       } finally {
@@ -62,7 +64,7 @@ export function TarefaDetailsModal({
     };
 
     fetchCompletionStatus();
-  }, [tarefa, selectedDate, isOpen, atorId, userType]);
+  }, [treino, selectedDate, isOpen, atorId, userType]);
 
   const handleToggleComplete = async () => {
     if (loading || !ocorrencia) return;
@@ -70,18 +72,18 @@ export function TarefaDetailsModal({
     try {
       setLoading(true);
       const novoStatus = !isCompleted;
-      const ocorrenciaAtualizada = await updateOcorrenciaStatusService(ocorrencia.id, novoStatus);
+      const ocorrenciaAtualizada = await updateOcorrenciaTreinoStatusService(ocorrencia.id, novoStatus);
       setOcorrencia(ocorrenciaAtualizada);
       setIsCompleted(ocorrenciaAtualizada.status);
     } catch (error) {
-      console.error("Erro ao atualizar status da tarefa:", error);
-      alert("Não foi possível atualizar o status da tarefa.");
+      console.error("Erro ao atualizar status do treino:", error);
+      alert("Não foi possível atualizar o status do treino.");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!tarefa) return null;
+  if (!treino) return null;
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -103,30 +105,40 @@ export function TarefaDetailsModal({
             >
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                  Detalhes da Tarefa
+                  Detalhes do Treino
                 </Dialog.Title>
 
                 <div className="mt-4 space-y-4">
                   <div>
                     <h4 className="font-semibold text-gray-700">Descrição:</h4>
-                    <p>{tarefa.descricao || "Nenhuma descrição fornecida"}</p>
+                    <p>{treino.descricao || "Nenhuma descrição fornecida"}</p>
                   </div>
 
-                  {/* Mostra o responsável (visão do gerente) */}
-                  {userType === 'gerente' && (
+                  {userType === 'instrutor' && (
                     <div>
-                      <h4 className="font-semibold text-gray-700">Responsável:</h4>
-                      <p>{tarefa.responsavel_nome || "Não atribuído"}</p>
+                      <h4 className="font-semibold text-gray-700">Aluno:</h4>
+                      <p>{treino.responsavel_nome || "Não atribuído"}</p>
+                    </div>
+                  )}
+                  
+                  {userType === 'aluno' && (
+                    <div>
+                      <h4 className="font-semibold text-gray-700">Instrutor:</h4>
+                      <p>{treino.criador_nome || "Não atribuído"}</p>
                     </div>
                   )}
 
                   <div>
-                    <h4 className="font-semibold text-gray-700">Prazo Final:</h4>
-                    <p>{tarefa.prazo_final ? new Date(`${tarefa.prazo_final}T00:00:00`).toLocaleDateString() : "Não definido"}</p>
+                    <h4 className="font-semibold text-gray-700">Data de Início:</h4>
+                    <p>{treino.data_inicio ? new Date(`${treino.data_inicio}T00:00:00`).toLocaleDateString() : "Não definida"}</p>
                   </div>
 
-                  {/* Lógica de conclusão (visão do funcionário) */}
-                  {userType === 'funcionario' && selectedDate && (
+                  <div>
+                    <h4 className="font-semibold text-gray-700">Data de Entrega:</h4>
+                    <p>{treino.data_entrega ? new Date(`${treino.data_entrega}T00:00:00`).toLocaleDateString() : "Não definido"}</p>
+                  </div>
+
+                  {userType === 'aluno' && selectedDate && (
                     <div className="flex items-center pt-2">
                       <input
                         type="checkbox"
@@ -134,11 +146,11 @@ export function TarefaDetailsModal({
                         checked={isCompleted}
                         onChange={handleToggleComplete}
                         disabled={loading || !ocorrencia}
-                        className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+                        className="h-5 w-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500 disabled:opacity-50"
                       />
                       <label htmlFor="completed-checkbox" className="ml-3 block text-sm text-gray-900">
                         {loading ? "Carregando..." :
-                          !ocorrencia ? `Tarefa não agendada para ${format(selectedDate, 'dd/MM/yyyy')}` : `Concluído em ${format(selectedDate, 'dd/MM/yyyy')}`}
+                          !ocorrencia ? `Treino não agendado para ${format(selectedDate, 'dd/MM/yyyy')}` : `Concluído em ${format(selectedDate, 'dd/MM/yyyy')}`}
                       </label>
                     </div>
                   )}
@@ -147,7 +159,7 @@ export function TarefaDetailsModal({
                 <div className="mt-6">
                   <button
                     type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    className="inline-flex justify-center rounded-md border border-transparent bg-orange-100 px-4 py-2 text-sm font-medium text-orange-900 hover:bg-orange-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
                     onClick={onClose}
                   >
                     Fechar

@@ -1,57 +1,54 @@
 "use client";
 
 import { useAuth } from "@/app/hooks/use_auth";
-import { useTarefas } from "@/app/hooks/use_tarefas";
-import { useFuncionarios } from "@/app/hooks/use_funcionarios";
+import { useTreinos } from "@/app/hooks/use_treinos";
+import { useAlunos } from "@/app/hooks/use_alunos"; 
+import TreinoForm from "@/app/components/treino_form";
+import InstrutorTreinoList from "@/app/components/instrutor_treino_list";
+import AlunoTreinoList from "@/app/components/aluno_treino_list";
 
-import TarefaForm from "@/app/components/tarefa_form";
-import GerenteTarefaList from "@/app/components/gerente_tarefa_list";
-import FuncionarioTarefaList from "@/app/components/funcionario_tarefa_list";
-
-export default function TarefasDashboardPage() {
+export default function TreinosDashboardPage() {
   const { id: atorId, nome: atorNome, tipo: atorTipo } = useAuth();
-  const { tarefas, loading, error, refetch } = useTarefas(atorId);
-  const { funcionarios, loading: loadingFuncionarios } = useFuncionarios(atorId);
+  const { treinos, loading, error, adicionarTreinoLocalmente } = useTreinos(atorId);
+  const { alunos, loading: loadingAlunos } = useAlunos(atorId); 
 
   const renderContent = () => {
     if (!atorId || !atorTipo) {
-      return <p>Carregando dados do usuário...</p>;
+      return <p className="text-center">Carregando dados do usuário...</p>;
     }
     
     if (loading) {
-      return <p>Carregando tarefas...</p>;
+      return <p className="text-center">Carregando treinos...</p>;
     }
 
     if (error) {
-      return <p className="text-red-500">Erro: {error}</p>;
+      return <p className="text-red-500 text-center">Erro: {error}</p>;
     }
 
-    // --- VISÃO DO GERENTE ---
-    if (atorTipo === 'gerente') {
+    if (atorTipo === 'instrutor') {
       return (
         <>
           <section className="mb-8 mt-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">Criar Nova Tarefa</h2>
-            <TarefaForm 
-              gerenteId={atorId}
-              funcionarios={funcionarios} 
-              onAdd={refetch}
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Criar Novo Treino</h2>
+            <TreinoForm 
+              instrutorId={atorId}
+              alunos={alunos} 
+              onAdd={adicionarTreinoLocalmente}
             />
           </section>
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">Tarefas da Equipe</h2>
-            <GerenteTarefaList tarefas={tarefas} />
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Treinos Atuais dos Alunos</h2>
+            <InstrutorTreinoList treinos={treinos} />
           </section>
         </>
       );
     }
 
-    // --- VISÃO DO FUNCIONÁRIO ---
-    if (atorTipo === 'funcionario') {
+    if (atorTipo === 'aluno') {
       return (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Minhas Tarefas</h2>
-          <FuncionarioTarefaList tarefas={tarefas} atorId={atorId} />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Meus Treinos</h2>
+          <AlunoTreinoList treinos={treinos} atorId={atorId} />
         </section>
       );
     }
@@ -60,10 +57,10 @@ export default function TarefasDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-blue-500 to-teal-500 p-6">
+    <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-yellow-400 to-orange-500 p-6">
       <main className="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8 sm:p-10">
-        <h1 className="text-3xl font-bold text-center text-blue-700 mb-4">
-          Painel de Tarefas
+        <h1 className="text-3xl font-bold text-center text-orange-700 mb-4">
+          Painel de Treinos
         </h1>
         <p className="text-center text-gray-600 mb-6">Bem-vindo(a), {atorNome || 'Usuário'}!</p>
         

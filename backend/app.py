@@ -15,10 +15,11 @@ from app.controllers.Aplicacao2.OcorrenciaTarefaController import ocorrencia_tar
 from app.controllers.Aplicacao2.TarefaController import tarefa_bp
 from app.controllers.Aplicacao2.UsuariosController import auth2_bp
 # # aplicação 3
-# from app.controllers.Aplicacao3.ChatBotController import chat3_bp
-# from app.controllers.Aplicacao3.InsightTreinoController import insight3_bp
-# from app.controllers.Aplicacao3.TreinoController import treino_bp
-# from app.controllers.Aplicacao3.UsuariosController import auth3_bp
+from app.controllers.Aplicacao3.ChatBotController import chat3_bp
+from app.controllers.Aplicacao3.InsightTreinoController import insight3_bp
+from app.controllers.Aplicacao3.TreinoController import treino_bp
+from app.controllers.Aplicacao3.UsuariosController import auth3_bp
+from app.controllers.Aplicacao3.OcorrenciaTreinoController import ocorrencia_treino_bp
 
 
 app = create_app()
@@ -40,9 +41,10 @@ if __name__ == '__main__':
     app.register_blueprint(tarefa_bp)
     app.register_blueprint(auth2_bp)
     # # bp da aplicação 3
-    # app.register_blueprint(chat3_bp)
-    # app.register_blueprint(insight3_bp)
-    # app.register_blueprint(treino_bp)
-    # app.register_blueprint(auth3_bp)
+    app.register_blueprint(chat3_bp)
+    app.register_blueprint(insight3_bp)
+    app.register_blueprint(treino_bp)
+    app.register_blueprint(auth3_bp)
+    app.register_blueprint(ocorrencia_treino_bp)
     
     app.run(port=8000, debug=True)

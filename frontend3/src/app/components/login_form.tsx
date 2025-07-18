@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginGerenteService, loginFuncionarioService } from "@/app/services/registro_usuarios_service";
+import { loginInstrutorService, loginAlunoService } from "@/app/services/registro_usuarios_service";
 
-type UserType = 'gerente' | 'funcionario';
+type UserType = 'instrutor' | 'aluno';
 
 export default function LoginForm() {
   const router = useRouter();
-  const [userType, setUserType] = useState<UserType>('gerente');
+  const [userType, setUserType] = useState<UserType>('instrutor');
   const [formData, setFormData] = useState({ email: "", senha: "" });
   const [erroMensagem, setErroMensagem] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,10 +27,10 @@ export default function LoginForm() {
 
     try {
       let authenticatedUser;
-      if (userType === 'gerente') {
-        authenticatedUser = await loginGerenteService(formData);
+      if (userType === 'instrutor') {
+        authenticatedUser = await loginInstrutorService(formData);
       } else {
-        authenticatedUser = await loginFuncionarioService(formData);
+        authenticatedUser = await loginAlunoService(formData);
       }
 
       if (typeof window !== "undefined") {
@@ -51,27 +51,26 @@ export default function LoginForm() {
 
   return (
     <>
-      {/* Seletor de tipo de conta */}
       <div className="flex justify-center border-b-2 border-gray-200 mb-6">
         <button
-          onClick={() => setUserType('gerente')}
+          onClick={() => setUserType('instrutor')}
           className={`px-6 py-2 text-sm font-semibold transition-colors duration-300 focus:outline-none ${
-            userType === 'gerente'
-              ? 'border-b-2 border-blue-600 text-blue-600'
-              : 'text-gray-500 hover:text-blue-600'
+            userType === 'instrutor'
+              ? 'border-b-2 border-orange-600 text-orange-600'
+              : 'text-gray-500 hover:text-orange-600'
           }`}
         >
-          Sou Gerente
+          Sou Instrutor
         </button>
         <button
-          onClick={() => setUserType('funcionario')}
+          onClick={() => setUserType('aluno')}
           className={`px-6 py-2 text-sm font-semibold transition-colors duration-300 focus:outline-none ${
-            userType === 'funcionario'
-              ? 'border-b-2 border-blue-600 text-blue-600'
-              : 'text-gray-500 hover:text-blue-600'
+            userType === 'aluno'
+              ? 'border-b-2 border-orange-600 text-orange-600'
+              : 'text-gray-500 hover:text-orange-600'
           }`}
         >
-          Sou Funcionário
+          Sou Aluno
         </button>
       </div>
 
@@ -87,7 +86,7 @@ export default function LoginForm() {
             onChange={handleChange}
             required
             disabled={loading}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none disabled:bg-gray-100"
             placeholder="seuemail@exemplo.com"
           />
         </div>
@@ -103,7 +102,7 @@ export default function LoginForm() {
             onChange={handleChange}
             required
             disabled={loading}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:bg-gray-100"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none disabled:bg-gray-100"
             placeholder="••••••••"
           />
         </div>
@@ -117,7 +116,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300 disabled:opacity-50"
+          className="w-full bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 rounded-lg transition duration-300 disabled:opacity-50"
         >
           {loading ? "Entrando..." : "Entrar"}
         </button>

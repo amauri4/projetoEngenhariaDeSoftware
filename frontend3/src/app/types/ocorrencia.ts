@@ -1,7 +1,13 @@
 export interface Ocorrencia {
-    id: number;
-    data_prevista: string;
-    status: boolean;
-    tarefa_id: number;
-    tarefa_descricao: string;
-  }
+  id: number;
+  data: string;
+  status: boolean;
+  treino_id: number;
+  treino_descricao: string;
+}
+
+export interface OcorrenciaCreateInput {
+  treino_id: number;
+  data: string;
+  status?: boolean;
+}
