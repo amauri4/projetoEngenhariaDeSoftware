@@ -2,13 +2,13 @@ from app.services.StrategyPrompt.PromptStrategy import PromptStrategy
 from app.repositories.Aplicacao2.GerenteRepository import GerenteRepository
 from app.repositories.Aplicacao2.TarefaRepository import TarefaRepository
 from app.database import session
+from app.repositories.AtorRepository import UserRepository
 from typing import Any
 
 class PromptGerenteStrategy(PromptStrategy):
     def __init__(self, db: session):
         self.db = db
         self.gerente_repo = GerenteRepository(db)
-        self.tarefa_repo = TarefaRepository(db)
         self.contexto = """
         Você é um assistente especializado em ajudar gerentes a coordenarem suas equipes e tarefas de forma eficiente, clara e organizada. Seu papel é facilitar o gerenciamento de tarefas, delegação e acompanhamento de progresso.
 

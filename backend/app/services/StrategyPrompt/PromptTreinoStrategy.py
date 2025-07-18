@@ -8,7 +8,6 @@ class PromptTreinoStrategy(PromptStrategy):
     def __init__(self, db: session):
         self.db = db
         self.aluno_repo = AlunoRepository(db)
-        self.treino_repo = TreinoRepository(db)
         self.contexto = """
         Você é um assistente virtual especializado em treinos de academia. 
         Seu papel é ajudar alunos a executarem corretamente os exercícios, oferecendo dicas práticas, cuidados importantes durante a execução, e, 
@@ -33,7 +32,7 @@ class PromptTreinoStrategy(PromptStrategy):
             if not aluno:
                 return "Aluno não encontrado."
 
-            treinos = self.treino_repo.buscar_treinos_por_aluno(user_id)
+            treinos = self.aluno_repo.buscar_treinos_atribuidos_ao_aluno(user_id)
 
             lista_treinos = []
             for treino in treinos:

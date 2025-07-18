@@ -39,13 +39,17 @@ export default function ChatAssistentePage() {
       if (!usuarioId) return;
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/chat/historico/${usuarioId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/chat2/historico/${usuarioId}`
         );
         if (!res.ok) throw new Error("Erro ao buscar histórico");
         const data = await res.json();
 
         const historicoFormatado = data.map(
-          (msg: { quem_enviou: "user" | "bot"; mensagem: string; timestamp: string }) => ({
+          (msg: {
+            quem_enviou: "user" | "bot";
+            mensagem: string;
+            timestamp: string;
+          }) => ({
             from: msg.quem_enviou,
             text: msg.mensagem,
             timestamp: msg.timestamp,
@@ -69,7 +73,7 @@ export default function ChatAssistentePage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat2`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -90,7 +94,7 @@ export default function ChatAssistentePage() {
         ...prev,
         {
           from: "bot",
-          text: " Ocorreu um erro ao conversar com o assistente.",
+          text: "Ocorreu um erro ao conversar com o assistente.",
         },
       ]);
     } finally {
@@ -110,7 +114,7 @@ export default function ChatAssistentePage() {
     if (!usuarioId) return;
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/chat/historico/${usuarioId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/chat2/historico/${usuarioId}`,
         { method: "DELETE" }
       );
       if (!res.ok) throw new Error("Erro ao limpar histórico");
@@ -121,10 +125,10 @@ export default function ChatAssistentePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-md p-6">
-        <h1 className="text-3xl font-bold mb-4 text-indigo-600 text-center">
-          IAbit - Seu Assistente de Hábitos
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center p-6">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6">
+        <h1 className="text-3xl font-bold mb-4 text-blue-700 text-center">
+          SecretarIA - Seu Assistente de Tarefas
         </h1>
 
         <div className="flex justify-end mb-2">
@@ -147,8 +151,8 @@ export default function ChatAssistentePage() {
               <div
                 className={`inline-block px-4 py-2 rounded-xl ${
                   msg.from === "user"
-                    ? "bg-indigo-500 text-white"
-                    : "bg-gray-200 text-gray-900"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-800"
                 }`}
               >
                 <span
@@ -174,13 +178,13 @@ export default function ChatAssistentePage() {
           onKeyDown={handleKeyDown}
           rows={3}
           placeholder="Digite sua mensagem e aperte Enter..."
-          className="w-full border rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full border border-gray-300 rounded-xl px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <button
           onClick={sendMessage}
           disabled={loading}
-          className="w-full bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition disabled:opacity-50"
+          className="w-full bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition disabled:opacity-50"
         >
           {loading ? "Enviando..." : "Enviar"}
         </button>
