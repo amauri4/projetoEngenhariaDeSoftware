@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from sqlalchemy.orm import Session
-from app.services.HabitoBaseService import HabitoBaseService
+from app.services.Aplicacao1.HabitoBaseService import HabitoBaseService
 
 @pytest.fixture(autouse=True)
 def reset_singleton():

@@ -76,3 +76,10 @@ class AlunoRepository:
         except SQLAlchemyError as e:
             self.db.rollback()
             raise RepositoryError("Erro ao buscar treinos do aluno.") from e
+
+    def buscar_por_id(self, aluno_id: int) -> Optional[Aluno]:
+        try:
+            return self.db.query(Aluno).filter(Aluno.id == aluno_id).first()
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RepositoryError("Erro ao buscar gerente por ID.") from e

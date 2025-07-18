@@ -39,7 +39,7 @@ export default function ChatAssistentePage() {
       if (!usuarioId) return;
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/chat/historico/${usuarioId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/chat1/historico/${usuarioId}`
         );
         if (!res.ok) throw new Error("Erro ao buscar histórico");
         const data = await res.json();
@@ -69,7 +69,7 @@ export default function ChatAssistentePage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat1`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -110,7 +110,7 @@ export default function ChatAssistentePage() {
     if (!usuarioId) return;
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/chat/historico/${usuarioId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/chat1/historico/${usuarioId}`,
         { method: "DELETE" }
       );
       if (!res.ok) throw new Error("Erro ao limpar histórico");

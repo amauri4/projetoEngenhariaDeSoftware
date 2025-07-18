@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.database.session import get_db
-from app.services.ItemService import ServicoDeItem 
-from app.services.TemplateMethodItem.Tarefa import TarefaEstrategiaService
+from app.services.Framework.ItemService import ItemService
+from app.services.Aplicacao2.ItemTarefa import ItemTarefa
 from app.exceptions.service_exceptions import AuthError, ConflictError, ServiceError
 from app.exceptions.repository_exceptions import NotFoundError
 
@@ -11,8 +11,8 @@ tarefa_bp = Blueprint("tarefas", __name__, url_prefix="/tarefas")
 def listar_tarefas_por_ator(ator_id):
     with get_db() as db:
         try:
-            servico = ServicoDeItem(db)
-            tarefas = servico.buscar_por_ator(ator_id, TarefaEstrategiaService)
+            servico = ItemService(db)
+            tarefas = servico.buscar_por_ator(ator_id, ItemTarefa)
             tarefas_json = []
             for t in tarefas:
                 tarefa_json = {
@@ -41,11 +41,11 @@ def adicionar_tarefa(gerente_id):
             return jsonify({"erro": "Corpo da requisição não pode ser vazio."}), 400
 
         try:
-            servico = ServicoDeItem(db)
+            servico = ItemService(db)
             nova_tarefa = servico.adicionar(
                 ator_id=gerente_id, 
                 dados=dados, 
-                implementacao=TarefaEstrategiaService
+                implementacao=ItemTarefa
             )
 
             return jsonify({
@@ -65,11 +65,11 @@ def atualizar_tarefa(tarefa_id):
             return jsonify({"erro": "Corpo da requisição não pode ser vazio."}), 400
 
         try:
-            servico = ServicoDeItem(db)
+            servico = ItemService(db)
             tarefa_atualizada = servico.atualizar(
                 item_id=tarefa_id, 
                 dados=dados, 
-                implementacao=TarefaEstrategiaService
+                implementacao=ItemTarefa
             )
 
             return jsonify({
@@ -85,10 +85,10 @@ def atualizar_tarefa(tarefa_id):
 def remover_tarefa(tarefa_id):
     with get_db() as db:
         try:
-            servico = ServicoDeItem(db)
+            servico = ItemService(db)
             servico.remover(
                 item_id=tarefa_id, 
-                implementacao=TarefaEstrategiaService
+                implementacao=ItemTarefa
             )
 
             return '', 204

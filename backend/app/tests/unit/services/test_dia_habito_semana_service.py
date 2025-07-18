@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from sqlalchemy.exc import NoResultFound
 from app.models.DiaHabitoSemana import DiaSemanaEnum
-from app.services.DiaHabitoSemanaService import DiaHabitoSemanaService
+from app.services.Aplicacao1.DiaHabitoSemanaService import DiaHabitoSemanaService
 
 @pytest.fixture
 def mock_repo():

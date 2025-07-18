@@ -1,4 +1,4 @@
-from app.models.DiaHabitoSemana import DiaSemanaEnum
+from app.models.Aplicacao1.DiaHabitoSemana import DiaSemanaEnum
 
 def converter_numero_para_dia_semana(numero_dia: int):
     

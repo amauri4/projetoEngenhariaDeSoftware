@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 from sqlalchemy.exc import NoResultFound
-from app.services.DiaHabitoMesService import DiaHabitoMesService
+from app.services.Aplicacao1.DiaHabitoMesService import DiaHabitoMesService
 
 @pytest.fixture
 def mock_repo():

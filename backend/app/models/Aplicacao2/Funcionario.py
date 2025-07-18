@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database.base import Base
-from app.models.Ator import Ator
+from app.models.Framework.Ator import Ator
 
 class Funcionario(Ator):
     __tablename__ = 'funcionarios'

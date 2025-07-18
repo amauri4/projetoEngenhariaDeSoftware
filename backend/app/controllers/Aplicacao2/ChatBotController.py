@@ -1,21 +1,19 @@
 from flask import Blueprint, request, jsonify
-from app.services.ChatService import ChatService
-from app.repositories.AtorRepository import UserRepository
-from app.repositories.HabitoUsuarioRepository import HabitoUsuarioRepository
-from app.repositories.CategoriaRepository import CategoriaRepository
-from app.repositories.ChatRepository import ChatRepository
-from app.repositories.RegistroRepository import RegistroDiarioRepository
+from app.services.Framework.ChatService import ChatService
+from app.repositories.Framework.AtorRepository import AtorRepository
+from app.repositories.Framework.ChatRepository import ChatRepository
+from app.repositories.Framework.RegistroDeOcorrenciaRepository import RegistroDeOcorrenciaRepository
 from app.clients.GroqClient import GroqClient
 from app.database.session import get_db
 from pathlib import Path
 from dotenv import load_dotenv
 import traceback
 import os
-from app.services.StrategyPrompt.PromptGerenteStrategy import PromptGerenteStrategy
-from app.services.ChatService import ChatService
+from app.services.Aplicacao2.PromptGerenteStrategy import PromptGerenteStrategy
+from app.services.Framework.ChatService import ChatService
 
 
-chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
+chat2_bp = Blueprint("chat2", __name__, url_prefix="/chat2")
 
 
 def build_chat_service(db):
@@ -35,7 +33,7 @@ def build_chat_service(db):
     )
 
 
-@chat_bp.route("", methods=["POST"])
+@chat2_bp.route("", methods=["POST"])
 def chat():
     try:
         data = request.get_json()
@@ -59,7 +57,7 @@ def chat():
         }), 500
 
 
-@chat_bp.route("/historico/<int:user_id>", methods=["GET"])
+@chat2_bp.route("/historico/<int:user_id>", methods=["GET"])
 def historico(user_id):
     try:
         with get_db() as db:
@@ -85,7 +83,7 @@ def historico(user_id):
         }), 500
 
 
-@chat_bp.route("/historico/<int:user_id>", methods=["DELETE"])
+@chat2_bp.route("/historico/<int:user_id>", methods=["DELETE"])
 def limpar_historico(user_id):
     try:
         with get_db() as db:

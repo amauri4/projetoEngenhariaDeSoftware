@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database.base import Base
-from app.models.Ator import Ator
+from app.models.Framework.Ator import Ator
 
 class Gerente(Ator):
     __tablename__ = 'gerentes'

@@ -3,12 +3,12 @@ from app.database.base import engine, Base
 from app.database.session import get_db
 from app.utils.sync import sync_categorias_from_json
 from dotenv import load_dotenv
-from app.models.CategoriasHabito import CategoriaHabito
-from app.models.HabitoBase import HabitoBase
-from app.models.InstanciaDeHabito import InstanciaDeHabito
-from app.models.RegistroDeOcorrencia import RegistroDeOcorrencia
 import os
 from flask_cors import CORS
+# from app.models.Aplicacao1.CategoriasHabito import CategoriaHabito
+# from app.models.Aplicacao1.HabitoBase import HabitoBase
+# from app.models.Aplicacao1.InstanciaDeHabito import InstanciaDeHabito
+# from app.models.Framework.RegistroDeOcorrencia import RegistroDeOcorrencia
 
 load_dotenv()
 

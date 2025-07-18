@@ -1,7 +1,11 @@
 from sqlalchemy.orm import Session
 from app.models.Aplicacao3.Instrutor import Instrutor
 from app.repositories.Aplicacao3.IntrutorRepository import InstrutorRepository
+<<<<<<< HEAD
 from app.repositories.AtorRepository import UserRepository
+=======
+from app.repositories.Framework.AtorRepository import AtorRepository
+>>>>>>> 20489edc843354ffc9445665636f6560ef1d2144
 from app.utils.gerar_verificar_hash import gerar_hash_senha, verificar_senha
 from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
 from app.exceptions.repository_exceptions import NotFoundError
@@ -19,7 +23,11 @@ class InstrutorService:
         if self._initialized:
             return
         self.instrutor_repository = InstrutorRepository(db)
+<<<<<<< HEAD
         self.ator_repository = UserRepository(db)
+=======
+        self.ator_repository = AtorRepository(db)
+>>>>>>> 20489edc843354ffc9445665636f6560ef1d2144
         self._initialized = True
 
     def criar_instrutor(self, nome: str, email: str, senha: str) -> Instrutor:

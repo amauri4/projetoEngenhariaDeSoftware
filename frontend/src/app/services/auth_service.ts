@@ -4,7 +4,7 @@ export interface LoginFormData {
   }
   
   export async function login(formData: LoginFormData) {
-    const LOGIN_ROUTE = `${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`;
+    const LOGIN_ROUTE = `${process.env.NEXT_PUBLIC_API_URL}/auth1/login`;
   
     const response = await fetch(LOGIN_ROUTE, {
       method: "POST",

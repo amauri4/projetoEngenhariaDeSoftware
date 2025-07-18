@@ -1,10 +1,8 @@
-from app.models.ItemRastreavel import ItemRastreavel
-from app.models.UsuarioPessoal import UsuarioPessoal
+from app.models.Framework.ItemRastreavel import ItemRastreavel
 from app.models.Aplicacao2.Gerente import Gerente
 from app.models.Aplicacao2.Funcionario import Funcionario
 from sqlalchemy import Column, Integer, Date, ForeignKey
 from sqlalchemy.orm import relationship
-from app.database.base import Base
 
 class InstanciaDeTarefa(ItemRastreavel):
     __tablename__ = "instancias_de_tarefas"

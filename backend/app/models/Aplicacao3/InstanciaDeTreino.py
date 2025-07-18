@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, Date
 from sqlalchemy.orm import relationship
 from app.database.base import Base
-from app.models.ItemRastreavel import ItemRastreavel
+from app.models.Framework.ItemRastreavel import ItemRastreavel
 from app.models.Aplicacao3.Aluno import Aluno
 from app.models.Aplicacao3.Instrutor import Instrutor
 

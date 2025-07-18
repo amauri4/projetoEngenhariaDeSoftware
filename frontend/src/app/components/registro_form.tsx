@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const REGISTRO_ROUTE = "/usuarios/registrar";
+const REGISTRO_ROUTE = "/auth1/registrar";
 
 interface FormData {
     nome: string;

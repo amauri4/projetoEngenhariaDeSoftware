@@ -5,11 +5,11 @@ from app.services.Aplicacao2.FuncionarioService import FuncionarioService
 from app.exceptions.service_exceptions import AuthError, ConflictError, ServiceError
 from app.exceptions.repository_exceptions import NotFoundError
 
-auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+auth2_bp = Blueprint("auth2", __name__, url_prefix="/auth2")
 
 # --- ROTAS PARA CHEFES ---
 
-@auth_bp.route("/gerentes/registrar", methods=["POST"])
+@auth2_bp.route("/gerentes/registrar", methods=["POST"])
 def registrar_gerente():
     with get_db() as db:
         dados = request.get_json()
@@ -36,7 +36,7 @@ def registrar_gerente():
         except Exception as e:
             return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
 
-@auth_bp.route("/gerentes/login", methods=["POST"])
+@auth2_bp.route("/gerentes/login", methods=["POST"])
 def login_gerente():
     with get_db() as db:
         dados = request.get_json()
@@ -60,7 +60,11 @@ def login_gerente():
         except Exception as e:
             return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
 
+<<<<<<< HEAD
 @auth_bp.route("/<int:gerente_id>/equipe", methods=["GET"])
+=======
+@auth2_bp.route("/<int:gerente_id>/equipe", methods=["GET"])
+>>>>>>> 20489edc843354ffc9445665636f6560ef1d2144
 def listar_equipe_do_gerente(gerente_id):
     with get_db() as db:
         try:
@@ -86,7 +90,7 @@ def listar_equipe_do_gerente(gerente_id):
 
 # --- ROTAS PARA FUNCIONÁRIOS ---
 
-@auth_bp.route("/funcionarios/registrar", methods=["POST"])
+@auth2_bp.route("/funcionarios/registrar", methods=["POST"])
 def registrar_funcionario():
     with get_db() as db:
         dados = request.get_json()
@@ -115,7 +119,7 @@ def registrar_funcionario():
         except Exception as e:
             return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
 
-@auth_bp.route("/funcionarios/login", methods=["POST"])
+@auth2_bp.route("/funcionarios/login", methods=["POST"])
 def login_funcionario():
     with get_db() as db:
         dados = request.get_json()

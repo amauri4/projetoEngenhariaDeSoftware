@@ -1,7 +1,7 @@
 import json
 import logging
-from app.models.CategoriasHabito import CategoriaHabito
-from app.models.HabitoBase import HabitoBase
+from app.models.Aplicacao1.CategoriasHabito import CategoriasHabito
+from app.models.Aplicacao1.HabitoBase import HabitoBase
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -15,8 +15,8 @@ def sync_categorias_from_json(db: Session, path="data/categorias_habitos.json", 
 
     def inserir_categorias(categorias):
         for cat in categorias:
-            if not db.query(CategoriaHabito).filter_by(id=cat["id"]).first():
-                nova_categoria = CategoriaHabito(id=cat["id"], nome=cat["nome"])
+            if not db.query(CategoriasHabito).filter_by(id=cat["id"]).first():
+                nova_categoria = CategoriasHabito(id=cat["id"], nome=cat["nome"])
                 db.add(nova_categoria)
                 logger.info(f"Categoria '{cat['nome']}' (ID: {cat['id']}) adicionada com sucesso.")
         db.commit()
@@ -24,7 +24,7 @@ def sync_categorias_from_json(db: Session, path="data/categorias_habitos.json", 
     def inserir_habitos(habitos):
         for habito_data in habitos:
             if not db.query(HabitoBase).filter_by(nome=habito_data["nome"]).first():
-                categoria = db.query(CategoriaHabito).filter_by(id=habito_data["categoria_id"]).first()
+                categoria = db.query(CategoriasHabito).filter_by(id=habito_data["categoria_id"]).first()
                 if categoria:
                     habito = HabitoBase(
                         nome=habito_data["nome"],
