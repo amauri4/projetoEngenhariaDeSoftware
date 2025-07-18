@@ -60,11 +60,7 @@ def login_gerente():
         except Exception as e:
             return jsonify({"erro": f"Ocorreu um erro inesperado: {e}"}), 500
 
-<<<<<<< HEAD
-@auth_bp.route("/<int:gerente_id>/equipe", methods=["GET"])
-=======
 @auth2_bp.route("/<int:gerente_id>/equipe", methods=["GET"])
->>>>>>> 20489edc843354ffc9445665636f6560ef1d2144
 def listar_equipe_do_gerente(gerente_id):
     with get_db() as db:
         try:
