@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.database.session import get_db
 from app.exceptions.service_exceptions import AuthError, ConflictError, ServiceError
-from app.repositories.Framework.AtorRepository import UserRepository
+from app.repositories.Framework.AtorRepository import AtorRepository
 from app.services.Framework.ItemService import ItemService
 from app.services.Aplicacao1.Habito import EstrategiaDeHabito
 from app.services.Aplicacao1.InsightCorrelacaoDeHabitos import InsightCorrelacaoDeHabitos
@@ -12,7 +12,7 @@ habito_usuario_bp = Blueprint("habito_usuario", __name__, url_prefix="/habitos-u
 def listar_habitos_por_ator(usuario_email):
     with get_db() as db:
         try:
-            ator_repo = UserRepository(db)
+            ator_repo = AtorRepository(db)
             servico = ItemService(db)
 
             ator = ator_repo.buscar_por_email(usuario_email)

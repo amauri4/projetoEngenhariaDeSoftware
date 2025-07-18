@@ -8,7 +8,6 @@ class PromptGerenteStrategy(IStrategyPrompt):
     def __init__(self, db: session):
         self.db = db
         self.gerente_repo = GerenteRepository(db)
-        self.tarefa_repo = TarefaRepository(db)
         self.contexto = """
         Você é um assistente especializado em ajudar gerentes a coordenarem suas equipes e tarefas de forma eficiente, clara e organizada. Seu papel é facilitar o gerenciamento de tarefas, delegação e acompanhamento de progresso.
 
