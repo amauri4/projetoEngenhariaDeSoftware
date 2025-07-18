@@ -40,7 +40,7 @@ class PromptTreinoStrategy(IStrategyPrompt):
             for treino in treinos:
                 descricao = treino.descricao or "Sem descrição"
                 data_entraga = treino.data_entrega or "Data não informada"
-                lista_treinos.append(f"- {descricao} (manter treino até {data_entraga})")
+                lista_treinos.append(f"- {descricao}")
 
             prompt = (
                 f"Aluno: {aluno.nome} (email: {aluno.email})\n"

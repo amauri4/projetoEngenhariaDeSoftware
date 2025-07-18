@@ -72,7 +72,7 @@ class AlunoRepository:
             aluno = self.db.query(Aluno).filter(Aluno.id == aluno_id).first()
             if not aluno:
                 raise NotFoundError(f"Aluno com ID {aluno_id} não encontrado.")
-            return aluno.treinos_atribuidos
+            return aluno.treinos_recebidos
         except SQLAlchemyError as e:
             self.db.rollback()
             raise RepositoryError("Erro ao buscar treinos do aluno.") from e
