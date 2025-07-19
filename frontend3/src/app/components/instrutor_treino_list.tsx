@@ -2,7 +2,6 @@
 import { Treino } from "@/app/types/treino";
 import { useMemo, useState } from "react";
 import { TreinoDetailsModal } from "@/app/components/treino_details";
-import { isAfter, isBefore, parseISO } from "date-fns";
 
 interface Props {
   treinos: Treino[];
@@ -12,31 +11,18 @@ export default function InstrutorTreinoList({ treinos }: Props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTreino, setSelectedTreino] = useState<Treino | null>(null);
 
-    const treinosAtuaisPorAluno = useMemo(() => {
-        const hoje = new Date();
+    const treinosAgrupadosPorAluno = useMemo(() => {
         const treinosAgrupados: Record<string, Treino[]> = {};
 
         for (const treino of treinos) {
-            const responsavelId = treino.responsavel_id.toString();
-            if (!treinosAgrupados[responsavelId]) {
-                treinosAgrupados[responsavelId] = [];
+            const responsavelNome = treino.responsavel_nome || "Aluno Não Atribuído";
+            if (!treinosAgrupados[responsavelNome]) {
+                treinosAgrupados[responsavelNome] = [];
             }
-            treinosAgrupados[responsavelId].push(treino);
+            treinosAgrupados[responsavelNome].push(treino);
         }
-
-        const treinosAtuais: Treino[] = [];
-        for (const alunoId in treinosAgrupados) {
-            const treinoVigente = treinosAgrupados[alunoId].find(t => {
-                const inicio = parseISO(`${t.data_inicio}T00:00:00`);
-                const fim = t.data_entrega ? parseISO(`${t.data_entrega}T00:00:00`) : null;
-                return isAfter(hoje, inicio) && (fim ? isBefore(hoje, fim) : true);
-            });
-            if (treinoVigente) {
-                treinosAtuais.push(treinoVigente);
-            }
-        }
-        return treinosAtuais;
-    }, [treinos]);
+        return treinosAgrupados;
+    }, [treinos]); 
 
     const openModal = (treino: Treino) => {
         setSelectedTreino(treino);
@@ -54,19 +40,26 @@ export default function InstrutorTreinoList({ treinos }: Props) {
 
     return (
         <>
-            <div className="space-y-3 mt-6">
-                {treinosAtuaisPorAluno.map((treino) => (
-                    <li 
-                        key={treino.id} 
-                        className="bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer list-none"
-                        onClick={() => openModal(treino)}
-                    >
-                        <p className="font-medium text-gray-800">{treino.descricao}</p>
-                        <div className="text-sm text-gray-500 mt-1 flex justify-between">
-                            <span>Aluno: <strong>{treino.responsavel_nome || "N/A"}</strong></span>
-                            <span>Entrega: <strong>{treino.data_entrega ? new Date(`${treino.data_entrega}T00:00:00`).toLocaleDateString()  : 'Não definido'}</strong></span>
-                        </div>
-                    </li>
+            <div className="space-y-6 mt-6">
+                {Object.entries(treinosAgrupadosPorAluno).map(([alunoNome, treinosDoAluno]) => (
+                    <div key={alunoNome}>
+                        <h3 className="font-bold text-lg text-gray-700 border-b pb-2 mb-3">{alunoNome}</h3>
+                        <ul className="space-y-3">
+                            {treinosDoAluno.map((treino) => (
+                                <li 
+                                    key={treino.id} 
+                                    className="bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer list-none"
+                                    onClick={() => openModal(treino)}
+                                >
+                                    <p className="font-medium text-gray-800">{treino.descricao}</p>
+                                    <div className="text-sm text-gray-500 mt-1 flex justify-between">
+                                        <span>Início: <strong>{treino.data_inicio ? new Date(`${treino.data_inicio}T00:00:00`).toLocaleDateString()  : 'N/A'}</strong></span>
+                                        <span>Entrega: <strong>{treino.data_entrega ? new Date(`${treino.data_entrega}T00:00:00`).toLocaleDateString()  : 'Não definido'}</strong></span>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 ))}
             </div>
             <TreinoDetailsModal

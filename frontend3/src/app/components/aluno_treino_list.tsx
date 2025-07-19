@@ -20,13 +20,22 @@ export default function AlunoTreinoList({ treinos, atorId }: Props) {
 
   useEffect(() => {
     const fetchTodasOcorrencias = async () => {
-      if (!atorId) return;
+      if (!atorId || treinos.length === 0) {
+        setLoadingOcorrencias(false);
+        return;
+      }
+      
+      const instrutorId = treinos[0].criador_id;
+      if (!instrutorId) return;
+
       setLoadingOcorrencias(true);
       try {
         const hoje = new Date();
         const inicioDoAno = format(startOfYear(hoje), "yyyy-MM-dd");
         const fimDoAno = format(endOfYear(hoje), "yyyy-MM-dd");
-        const data = await getOcorrenciasTreinoPorDataService(atorId, inicioDoAno, fimDoAno);
+        
+        const data = await getOcorrenciasTreinoPorDataService(instrutorId, inicioDoAno, fimDoAno);
+        
         const mapaOcorrencias = new Map(data.map(o => [`${o.treino_id}-${o.data}`, o]));
         setOcorrencias(mapaOcorrencias);
       } catch (error) {
@@ -36,7 +45,7 @@ export default function AlunoTreinoList({ treinos, atorId }: Props) {
       }
     };
     fetchTodasOcorrencias();
-  }, [atorId]);
+  }, [atorId, treinos]);
 
   const treinosValidos = useMemo(() => {
     const hoje = new Date();
@@ -127,6 +136,7 @@ export default function AlunoTreinoList({ treinos, atorId }: Props) {
         onClose={closeModal}
         treino={selectedTreino}
         userType="aluno"
+        selectedDate={selectedTreino?.data_entrega ? new Date(`${selectedTreino.data_entrega}T00:00:00`) : undefined} 
       />
     </>
   );

@@ -25,7 +25,7 @@ export function TreinoDetailsModal({
   userType,
   selectedDate,
 }: TreinoDetailsModalProps) {
-  const { id: atorId } = useAuth();
+  const { id: atorId} = useAuth();
   const [isCompleted, setIsCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ocorrencia, setOcorrencia] = useState<Ocorrencia | null>(null);
@@ -41,8 +41,6 @@ export function TreinoDetailsModal({
       try {
         setLoading(true);
         const dataFormatada = format(selectedDate, 'yyyy-MM-dd');
-        // --- MODIFICAÇÃO: A busca de ocorrências agora usa o ID do criador do treino (o instrutor) ---
-        // Isso alinha a lógica com o exemplo funcional fornecido (TarefaDetailsModal).
         const registros = await getOcorrenciasPorDataEspecificaService(treino.criador_id, dataFormatada);
         
         const registroAtual = registros.find(r => r.treino_id === treino.id);

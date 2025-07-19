@@ -45,7 +45,7 @@ export default function TreinoForm({ instrutorId, alunos, onAdd }: TreinoFormPro
 
     try {
       const novoTreino = await addTreinoService(instrutorId, data);
-      
+
       if (novoTreino && novoTreino.id && data.data_entrega) {
         const ocorrenciaInput: OcorrenciaCreateInput = {
           treino_id: novoTreino.id,
@@ -55,11 +55,11 @@ export default function TreinoForm({ instrutorId, alunos, onAdd }: TreinoFormPro
         await createOcorrenciaTreinoService(ocorrenciaInput);
       }
 
-      setSuccessMessage("Treino adicionado com sucesso!");
-      reset();
+      setSuccessMessage("Treino e ocorrências diárias criados com sucesso!");
       onAdd(novoTreino); 
+      reset();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao adicionar treino.");
+      setError(err instanceof Error ? err.message : "Erro ao adicionar treino ou suas ocorrências.");
     } finally {
       setLoading(false);
     }
