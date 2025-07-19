@@ -9,11 +9,13 @@ import numpy as np
 from typing import Dict, List, Optional
 from app.exceptions.service_exceptions import ConflictError, AuthError, ServiceError
 from app.services.Framework.InsightTemplate import InsightTemplate
+from app.repositories.Aplicacao1.CategoriaRepository import CategoriaRepository
 
 class InsightCorrelacaoDeHabitos(InsightTemplate):
     def __init__(self, db: session):
         self.registro_repository = RegistroDeOcorrenciaRepository(db)
         self.habito_base_repository = HabitoBaseRepository(db)
+        self.categoria_repository = CategoriaRepository(db)
         self.db = db
 
     def _buscar_dados_usuairo_insight(self, usuario_id: int):
@@ -76,3 +78,14 @@ class InsightCorrelacaoDeHabitos(InsightTemplate):
             return prompt
         except Exception as e:
             raise ServiceError(f"Erro ao processar correlações: {str(e)}")
+
+    def buscar_categorias_usuario(self, usuario_id:int):
+        try:
+            categorias_usuario = self.categoria_repository.buscar_categorias_por_usuario(usuario_id=usuario_id)
+            if not categorias_usuario:
+                raise NoResultFound("Categorias de hábito não encontradas.")
+            return categorias_usuario
+        except NoResultFound as e:
+            raise Exception(f"Erro no serviço ao buscar categorias de usuário: {str(e)}")
+        except Exception as e:
+            raise Exception(f"{str(e)}")
